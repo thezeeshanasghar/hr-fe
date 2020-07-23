@@ -1,4 +1,3 @@
-
 import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { FusePageSimple, DemoContent } from '@fuse';
@@ -54,17 +53,17 @@ function TabContainer({ children, dir }) {
 	);
 }
 let id = 0;
-function createData(Code, Description) {
+function createData(Description, CountryCode) {
 	id += 1;
-	return { Code, Description };
+	return { Description, CountryCode };
 }
 
 const rows = [
-	createData('0001', 'Basic Salary')
+	createData('Law-1', 'Pk')
 
 ];
 
-class CostCenter extends Component {
+class CountryLaws extends Component {
 	state = {
 		value: 0,
 	};
@@ -80,10 +79,10 @@ class CostCenter extends Component {
 					root: classes.layoutRoot
 				}}
 				header={
-					<div className="p-24"><h4>Cost-Cneter</h4></div>
+					<div className="p-24"><h4>Country Laws</h4></div>
 				}
 				contentToolbar={
-					<div className="px-24"><h4>Add New Cost-Center</h4></div>
+					<div className="px-24"><h4>Add New Laws</h4></div>
 				}
 				content={
 
@@ -97,7 +96,7 @@ class CostCenter extends Component {
 								variant="fullWidth"
 							>
 								<Tab label="View" />
-								<Tab label="Add New Cost-Center" />
+								<Tab label="Add New Laws" />
 							</Tabs>
 						</AppBar>
 						<SwipeableViews
@@ -110,7 +109,7 @@ class CostCenter extends Component {
 									<Table className={classes.table}>
 										<TableHead>
 											<TableRow>
-												<CustomTableCell align="center" >Code</CustomTableCell>
+												<CustomTableCell align="center" >Country Code</CustomTableCell>
 												<CustomTableCell align="center">Description</CustomTableCell>
 												<CustomTableCell align="center">Action</CustomTableCell>
 											</TableRow>
@@ -119,7 +118,7 @@ class CostCenter extends Component {
 											{rows.map(row => (
 												<TableRow className={classes.row} key={row.id}>
 
-													<CustomTableCell align="center">{row.Code}</CustomTableCell>
+													<CustomTableCell align="center">{row.CountryCode}</CustomTableCell>
 													<CustomTableCell align="center" component="th" scope="row">
 														{row.Description}
 													</CustomTableCell>
@@ -141,7 +140,7 @@ class CostCenter extends Component {
 								<form className={classes.container} noValidate autoComplete="off">
 									<TextField
 										id="outlined-name"
-										label="Code"
+										label="Country Code"
 										className={classes.textField}
 										value={this.state.name}
 										fullWidth
@@ -151,7 +150,7 @@ class CostCenter extends Component {
 									/>
 									<TextField
 										id="outlined-name"
-										label="Description"
+										label="Country Law"
 										fullWidth
 										className={classes.textField}
 										value={this.state.name}
@@ -178,4 +177,4 @@ class CostCenter extends Component {
 	}
 }
 
-export default withStyles(styles, { withTheme: true })(CostCenter);
+export default withStyles(styles, { withTheme: true })(CountryLaws);
