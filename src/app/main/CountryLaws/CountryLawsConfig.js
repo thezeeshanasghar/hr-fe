@@ -8,7 +8,7 @@ export const CountryLawsConfig = {
     },
     routes  : [
         {
-            path     : '/CountryLaws',
+            path     : '/countrylaw',
             component: CountryLaws
         }
     ]

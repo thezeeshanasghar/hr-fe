@@ -8,7 +8,7 @@ export const CurrencyExchangeConfig = {
     },
     routes  : [
         {
-            path     : '/CurrencyExchange',
+            path     : '/currencyexchange',
             component: CurrencyExchange
         }
     ]

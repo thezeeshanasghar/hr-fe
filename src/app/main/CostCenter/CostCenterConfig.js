@@ -8,7 +8,7 @@ export const CostCenterConfig = {
     },
     routes  : [
         {
-            path     : '/CostCenter',
+            path     : '/costcenter',
             component: CostCenter
         }
     ]
