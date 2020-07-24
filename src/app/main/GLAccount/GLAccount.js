@@ -1,7 +1,6 @@
-
 import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
-import { FusePageSimple, DemoContent } from '../GLAccount/node_modules/@fuse';
+import { FusePageSimple, DemoContent } from '@fuse';
 import SwipeableViews from 'react-swipeable-views';
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
@@ -54,17 +53,16 @@ function TabContainer({ children, dir }) {
 	);
 }
 let id = 0;
-function createData(Code, Description) {
+function createData(Account,Description) {
 	id += 1;
-	return { Code, Description };
+	return { Account,Description };
 }
 
 const rows = [
-	createData('0001', 'Basic Salary')
-
+	createData('Acc1','desc')
 ];
 
-class CostCenter extends Component {
+class GLAccount extends Component {
 	state = {
 		value: 0,
 	};
@@ -80,10 +78,10 @@ class CostCenter extends Component {
 					root: classes.layoutRoot
 				}}
 				header={
-					<div className="p-24"><h4>Cost-Cneter</h4></div>
+					<div className="p-24"><h4>GL Account</h4></div>
 				}
 				contentToolbar={
-					<div className="px-24"><h4>Add New Cost-Center</h4></div>
+					<div className="px-24"><h4>Add New GL Account</h4></div>
 				}
 				content={
 
@@ -97,7 +95,7 @@ class CostCenter extends Component {
 								variant="fullWidth"
 							>
 								<Tab label="View" />
-								<Tab label="Add New Cost-Center" />
+								<Tab label="Add New" />
 							</Tabs>
 						</AppBar>
 						<SwipeableViews
@@ -110,19 +108,17 @@ class CostCenter extends Component {
 									<Table className={classes.table}>
 										<TableHead>
 											<TableRow>
-												<CustomTableCell align="center" >Code</CustomTableCell>
-												<CustomTableCell align="center">Description</CustomTableCell>
-												<CustomTableCell align="center">Action</CustomTableCell>
+												<CustomTableCell align="center" >Account</CustomTableCell>
+												<CustomTableCell align="center" >Description</CustomTableCell>
+                                                <CustomTableCell align="center">Action</CustomTableCell>
 											</TableRow>
 										</TableHead>
 										<TableBody>
 											{rows.map(row => (
 												<TableRow className={classes.row} key={row.id}>
 
-													<CustomTableCell align="center">{row.Code}</CustomTableCell>
-													<CustomTableCell align="center" component="th" scope="row">
-														{row.Description}
-													</CustomTableCell>
+													<CustomTableCell align="center">{row.Account}</CustomTableCell>
+													<CustomTableCell align="center">{row.Description}</CustomTableCell>
 													<CustomTableCell align="center" component="th" scope="row">
 														<IconButton className={classes.button} aria-label="Delete">
 															<DeleteIcon />
@@ -141,7 +137,7 @@ class CostCenter extends Component {
 								<form className={classes.container} noValidate autoComplete="off">
 									<TextField
 										id="outlined-name"
-										label="Code"
+										label="Account"
 										className={classes.textField}
 										value={this.state.name}
 										fullWidth
@@ -152,14 +148,13 @@ class CostCenter extends Component {
 									<TextField
 										id="outlined-name"
 										label="Description"
-										fullWidth
 										className={classes.textField}
 										value={this.state.name}
+										fullWidth
 										//   onChange={this.handleChange('name')}
 										margin="normal"
 										variant="outlined"
 									/>
-										
 								</form>
 								<div className="row">
 									<div style={{float: "right","marginRight":"8px"}}>
@@ -178,4 +173,4 @@ class CostCenter extends Component {
 	}
 }
 
-export default withStyles(styles, { withTheme: true })(CostCenter);
+export default withStyles(styles, { withTheme: true })(GLAccount);

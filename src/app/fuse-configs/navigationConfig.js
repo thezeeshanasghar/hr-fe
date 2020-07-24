@@ -57,8 +57,80 @@ const navigationConfig = [
                     'icon' : 'whatshot',
                     'url'  : '/currencyexchange'
                 }
-
-
+                ,
+                {
+                    'id'   : 'GLAccount-component',
+                    'title': 'GL Account',
+                    'type' : 'item',
+                    'icon' : 'whatshot',
+                    'url'  : '/glaccount'
+                }
+                ,
+                {
+                    'id'   : 'Grades-component',
+                    'title': 'Grades',
+                    'type' : 'item',
+                    'icon' : 'whatshot',
+                    'url'  : '/grades'
+                } ,
+                {
+                    'id'   : 'PayElement-component',
+                    'title': 'Pay Element',
+                    'type' : 'item',
+                    'icon' : 'whatshot',
+                    'url'  : '/payelement'
+                } ,
+                {
+                    'id'   : 'Jobs-component',
+                    'title': 'Jobs',
+                    'type' : 'item',
+                    'icon' : 'whatshot',
+                    'url'  : '/job'
+                }
+                ,
+                {
+                    'id'   : 'PayElementGlAccount-component',
+                    'title': 'Pay Element GlAccount',
+                    'type' : 'item',
+                    'icon' : 'whatshot',
+                    'url'  : '/payelementglaccount'
+                }
+                ,
+                {
+                    'id'   : 'Position-component',
+                    'title': 'Position',
+                    'type' : 'item',
+                    'icon' : 'whatshot',
+                    'url'  : '/position'
+                },
+                {
+                    'id'   : 'Unit-component',
+                    'title': 'Unit',
+                    'type' : 'item',
+                    'icon' : 'whatshot',
+                    'url'  : '/unit'
+                },
+                {
+                    'id'   : 'SocialSecurity-component',
+                    'title': 'Social Security and Texation',
+                    'type' : 'item',
+                    'icon' : 'whatshot',
+                    'url'  : '/socialsecurityelement'
+                },
+                {
+                    'id'   : 'UnpaidLeaves-component',
+                    'title': 'UnpaidLeaves',
+                    'type' : 'item',
+                    'icon' : 'whatshot',
+                    'url'  : '/unpaidleaves'
+                },
+                {
+                    'id'   : 'UserProtection-component',
+                    'title': 'User Protection',
+                    'type' : 'item',
+                    'icon' : 'whatshot',
+                    'url'  : '/userprotection'
+                }
         ]
     }
 ];
