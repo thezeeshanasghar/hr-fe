@@ -1,7 +1,6 @@
-
 import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
-import { FusePageSimple, DemoContent } from '../GLAccount/node_modules/@fuse';
+import { FusePageSimple, DemoContent } from '@fuse';
 import SwipeableViews from 'react-swipeable-views';
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
