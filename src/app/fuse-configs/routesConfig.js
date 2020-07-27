@@ -8,6 +8,9 @@ import {CountryLawsConfig} from 'app/main/CountryLaws/CountryLawsConfig';
 import {CurrencyExchangeConfig} from 'app/main/CurrencyExchange/CurrencyExchangeConfig';
 import {CompanyConfig} from 'app/main/company/CompanyConfig';
 import {ElementGroupConfig} from 'app/main/element_group/ElementGroupConfig';
+import {EmployeeBankAccountConfig} from 'app/main/EmployeeBankAccount/EmployeeBankAccountConfig';
+import {EmployeeConfig} from 'app/main/Employee/EmployeeConfig';
+
 
 const routeConfigs = [
     ExampleConfig,
@@ -16,7 +19,9 @@ const routeConfigs = [
     CountryLawsConfig,
     CurrencyExchangeConfig,
     CompanyConfig,
-    ElementGroupConfig
+    ElementGroupConfig,
+    EmployeeBankAccountConfig,
+    EmployeeConfig
 ];
 
  const routes = [

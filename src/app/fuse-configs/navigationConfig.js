@@ -56,6 +56,13 @@ const navigationConfig = [
                     'type' : 'item',
                     'icon' : 'whatshot',
                     'url'  : '/currencyexchange'
+                },
+                {
+                    'id'   : 'employeebankaccount-component',
+                    'title': 'Employee Bank Account',
+                    'type' : 'item',
+                    'icon' : 'whatshot',
+                    'url'  : '/employeebankaccount'
                 }
 
 
