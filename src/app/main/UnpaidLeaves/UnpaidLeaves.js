@@ -17,6 +17,11 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormHelperText from '@material-ui/core/FormHelperText';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+import InputLabel from '@material-ui/core/InputLabel';
 
 const styles = theme => ({
 	container: {
@@ -26,7 +31,7 @@ const styles = theme => ({
 	textField: {
 		marginLeft: theme.spacing.unit,
 		marginRight: theme.spacing.unit,
-		
+
 	},
 	dense: {
 		marginTop: 16,
@@ -34,6 +39,10 @@ const styles = theme => ({
 	menu: {
 		width: 200,
 	},
+	formControl: {
+		margin: theme.spacing.unit,
+		minWidth: "99%",
+	}
 });
 
 const CustomTableCell = withStyles(theme => ({
@@ -53,22 +62,25 @@ function TabContainer({ children, dir }) {
 	);
 }
 let id = 0;
-function createData(Code, Description) {
+function createData(Employee, DateFrom, DateTo) {
 	id += 1;
-	return { Code, Description };
+	return { Employee, DateFrom, DateTo };
 }
 
 const rows = [
-	createData('0001', 'Basic Salary')
-
+	createData("Employee1", "12/4/2019", "12/10/2019")
 ];
 
-class CostCenter extends Component {
+class UnpaidLeaves extends Component {
 	state = {
 		value: 0,
+		labelWidth: 0,
+		Employee:1
 	};
 	handleChange = (event, value) => {
 		this.setState({ value });
+		this.setState({ [event.target.name]: event.target.value });
+
 	};
 	render() {
 		const { classes, theme } = this.props;
@@ -79,10 +91,10 @@ class CostCenter extends Component {
 					root: classes.layoutRoot
 				}}
 				header={
-					<div className="p-24"><h4>Cost-Cneter</h4></div>
+					<div className="p-24"><h4>Unpaid Leave</h4></div>
 				}
 				contentToolbar={
-					<div className="px-24"><h4>Add New Cost-Center</h4></div>
+					<div className="px-24"><h4>Add New Unpaid Leave</h4></div>
 				}
 				content={
 
@@ -96,7 +108,7 @@ class CostCenter extends Component {
 								variant="fullWidth"
 							>
 								<Tab label="View" />
-								<Tab label="Add New Cost-Center" />
+								<Tab label="Add New" />
 							</Tabs>
 						</AppBar>
 						<SwipeableViews
@@ -109,19 +121,20 @@ class CostCenter extends Component {
 									<Table className={classes.table}>
 										<TableHead>
 											<TableRow>
-												<CustomTableCell align="center" >Code</CustomTableCell>
-												<CustomTableCell align="center">Description</CustomTableCell>
+												<CustomTableCell align="center"  >Employee</CustomTableCell>
+												<CustomTableCell align="center" >Date From</CustomTableCell>
+												<CustomTableCell align="center">Date To</CustomTableCell>
 												<CustomTableCell align="center">Action</CustomTableCell>
+
 											</TableRow>
 										</TableHead>
 										<TableBody>
 											{rows.map(row => (
 												<TableRow className={classes.row} key={row.id}>
 
-													<CustomTableCell align="center">{row.Code}</CustomTableCell>
-													<CustomTableCell align="center" component="th" scope="row">
-														{row.Description}
-													</CustomTableCell>
+													<CustomTableCell align="center"  >{row.Employee}</CustomTableCell>
+													<CustomTableCell align="center">{row.DateFrom}</CustomTableCell>
+													<CustomTableCell align="center">{row.DateTo}</CustomTableCell>
 													<CustomTableCell align="center" component="th" scope="row">
 														<IconButton className={classes.button} aria-label="Delete">
 															<DeleteIcon />
@@ -138,9 +151,28 @@ class CostCenter extends Component {
 							</TabContainer>
 							<TabContainer dir={theme.direction}>
 								<form className={classes.container} noValidate autoComplete="off">
-									<TextField
+
+									<FormControl className={classes.formControl}>
+										<InputLabel htmlFor="Employee">Employee</InputLabel>
+										<Select
+											value={this.state.Employee}
+											onChange={this.handleChange}
+											inputProps={{
+												name: 'Employee',
+												id: 'Employee',
+											}}
+										>
+											<MenuItem value="">
+												<em>None</em>
+											</MenuItem>
+											<MenuItem value={1}>Employee1</MenuItem>
+											<MenuItem value={2}>Employee2</MenuItem>
+										</Select>
+									</FormControl>
+										<TextField
 										id="outlined-name"
-										label="Code"
+										type="date"
+										label=" Date From"
 										className={classes.textField}
 										value={this.state.name}
 										fullWidth
@@ -150,21 +182,22 @@ class CostCenter extends Component {
 									/>
 									<TextField
 										id="outlined-name"
-										label="Description"
-										fullWidth
+										label="Date To"
+										type="date"
 										className={classes.textField}
 										value={this.state.name}
+										fullWidth
 										//   onChange={this.handleChange('name')}
 										margin="normal"
 										variant="outlined"
 									/>
-										
+
 								</form>
 								<div className="row">
-									<div style={{float: "right","marginRight":"8px"}}>
-									
-									<Button variant="outlined" color="secondary" className={classes.button }>
-										Insert Record
+									<div style={{ float: "right", "marginRight": "8px" }}>
+
+										<Button variant="outlined" color="secondary" className={classes.button}>
+											Insert Record
       								</Button>
 									</div>
 								</div>
@@ -177,4 +210,4 @@ class CostCenter extends Component {
 	}
 }
 
-export default withStyles(styles, { withTheme: true })(CostCenter);
+export default withStyles(styles, { withTheme: true })(UnpaidLeaves);

@@ -53,17 +53,16 @@ function TabContainer({ children, dir }) {
 	);
 }
 let id = 0;
-function createData(Code, Description) {
+function createData(Code,Description) {
 	id += 1;
-	return { Code, Description };
+	return { Code,Description };
 }
 
 const rows = [
-	createData('0001', 'Basic Salary')
-
+	createData('code','desc')
 ];
 
-class CostCenter extends Component {
+class Grades extends Component {
 	state = {
 		value: 0,
 	};
@@ -79,10 +78,10 @@ class CostCenter extends Component {
 					root: classes.layoutRoot
 				}}
 				header={
-					<div className="p-24"><h4>Cost-Cneter</h4></div>
+					<div className="p-24"><h4>Grade</h4></div>
 				}
 				contentToolbar={
-					<div className="px-24"><h4>Add New Cost-Center</h4></div>
+					<div className="px-24"><h4>Add New Grade</h4></div>
 				}
 				content={
 
@@ -96,7 +95,7 @@ class CostCenter extends Component {
 								variant="fullWidth"
 							>
 								<Tab label="View" />
-								<Tab label="Add New Cost-Center" />
+								<Tab label="Add New" />
 							</Tabs>
 						</AppBar>
 						<SwipeableViews
@@ -110,8 +109,8 @@ class CostCenter extends Component {
 										<TableHead>
 											<TableRow>
 												<CustomTableCell align="center" >Code</CustomTableCell>
-												<CustomTableCell align="center">Description</CustomTableCell>
-												<CustomTableCell align="center">Action</CustomTableCell>
+												<CustomTableCell align="center" >Description</CustomTableCell>
+                                                <CustomTableCell align="center">Action</CustomTableCell>
 											</TableRow>
 										</TableHead>
 										<TableBody>
@@ -119,9 +118,7 @@ class CostCenter extends Component {
 												<TableRow className={classes.row} key={row.id}>
 
 													<CustomTableCell align="center">{row.Code}</CustomTableCell>
-													<CustomTableCell align="center" component="th" scope="row">
-														{row.Description}
-													</CustomTableCell>
+													<CustomTableCell align="center">{row.Description}</CustomTableCell>
 													<CustomTableCell align="center" component="th" scope="row">
 														<IconButton className={classes.button} aria-label="Delete">
 															<DeleteIcon />
@@ -151,14 +148,13 @@ class CostCenter extends Component {
 									<TextField
 										id="outlined-name"
 										label="Description"
-										fullWidth
 										className={classes.textField}
 										value={this.state.name}
+										fullWidth
 										//   onChange={this.handleChange('name')}
 										margin="normal"
 										variant="outlined"
 									/>
-										
 								</form>
 								<div className="row">
 									<div style={{float: "right","marginRight":"8px"}}>
@@ -177,4 +173,4 @@ class CostCenter extends Component {
 	}
 }
 
-export default withStyles(styles, { withTheme: true })(CostCenter);
+export default withStyles(styles, { withTheme: true })(Grades);
