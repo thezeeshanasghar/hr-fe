@@ -22,6 +22,8 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
+import { colors, Icon, Input, MuiThemeProvider } from '@material-ui/core';
+
 
 const styles = theme => ({
 	container: {
@@ -62,7 +64,7 @@ function TabContainer({ children, dir }) {
 	);
 }
 let id = 0;
-function createData(Code,Description) {
+function createData(Code, Description) {
 	id += 1;
 	return { Code, Description };
 }
@@ -75,7 +77,7 @@ class Unit extends Component {
 	state = {
 		value: 0,
 		labelWidth: 0,
-	
+
 	};
 	handleChange = (event, value) => {
 		this.setState({ value });
@@ -118,11 +120,29 @@ class Unit extends Component {
 						>
 							<TabContainer dir={theme.direction}>
 								<Paper className={classes.root}>
+									<MuiThemeProvider theme={this.props.theme}>
+										<Paper className={"flex items-center h-44 w-full"} elevation={1}>
+											<Input
+												placeholder="Search..."
+												className="pl-16"
+												disableUnderline
+												fullWidth
+												inputProps={{
+													'aria-label': 'Search'
+												}}
+											/>
+											<Icon color="action" className="mr-16">search</Icon>
+											<Button variant="contained" color="secondary" style={{ 'marginRight': '2px' }} className={classes.button}>
+												PRINT
+      								</Button>
+										</Paper>
+									</MuiThemeProvider>
 									<Table className={classes.table}>
 										<TableHead>
 											<TableRow>
 												<CustomTableCell align="center"  >Code</CustomTableCell>
 												<CustomTableCell align="center" >Description</CustomTableCell>
+												<CustomTableCell align="center" >Action</CustomTableCell>
 
 											</TableRow>
 										</TableHead>
@@ -149,7 +169,7 @@ class Unit extends Component {
 							<TabContainer dir={theme.direction}>
 								<form className={classes.container} noValidate autoComplete="off">
 
-										<TextField
+									<TextField
 										id="outlined-name"
 										label=" Code"
 										className={classes.textField}

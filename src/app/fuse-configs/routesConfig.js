@@ -1,7 +1,7 @@
 import React from 'react';
 import {Redirect} from 'react-router-dom';
 import {FuseUtils} from '@fuse/index';
-import {ExampleConfig} from 'app/main/example/ExampleConfig';
+import {DashboardConfig} from 'app/main/dashboard/DashboardConfig';
 import {BankConfig} from 'app/main/Bank/BankConfig';
 import {CostCenterConfig} from 'app/main/CostCenter/CostCenterConfig';
 import {CountryLawsConfig} from 'app/main/CountryLaws/CountryLawsConfig';
@@ -23,7 +23,7 @@ import {UnitConfig} from 'app/main/Unit/UnitConfig';
 import {UnpaidLeavesConfig} from 'app/main/UnpaidLeaves/UnpaidLeavesConfig';
 import {UserProtectionConfig} from 'app/main/UserProtection/UserProtectionConfig';
 const routeConfigs = [
-    ExampleConfig,
+    DashboardConfig,
     BankConfig,
     CostCenterConfig,
     CountryLawsConfig,
@@ -48,7 +48,7 @@ const routeConfigs = [
     ...FuseUtils.generateRoutesFromConfigs(routeConfigs),
     {
         path     : '/',
-        component: () => <Redirect to="/example"/>
+        component: () => <Redirect to="/dashboard"/>
     },
   
 ];

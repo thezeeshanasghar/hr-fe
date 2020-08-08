@@ -23,6 +23,7 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
+import { Icon, Input, MuiThemeProvider} from '@material-ui/core';
 
 const styles = theme => ({
 	container: {
@@ -73,6 +74,15 @@ class CurrencyExchange extends Component {
 	state = {
 		value: 0,
 	};
+	getCurrentDate(separator='-'){
+
+		let newDate = new Date()
+		let date = newDate.getDate();
+		let month = newDate.getMonth() + 1;
+		let year = newDate.getFullYear();
+		
+		return `${year}${separator}${month<10?`0${month}`:`${month}`}${separator}${date}`
+	}
 	handleChange = (event, value) => {
 		this.setState({ value });
 	};
@@ -112,6 +122,23 @@ class CurrencyExchange extends Component {
 						>
 							<TabContainer dir={theme.direction}>
 								<Paper className={classes.root}>
+								<MuiThemeProvider theme={this.props.theme}>
+                            <Paper className={"flex items-center h-44 w-full"} elevation={1}>
+                                <Input
+                                    placeholder="Search..."
+                                    className="pl-16"
+                                    disableUnderline
+                                    fullWidth
+                                    inputProps={{
+                                        'aria-label': 'Search'
+                                    }}
+                                />
+                                <Icon color="action" className="mr-16">search</Icon>
+								<Button variant="contained"  color="secondary" style={{'marginRight':'2px'}} className={classes.button}>
+											PRINT
+      								</Button>
+                            </Paper>
+                        </MuiThemeProvider>
 									<Table className={classes.table}>
 										<TableHead>
 											<TableRow>
@@ -183,7 +210,6 @@ class CurrencyExchange extends Component {
 										label="Effective Date"
 										type="date"
 										fullWidth
-										defaultValue="2017-05-24"
 										className={classes.textField}
 										InputLabelProps={{
 											shrink: true,

@@ -17,7 +17,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
-
+import { Icon, Input, MuiThemeProvider} from '@material-ui/core';
 const styles = theme => ({
 	container: {
 		display: 'flex',
@@ -106,6 +106,23 @@ class CountryLaws extends Component {
 						>
 							<TabContainer dir={theme.direction}>
 								<Paper className={classes.root}>
+								<MuiThemeProvider theme={this.props.theme}>
+                            <Paper className={"flex items-center h-44 w-full"} elevation={1}>
+                                <Input
+                                    placeholder="Search..."
+                                    className="pl-16"
+                                    disableUnderline
+                                    fullWidth
+                                    inputProps={{
+                                        'aria-label': 'Search'
+                                    }}
+                                />
+                                <Icon color="action" className="mr-16">search</Icon>
+								<Button variant="contained"  color="secondary" style={{'marginRight':'2px'}} className={classes.button}>
+											PRINT
+      								</Button>
+                            </Paper>
+                        </MuiThemeProvider>
 									<Table className={classes.table}>
 										<TableHead>
 											<TableRow>

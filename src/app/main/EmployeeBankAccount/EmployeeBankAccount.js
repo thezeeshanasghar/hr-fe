@@ -17,7 +17,11 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
-
+import FormControl from '@material-ui/core/FormControl';
+import InputLabel from '@material-ui/core/InputLabel';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
+import { Icon, Input, MuiThemeProvider} from '@material-ui/core';
 const styles = theme => ({
 	container: {
 		display: 'flex',
@@ -34,6 +38,9 @@ const styles = theme => ({
 	menu: {
 		width: 200,
 	},
+	formControl:{
+		minWidth:'99%'
+	}
 });
 
 const CustomTableCell = withStyles(theme => ({
@@ -43,7 +50,7 @@ const CustomTableCell = withStyles(theme => ({
 	},
 	body: {
 		fontSize: 14,
-	},
+	}
 }))(TableCell);
 function TabContainer({ children, dir }) {
 	return (
@@ -110,6 +117,23 @@ class EmployeeBankAccount extends Component {
 						>
 							<TabContainer dir={theme.direction}>
 								<Paper className={classes.root}>
+								<MuiThemeProvider theme={this.props.theme}>
+                            <Paper className={"flex items-center h-44 w-full"} elevation={1}>
+                                <Input
+                                    placeholder="Search..."
+                                    className="pl-16"
+                                    disableUnderline
+                                    fullWidth
+                                    inputProps={{
+                                        'aria-label': 'Search'
+                                    }}
+                                />
+                                <Icon color="action" className="mr-16">search</Icon>
+								<Button variant="contained"  color="secondary" style={{'marginRight':'2px'}} className={classes.button}>
+											PRINT
+      								</Button>
+                            </Paper>
+                        </MuiThemeProvider>
 									<Table className={classes.table}>
 										<TableHead>
 											<TableRow>
@@ -148,6 +172,40 @@ class EmployeeBankAccount extends Component {
 							<TabContainer dir={theme.direction}>
 							<h4>Add New Account</h4>
 								<form className={classes.container} noValidate autoComplete="off">
+								<FormControl className={classes.formControl}>
+										<InputLabel htmlFor="Employee">Employee</InputLabel>
+										<Select
+											value={this.state.Employee}
+											onChange={this.handleChange}
+											inputProps={{
+												name: 'Employee',
+												id: 'Employee',
+											}}
+										>
+											<MenuItem value="">
+												<em>None</em>
+											</MenuItem>
+											<MenuItem value='1'>Employee1</MenuItem>
+											<MenuItem value='2'>Employee2</MenuItem>
+										</Select>
+									</FormControl>
+									<FormControl className={classes.formControl}>
+										<InputLabel htmlFor="Bank">Bank</InputLabel>
+										<Select
+											value={this.state.Bank}
+											onChange={this.handleChange}
+											inputProps={{
+												name: 'Bank',
+												id: 'Bank',
+											}}
+										>
+											<MenuItem value="">
+												<em>None</em>
+											</MenuItem>
+											<MenuItem value='1'>Bank1</MenuItem>
+											<MenuItem value='2'>Bank2</MenuItem>
+										</Select>
+									</FormControl>
 									<TextField
 										id="outlined-name"
 										label="IBAN"
@@ -169,14 +227,14 @@ class EmployeeBankAccount extends Component {
 										variant="outlined"
 									/>
 										<TextField
-										id="outlined-name"
+										id="date"
 										label="Effective Date"
+										type="date"
 										fullWidth
 										className={classes.textField}
-										value={this.state.name}
-										//   onChange={this.handleChange('name')}
-										margin="normal"
-										variant="outlined"
+										InputLabelProps={{
+											shrink: true,
+										}}
 									/>
                                     <TextField
 										id="outlined-name"

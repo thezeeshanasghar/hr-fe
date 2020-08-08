@@ -22,7 +22,7 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
-
+import { Icon, Input, MuiThemeProvider} from '@material-ui/core';
 const styles = theme => ({
 	container: {
 		display: 'flex',
@@ -118,6 +118,23 @@ class UnpaidLeaves extends Component {
 						>
 							<TabContainer dir={theme.direction}>
 								<Paper className={classes.root}>
+								<MuiThemeProvider theme={this.props.theme}>
+                            <Paper className={"flex items-center h-44 w-full"} elevation={1}>
+                                <Input
+                                    placeholder="Search..."
+                                    className="pl-16"
+                                    disableUnderline
+                                    fullWidth
+                                    inputProps={{
+                                        'aria-label': 'Search'
+                                    }}
+                                />
+                                <Icon color="action" className="mr-16">search</Icon>
+								<Button variant="contained"  color="secondary" style={{'marginRight':'2px'}} className={classes.button}>
+											PRINT
+      								</Button>
+                            </Paper>
+                        </MuiThemeProvider>
 									<Table className={classes.table}>
 										<TableHead>
 											<TableRow>
@@ -169,27 +186,25 @@ class UnpaidLeaves extends Component {
 											<MenuItem value={2}>Employee2</MenuItem>
 										</Select>
 									</FormControl>
-										<TextField
-										id="outlined-name"
-										type="date"
-										label=" Date From"
-										className={classes.textField}
-										value={this.state.name}
-										fullWidth
-										//   onChange={this.handleChange('name')}
-										margin="normal"
-										variant="outlined"
-									/>
 									<TextField
-										id="outlined-name"
+										id="date"
+										label="Date From"
+										type="date"
+										fullWidth
+										className={classes.textField}
+										InputLabelProps={{
+											shrink: true,
+										}}
+									/>
+										<TextField
+										id="date"
 										label="Date To"
 										type="date"
-										className={classes.textField}
-										value={this.state.name}
 										fullWidth
-										//   onChange={this.handleChange('name')}
-										margin="normal"
-										variant="outlined"
+										className={classes.textField}
+										InputLabelProps={{
+											shrink: true,
+										}}
 									/>
 
 								</form>
