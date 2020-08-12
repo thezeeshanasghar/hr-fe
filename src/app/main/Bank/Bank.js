@@ -18,6 +18,9 @@ import EditIcon from '@material-ui/icons/Edit';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import { Icon, Input, MuiThemeProvider} from '@material-ui/core';
+import Grid from '@material-ui/core/Grid';
+import SimpleReactValidator from 'simple-react-validator';
+import axios from "axios";
 
 const styles = theme => ({
 	container: {
@@ -71,10 +74,74 @@ const rows = [
 class Bank extends Component {
 	state = {
 		value: 0,
+		bankName:'',
+		bankCode:'',
+		bankAddress:''
+
 	};
-	handleChange = (event, value) => {
+	constructor(props) {
+		super(props);
+		this.validator = new SimpleReactValidator();
+	
+	  }
+	handleTab = (event, value) => {
 		this.setState({ value });
 	};
+	handleChange = (e) => {
+        
+        this.setState({ [e.target.name]: e.target.value });
+	  };
+	  insertRecord=()=>{
+		if (!this.validator.fieldValid('bankName')
+		|| !this.validator.fieldValid('bankCode')
+		|| !this.validator.fieldValid('bankAddress')) 
+		{
+	    this.validator.showMessages();
+	    this.forceUpdate();
+  		 return false;
+   		}
+		//   this.setState({bankName:'',bankCode:'',bankAddress:''})
+		var obj = {
+			BankName: this.state.bankName,
+			BankCode: this.state.bankCode,
+			BankAdress: this.state.bankAddress
+		  };
+		  axios.interceptors.request.use(function(config) {
+			// document.getElementsByClassName("loader-wrapper")[0].style.display="block"
+			return config;
+		  }, function(error) {
+			console.log('Error');
+			return Promise.reject(error);
+		  });
+		  axios({
+			method: "post",
+			url: "localhost:3000/api/Bank",
+			data: JSON.stringify(obj),
+			headers: {
+			  // 'Authorization': `bearer ${token}`,
+			  "Content-Type": "application/json;charset=utf-8",
+			},
+		  })
+			.then((response) => {
+	
+			  console.log(response);
+			  this.setState({
+				bankName: "",
+				bankCode: "",
+				bankAddress: ""
+			  });
+			})
+			.catch((error) => {
+				console.log(error);
+			  this.setState({
+				bankName: "",
+				bankCode: "",
+				bankAddress: ""
+				})
+			}).finally(()=>{
+			//   document.getElementsByClassName("loader-wrapper")[0].style.display="none";
+			});
+	  }
 	render() {
 		const { classes, theme } = this.props;
 
@@ -95,7 +162,7 @@ class Bank extends Component {
 						<AppBar position="static" color="default">
 							<Tabs
 								value={this.state.value}
-								onChange={this.handleChange}
+								onChange={this.handleTab}
 								indicatorColor="primary"
 								textColor="primary"
 								variant="fullWidth"
@@ -160,44 +227,29 @@ class Bank extends Component {
 							</TabContainer>
 							<TabContainer dir={theme.direction}>
 								<form className={classes.container} noValidate autoComplete="off">
-									<TextField
-										id="outlined-name"
-										label="Bank Name"
-										className={classes.textField}
-										value={this.state.name}
-										fullWidth
-										//   onChange={this.handleChange('name')}
-										margin="normal"
-										variant="outlined"
-									/>
-									<TextField
-										id="outlined-name"
-										label="Branch Code"
-										fullWidth
-										className={classes.textField}
-										value={this.state.name}
-										//   onChange={this.handleChange('name')}
-										margin="normal"
-										variant="outlined"
-									/>
-										<TextField
-										id="outlined-name"
-										label="Bank Address"
-										fullWidth
-										className={classes.textField}
-										value={this.state.name}
-										//   onChange={this.handleChange('name')}
-										margin="normal"
-										variant="outlined"
-									/>
+								<Grid item xs={12} sm={5}  style={{marginRight:'5px'}} >
+								<TextField id="bankName" fullWidth label="Bank Name" name="bankName" value={this.state.bankName} onChange={this.handleChange} />
+								{this.validator.message('bankName', this.state.bankName, 'required')}
+									</Grid>
+									<Grid item xs={12} sm={5}  >
+									<TextField id="bankCode" fullWidth label="Branch Code" name="bankCode" value={this.state.bankCode} onChange={this.handleChange} />
+									{this.validator.message('bankCode', this.state.bankCode, 'required')}
+									</Grid>
+									<Grid item xs={12} sm={5}  >
+									<TextField id="bankAddress" fullWidth label="Bank Address" name="bankAddress" value={this.state.bankAddress} onChange={this.handleChange} />
+									{this.validator.message('bankAddress', this.state.bankAddress, 'required')}
+									</Grid>
+								
 								</form>
 								<div className="row">
+								<Grid item xs={12} sm={10}  >
 									<div style={{float: "right","marginRight":"8px"}}>
 									
-									<Button variant="outlined" color="secondary" className={classes.button }>
+									<Button variant="outlined" color="secondary" className={classes.button } onClick={this.insertRecord} >
 										Insert Record
       								</Button>
 									</div>
+									</Grid>
 								</div>
 							</TabContainer>
 						</SwipeableViews>

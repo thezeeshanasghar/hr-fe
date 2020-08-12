@@ -22,6 +22,8 @@ import InputLabel from '@material-ui/core/InputLabel';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Icon, Input, MuiThemeProvider} from '@material-ui/core';
+import Grid from '@material-ui/core/Grid';
+
 const styles = theme => ({
 	container: {
 		display: 'flex',
@@ -30,7 +32,6 @@ const styles = theme => ({
 	textField: {
 		marginLeft: theme.spacing.unit,
 		marginRight: theme.spacing.unit,
-		
 	},
 	dense: {
 		marginTop: 16,
@@ -40,6 +41,8 @@ const styles = theme => ({
 	},
 	formControl:{
 		minWidth: "99%",
+		marginLeft: theme.spacing.unit,
+		marginRight: theme.spacing.unit,
 	}
 });
 
@@ -105,6 +108,7 @@ class Employee extends Component {
 				content={
 
 					<div className={classes.root}>
+						
 						<AppBar position="static" color="default">
 							<Tabs
 								value={this.state.value}
@@ -114,7 +118,9 @@ class Employee extends Component {
 								variant="fullWidth"
 							>
 								<Tab label="View" />
-								<Tab label="Add New" />
+								<Tab label="Employee Detail" />
+								<Tab label="Employee Bank" />
+								<Tab label="Employee Payroll" />
 							</Tabs>
 						</AppBar>
 						<SwipeableViews
@@ -126,7 +132,10 @@ class Employee extends Component {
 								<Paper className={classes.root}>
 								<MuiThemeProvider theme={this.props.theme}>
                             <Paper className={"flex items-center h-44 w-full"} elevation={1}>
+						
+       
                                 <Input
+
                                     placeholder="Search..."
                                     className="pl-16"
                                     disableUnderline
@@ -201,37 +210,17 @@ class Employee extends Component {
 								</Paper>
 							</TabContainer>
 							<TabContainer dir={theme.direction}>
+							
 								<form className={classes.container} noValidate autoComplete="off">
-									<TextField
-										id="outlined-name"
-										label="Title"
-										className={classes.textField}
-										value={this.state.name}
-										fullWidth
-										//   onChange={this.handleChange('name')}
-										margin="normal"
-										variant="outlined"
-									/>
-									<TextField
-										id="outlined-name"
-										label="First Name"
-										className={classes.textField}
-										value={this.state.name}
-										fullWidth
-										//   onChange={this.handleChange('name')}
-										margin="normal"
-										variant="outlined"
-									/>
-									<TextField
-										id="outlined-name"
-										label="Last Name"
-										className={classes.textField}
-										value={this.state.name}
-										fullWidth
-										//   onChange={this.handleChange('name')}
-										margin="normal"
-										variant="outlined"
-									/>
+								
+								<Grid item xs={12} sm={5}  style={{marginRight:'5px'}} >
+									 <TextField id="standard-basic" fullWidth label="First Name" />
+									</Grid>
+									<Grid item xs={12} sm={5}>
+									<TextField id="standard-basic" fullWidth label="Last Name" />
+
+									</Grid>
+									<Grid item xs={12} sm={5}  style={{marginRight:'5px'}} >
 									<FormControl className={classes.formControl}>
 										<InputLabel htmlFor="Gender">Gender</InputLabel>
 										<Select
@@ -249,7 +238,28 @@ class Employee extends Component {
 											<MenuItem value='Female'>Female</MenuItem>
 										</Select>
 									</FormControl>
-
+									</Grid>
+									<Grid item xs={12} sm={5}  >
+									<FormControl className={classes.formControl}>
+										<InputLabel htmlFor="Country">Country</InputLabel>
+										<Select
+											value={this.state.Gender}
+											onChange={this.handleChange}
+											inputProps={{
+												name: 'Country',
+												id: 'Country',
+											}}
+										>
+											<MenuItem value="">
+												<em>None</em>
+											</MenuItem>
+											<MenuItem value='Pakistan'>Pakistan</MenuItem>
+											<MenuItem value='Turkey'>Turkey</MenuItem>\
+										</Select>
+									</FormControl>
+									</Grid>
+                               
+									<Grid item xs={12} sm={5}  style={{marginRight:'5px'}} >
 									<FormControl className={classes.formControl}>
 										<InputLabel htmlFor="Gender">Marital Status</InputLabel>
 										<Select
@@ -267,6 +277,8 @@ class Employee extends Component {
 											<MenuItem value='Single'>Single</MenuItem>
 										</Select>
 									</FormControl>
+									</Grid>
+									<Grid item xs={12} sm={5}  >
 									<TextField
 										id="date"
 										label="Date of Birth"
@@ -277,74 +289,31 @@ class Employee extends Component {
 											shrink: true,
 										}}
 									/>
+									</Grid>
 									
-                                    <TextField
-										id="outlined-name"
-										label="Email"
-										fullWidth
-										className={classes.textField}
-										value={this.state.name}
-										//   onChange={this.handleChange('name')}
-										margin="normal"
-										variant="outlined"
-									/>
-                                 <FormControl className={classes.formControl}>
-										<InputLabel htmlFor="Country">Country</InputLabel>
-										<Select
-											value={this.state.Gender}
-											onChange={this.handleChange}
-											inputProps={{
-												name: 'Country',
-												id: 'Country',
-											}}
-										>
-											<MenuItem value="">
-												<em>None</em>
-											</MenuItem>
-											<MenuItem value='Pakistan'>Pakistan</MenuItem>
-											<MenuItem value='Turkey'>Turkey</MenuItem>\
-										</Select>
-									</FormControl>
-  									<TextField
-										id="outlined-name"
-										label="Employee Code"
-										fullWidth
-										className={classes.textField}
-										value={this.state.name}
-										//   onChange={this.handleChange('name')}
-										margin="normal"
-										variant="outlined"
-									/>
-										<TextField
-										id="outlined-name"
-										label="Insurance Id"
-										fullWidth
-										className={classes.textField}
-										value={this.state.name}
-										//   onChange={this.handleChange('name')}
-										margin="normal"
-										variant="outlined"
-									/>
-									<TextField
-										id="outlined-name"
-										label="Taxation Id"
-										fullWidth
-										className={classes.textField}
-										value={this.state.name}
-										//   onChange={this.handleChange('name')}
-										margin="normal"
-										variant="outlined"
-									/>
-									<TextField
-										id="outlined-name"
-										label="CNIC"
-										fullWidth
-										className={classes.textField}
-										value={this.state.name}
-										//   onChange={this.handleChange('name')}
-										margin="normal"
-										variant="outlined"
-									/>
+									<Grid item xs={12} sm={5}  style={{marginRight:'5px'}} >
+									<TextField id="standard-basic" fullWidth label="Email" />
+
+									</Grid>
+								
+									<Grid item xs={12} sm={5}   >
+									<TextField id="standard-basic" fullWidth label="Employee Cdoe" />
+
+									</Grid>
+									<Grid item xs={12} sm={5}  style={{marginRight:'5px'}} >
+									<TextField id="standard-basic" fullWidth label="Insurance Id" />
+
+									</Grid>
+
+									<Grid item xs={12} sm={5}  >
+									<TextField id="standard-basic" fullWidth label="Texation Id" />
+
+									</Grid>
+									<Grid item xs={12} sm={5}  style={{marginRight:'5px'}} >
+									<TextField id="standard-basic" fullWidth label="Cnic" />
+
+									</Grid>
+									<Grid item xs={12} sm={5}   >
 										 <FormControl className={classes.formControl}>
 										<InputLabel htmlFor="ContractType">Contract Type</InputLabel>
 										<Select
@@ -362,6 +331,7 @@ class Employee extends Component {
 											<MenuItem value='2'>Part-time</MenuItem>\
 										</Select>
 									</FormControl>
+									</Grid>
 									<FormControl className={classes.formControl}>
 										<InputLabel htmlFor="ContractType">Employee Status</InputLabel>
 										<Select
@@ -613,6 +583,93 @@ class Employee extends Component {
 									</div>
 								</div>
 							</TabContainer>
+							<TabContainer dir={theme.direction}>
+							<h4>Add New Account</h4>
+								<form className={classes.container} noValidate autoComplete="off">
+								<FormControl className={classes.formControl}>
+										<InputLabel htmlFor="Employee">Employee</InputLabel>
+										<Select
+											value={this.state.Employee}
+											onChange={this.handleChange}
+											inputProps={{
+												name: 'Employee',
+												id: 'Employee',
+											}}
+										>
+											<MenuItem value="">
+												<em>None</em>
+											</MenuItem>
+											<MenuItem value='1'>Employee1</MenuItem>
+											<MenuItem value='2'>Employee2</MenuItem>
+										</Select>
+									</FormControl>
+									<FormControl className={classes.formControl}>
+										<InputLabel htmlFor="Bank">Bank</InputLabel>
+										<Select
+											value={this.state.Bank}
+											onChange={this.handleChange}
+											inputProps={{
+												name: 'Bank',
+												id: 'Bank',
+											}}
+										>
+											<MenuItem value="">
+												<em>None</em>
+											</MenuItem>
+											<MenuItem value='1'>Bank1</MenuItem>
+											<MenuItem value='2'>Bank2</MenuItem>
+										</Select>
+									</FormControl>
+									<TextField
+										id="outlined-name"
+										label="IBAN"
+										className={classes.textField}
+										value={this.state.name}
+										fullWidth
+										//   onChange={this.handleChange('name')}
+										margin="normal"
+										variant="outlined"
+									/>
+									<TextField
+										id="outlined-name"
+										label="Currency"
+										fullWidth
+										className={classes.textField}
+										value={this.state.name}
+										//   onChange={this.handleChange('name')}
+										margin="normal"
+										variant="outlined"
+									/>
+										<TextField
+										id="date"
+										label="Effective Date"
+										type="date"
+										fullWidth
+										className={classes.textField}
+										InputLabelProps={{
+											shrink: true,
+										}}
+									/>
+                                    <TextField
+										id="outlined-name"
+										label="IsPrimary"
+										fullWidth
+										className={classes.textField}
+										value={this.state.name}
+										//   onChange={this.handleChange('name')}
+										margin="normal"
+										variant="outlined"
+									/>
+								</form>
+								<div className="row">
+									<div style={{float: "right","marginRight":"8px"}}>
+									
+									<Button variant="outlined" color="secondary" className={classes.button }>
+										Insert Record
+      								</Button>
+									</div>
+								</div>
+							</TabContainer>
 						</SwipeableViews>
 					</div>
 				}
@@ -622,3 +679,47 @@ class Employee extends Component {
 }
 
 export default withStyles(styles, { withTheme: true })(Employee);
+
+
+
+// import Grid from '@material-ui/core/Grid';
+
+
+
+// export default function Employee() {
+  
+
+//   return (
+//     <div >
+// 			
+// 					<div className={classes.root}>
+//       <Grid container spacing={3}>
+//         <Grid item xs={12}>
+//           <Paper >xs=12</Paper>
+//         </Grid>
+//         <Grid item xs={12} sm={6}>
+//           <Paper >xs=12 sm=6</Paper>
+//         </Grid>
+//         <Grid item xs={12} sm={6}>
+//           <Paper >xs=12 sm=6</Paper>
+//         </Grid>
+//         <Grid item xs={6} sm={3}>
+//           <Paper >xs=6 sm=3</Paper>
+//         </Grid>
+//         <Grid item xs={6} sm={3}>
+//           <Paper >xs=6 sm=3</Paper>
+//         </Grid>
+//         <Grid item xs={6} sm={3}>
+//           <Paper >xs=6 sm=3</Paper>
+//         </Grid>
+//         <Grid item xs={6} sm={3}>
+//           <Paper >xs=6 sm=3</Paper>
+//         </Grid>
+//       </Grid>
+//     </div>
+
+				
+
+	
+//   );
+// }
