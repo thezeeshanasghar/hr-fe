@@ -56,33 +56,24 @@ function TabContainer({ children, dir }) {
 		</Typography>
 	);
 }
-let id = 0;
-function createData(BankName, Address) {
-	id += 1;
-	return { BankName, Address };
-}
 
-const rows = [
-	createData('HBL', 'Islamabad'),
-	createData('Askri', 'Islamabad'),
-	createData('Habeeb Metro', 'Islamabad'),
-	createData('Allied', 'Islamabad'),
-	createData('National ', 'Islamabad')
-
-];
 
 class Bank extends Component {
 	state = {
 		value: 0,
 		bankName:'',
 		bankCode:'',
-		bankAddress:''
-
+		bankAddress:'',
+		Banks:[],
+		Id:0
 	};
 	constructor(props) {
 		super(props);
 		this.validator = new SimpleReactValidator();
 	
+	  }
+	  componentDidMount(){
+		  this.getBankDetail();
 	  }
 	handleTab = (event, value) => {
 		this.setState({ value });
@@ -91,6 +82,23 @@ class Bank extends Component {
         
         this.setState({ [e.target.name]: e.target.value });
 	  };
+	  getBankDetail=()=>{
+		axios({
+			method: "get",
+			url: "http://localhost:3000/api/Bank",
+			headers: {
+			  // 'Authorization': `bearer ${token}`,
+			  "Content-Type": "application/json;charset=utf-8",
+			},
+		  })
+			.then((response) => {
+				console.log(response);
+				this.setState({Banks:response.data});
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	  }
 	  insertRecord=()=>{
 		if (!this.validator.fieldValid('bankName')
 		|| !this.validator.fieldValid('bankCode')
@@ -103,8 +111,8 @@ class Bank extends Component {
 		//   this.setState({bankName:'',bankCode:'',bankAddress:''})
 		var obj = {
 			BankName: this.state.bankName,
-			BankCode: this.state.bankCode,
-			BankAdress: this.state.bankAddress
+			BranchCode: this.state.bankCode,
+			Address: this.state.bankAddress
 		  };
 		  axios.interceptors.request.use(function(config) {
 			// document.getElementsByClassName("loader-wrapper")[0].style.display="block"
@@ -115,7 +123,7 @@ class Bank extends Component {
 		  });
 		  axios({
 			method: "post",
-			url: "localhost:3000/api/Bank",
+			url: "http://localhost:3000/api/Bank",
 			data: JSON.stringify(obj),
 			headers: {
 			  // 'Authorization': `bearer ${token}`,
@@ -124,7 +132,7 @@ class Bank extends Component {
 		  })
 			.then((response) => {
 	
-			  console.log(response);
+				this.getBankDetail();
 			  this.setState({
 				bankName: "",
 				bankCode: "",
@@ -138,9 +146,42 @@ class Bank extends Component {
 				bankCode: "",
 				bankAddress: ""
 				})
-			}).finally(()=>{
-			//   document.getElementsByClassName("loader-wrapper")[0].style.display="none";
-			});
+			})
+	  }
+	  deleteBank=(id)=>{
+		axios({
+			method: "delete",
+			url: "http://localhost:3000/api/Bank/"+id,
+			headers: {
+			  // 'Authorization': `bearer ${token}`,
+			  "Content-Type": "application/json;charset=utf-8",
+			},
+		  })
+			.then((response) => {
+				
+				this.getBankDetail();
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	  }
+	  getBankById=(id)=>{
+		axios({
+			method: "get",
+			url: "http://localhost:3000/api/Bank/"+id,
+			headers: {
+			  // 'Authorization': `bearer ${token}`,
+			  "Content-Type": "application/json;charset=utf-8",
+			},
+		  })
+			.then((response) => {
+				console.log(response);
+				this.setState({value:1,bankName:response.data[0].BankName,bankCode:response.data[0].BranchCode,bankAddress:response.data[0].Address,
+					Id:response.data[0].Id});
+			})
+			.catch((error) => {
+				console.log(error);
+			})
 	  }
 	render() {
 		const { classes, theme } = this.props;
@@ -204,18 +245,18 @@ class Bank extends Component {
 											</TableRow>
 										</TableHead>
 										<TableBody>
-											{rows.map(row => (
-												<TableRow className={classes.row} key={row.id}>
+											{this.state.Banks.map(row => (
+												<TableRow className={classes.row} key={row.Id}>
 
-													<CustomTableCell align="center">{row.BankName}</CustomTableCell>
+													<CustomTableCell align="center">{row.BankName=="" || row.BankName==null || row.BankName == undefined ?'N/A':row.BankName}</CustomTableCell>
 													<CustomTableCell align="center" component="th" scope="row">
-														{row.Address}
+														{row.Address=="" || row.Address==null || row.Address == undefined ?'N/A':row.Address}
 													</CustomTableCell>
 													<CustomTableCell align="center" component="th" scope="row">
-														<IconButton className={classes.button} aria-label="Delete">
+														<IconButton className={classes.button} onClick={()=>this.deleteBank(row.Id)}  aria-label="Delete">
 															<DeleteIcon />
 														</IconButton>
-														<IconButton className={classes.button} aria-label="Edit">
+														<IconButton className={classes.button} onClick={()=>this.getBankById(row.Id)} aria-label="Edit">
 															<EditIcon />
 														</IconButton>
 													</CustomTableCell>
