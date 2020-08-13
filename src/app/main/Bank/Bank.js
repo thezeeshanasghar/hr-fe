@@ -21,7 +21,7 @@ import { Icon, Input, MuiThemeProvider} from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
 import SimpleReactValidator from 'simple-react-validator';
 import axios from "axios";
-
+import toastr from 'toastr'
 const styles = theme => ({
 	container: {
 		display: 'flex',
@@ -65,7 +65,8 @@ class Bank extends Component {
 		bankCode:'',
 		bankAddress:'',
 		Banks:[],
-		Id:0
+		Id:0,
+		Action:'Insert Record'
 	};
 	constructor(props) {
 		super(props);
@@ -99,7 +100,7 @@ class Bank extends Component {
 				console.log(error);
 			})
 	  }
-	  insertRecord=()=>{
+	  insertUpdateRecord=()=>{
 		if (!this.validator.fieldValid('bankName')
 		|| !this.validator.fieldValid('bankCode')
 		|| !this.validator.fieldValid('bankAddress')) 
@@ -107,7 +108,15 @@ class Bank extends Component {
 	    this.validator.showMessages();
 	    this.forceUpdate();
   		 return false;
-   		}
+		   }
+		   var method="post";
+		   var url="http://localhost:3000/api/Bank";
+		   if(this.state.Action!="Insert Record")
+		   {
+			method="put";
+			url="http://localhost:3000/api/Bank/"+this.state.Id;
+		   }
+		   
 		//   this.setState({bankName:'',bankCode:'',bankAddress:''})
 		var obj = {
 			BankName: this.state.bankName,
@@ -122,8 +131,8 @@ class Bank extends Component {
 			return Promise.reject(error);
 		  });
 		  axios({
-			method: "post",
-			url: "http://localhost:3000/api/Bank",
+			method: method,
+			url: url,
 			data: JSON.stringify(obj),
 			headers: {
 			  // 'Authorization': `bearer ${token}`,
@@ -131,20 +140,25 @@ class Bank extends Component {
 			},
 		  })
 			.then((response) => {
-	
-				this.getBankDetail();
-			  this.setState({
+			toastr.success('Operation successfull');	
+			this.getBankDetail();
+			this.setState({
 				bankName: "",
 				bankCode: "",
-				bankAddress: ""
+				bankAddress: "",
+				Action:'Insert Record',
+				Id:0
 			  });
 			})
 			.catch((error) => {
 				console.log(error);
+				toastr.error('Operation unsuccessfull');
 			  this.setState({
 				bankName: "",
 				bankCode: "",
-				bankAddress: ""
+				bankAddress: "",
+				Action:'Insert Record',
+				Id:0
 				})
 			})
 	  }
@@ -176,13 +190,14 @@ class Bank extends Component {
 		  })
 			.then((response) => {
 				console.log(response);
-				this.setState({value:1,bankName:response.data[0].BankName,bankCode:response.data[0].BranchCode,bankAddress:response.data[0].Address,
+				this.setState({Action:'Update Record',value:1,bankName:response.data[0].BankName,bankCode:response.data[0].BranchCode,bankAddress:response.data[0].Address,
 					Id:response.data[0].Id});
 			})
 			.catch((error) => {
 				console.log(error);
 			})
 	  }
+	
 	render() {
 		const { classes, theme } = this.props;
 
@@ -286,8 +301,8 @@ class Bank extends Component {
 								<Grid item xs={12} sm={10}  >
 									<div style={{float: "right","marginRight":"8px"}}>
 									
-									<Button variant="outlined" color="secondary" className={classes.button } onClick={this.insertRecord} >
-										Insert Record
+									<Button variant="outlined" color="secondary" className={classes.button } onClick={this.insertUpdateRecord} >
+										{this.state.Action}
       								</Button>
 									</div>
 									</Grid>
