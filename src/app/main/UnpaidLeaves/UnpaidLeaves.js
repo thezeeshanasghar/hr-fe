@@ -22,7 +22,13 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
-import { Icon, Input, MuiThemeProvider} from '@material-ui/core';
+import { Icon, Input, MuiThemeProvider } from '@material-ui/core';
+import Grid from '@material-ui/core/Grid';
+import SimpleReactValidator from 'simple-react-validator';
+import axios from "axios";
+import toastr from 'toastr';
+import moment from 'moment';
+
 const styles = theme => ({
 	container: {
 		display: 'flex',
@@ -61,27 +67,174 @@ function TabContainer({ children, dir }) {
 		</Typography>
 	);
 }
-let id = 0;
-function createData(Employee, DateFrom, DateTo) {
-	id += 1;
-	return { Employee, DateFrom, DateTo };
-}
-
-const rows = [
-	createData("Employee1", "12/4/2019", "12/10/2019")
-];
 
 class UnpaidLeaves extends Component {
 	state = {
 		value: 0,
 		labelWidth: 0,
-		Employee:1
+		employee: "",
+		dateTo: moment(),
+		dateFrom: moment(),
+		company: "",
+		Companies: [],
+		Employees: [],
+		leaves: [],
+		Action:""
+
 	};
-	handleChange = (event, value) => {
+	constructor(props) {
+		super(props);
+		this.validator = new SimpleReactValidator();
+
+	}
+	componentDidMount() {
+		this.getCompanies();
+		this.getUnPaidLeaves();
+	}
+	getCompanies = () => {
+		axios({
+			method: "get",
+			url: "http://localhost:3000/api/Company",
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response);
+				this.setState({ Companies: response.data });
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
+	getEmployees = (companyId) => {
+		axios({
+			method: "get",
+			url: "http://localhost:3000/api/Employees/ByCompany/" + companyId,
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response);
+				this.setState({ Employees: response.data });
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+
+	}
+
+	handleTabChange = (event, value) => {
 		this.setState({ value });
 		this.setState({ [event.target.name]: event.target.value });
 
 	};
+	handleChange = (e) => {
+		this.setState({ [e.target.name]: e.target.value });
+		console.log(e.target.name, e.target.value);
+		if (e.target.name == "company" && e.target.value != "") {
+			this.getEmployees(e.target.value);
+		}
+	};
+	insertUpdateLeaves = () => {
+		if (!this.validator.allValid()) {
+			this.validator.showMessages();
+			this.forceUpdate();
+		} else {
+			var method = "post";
+			var url = "http://localhost:3000/api/Unpaidleaves";
+			// console.log(this.state.company,this.state.employee,this.state.dateFrom,this.state.dateTo);
+			var obj = {
+				CompanyId: this.state.company,
+				EmployeeId: this.state.employee,
+				LeaveStartDate: this.state.dateFrom,
+				LeaveEndDate: this.state.dateTo
+			};
+			axios.interceptors.request.use(function (config) {
+				// document.getElementsByClassName("loader-wrapper")[0].style.display="block"
+				return config;
+			}, function (error) {
+				console.log('Error');
+				return Promise.reject(error);
+			});
+			axios({
+				method: method,
+				url: url,
+				data: JSON.stringify(obj),
+				headers: {
+					// 'Authorization': `bearer ${token}`,
+					"Content-Type": "application/json;charset=utf-8",
+				},
+			})
+				.then((response) => {
+					toastr.success('Operation successfull');
+					this.getBankDetail();
+					this.setState({
+						company: "",
+						employee: "",
+						dateFrom: "",
+						dateTo: ""
+					});
+				})
+				.catch((error) => {
+					console.log(error);
+					toastr.error('Operation unsuccessfull');
+					this.setState({
+						company: "",
+						employee: "",
+						dateFrom: "",
+						dateTo: ""
+					})
+				})
+
+
+		}
+	}
+	getUnPaidLeaves = () => {
+		axios({
+			method: "get",
+			url: "http://localhost:3000/api/Unpaidleaves",
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response);
+				this.setState({ leaves: response.data });
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
+	getLeavesById = (id) => {
+		axios({
+			method: "get",
+			url: "http://localhost:3000/api/Unpaidleaves/" + id,
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response);
+				this.getEmployees(response.data[0].CompanyId);
+				this.setState({
+					employee: response.data[0].EmployeeId,
+					dateTo: moment(response.data[0].LeaveStartDate).format('YYYY-MM-DD'),
+					dateFrom: moment(response.data[0].LeaveEndDate).format('YYYY-MM-DD'),
+					company: response.data[0].CompanyId,
+					value: 1
+				});
+
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
 	render() {
 		const { classes, theme } = this.props;
 
@@ -102,7 +255,7 @@ class UnpaidLeaves extends Component {
 						<AppBar position="static" color="default">
 							<Tabs
 								value={this.state.value}
-								onChange={this.handleChange}
+								onChange={this.handleTabChange}
 								indicatorColor="primary"
 								textColor="primary"
 								variant="fullWidth"
@@ -118,27 +271,28 @@ class UnpaidLeaves extends Component {
 						>
 							<TabContainer dir={theme.direction}>
 								<Paper className={classes.root}>
-								<MuiThemeProvider theme={this.props.theme}>
-                            <Paper className={"flex items-center h-44 w-full"} elevation={1}>
-                                <Input
-                                    placeholder="Search..."
-                                    className="pl-16"
-                                    disableUnderline
-                                    fullWidth
-                                    inputProps={{
-                                        'aria-label': 'Search'
-                                    }}
-                                />
-                                <Icon color="action" className="mr-16">search</Icon>
-								<Button variant="contained"  color="secondary" style={{'marginRight':'2px'}} className={classes.button}>
-											PRINT
+									<MuiThemeProvider theme={this.props.theme}>
+										<Paper className={"flex items-center h-44 w-full"} elevation={1}>
+											<Input
+												placeholder="Search..."
+												className="pl-16"
+												disableUnderline
+												fullWidth
+												inputProps={{
+													'aria-label': 'Search'
+												}}
+											/>
+											<Icon color="action" className="mr-16">search</Icon>
+											<Button variant="contained" color="secondary" style={{ 'marginRight': '2px' }} className={classes.button}>
+												PRINT
       								</Button>
-                            </Paper>
-                        </MuiThemeProvider>
+										</Paper>
+									</MuiThemeProvider>
 									<Table className={classes.table}>
 										<TableHead>
 											<TableRow>
 												<CustomTableCell align="center"  >Employee</CustomTableCell>
+												<CustomTableCell align="center"  >Company</CustomTableCell>
 												<CustomTableCell align="center" >Date From</CustomTableCell>
 												<CustomTableCell align="center">Date To</CustomTableCell>
 												<CustomTableCell align="center">Action</CustomTableCell>
@@ -146,17 +300,18 @@ class UnpaidLeaves extends Component {
 											</TableRow>
 										</TableHead>
 										<TableBody>
-											{rows.map(row => (
-												<TableRow className={classes.row} key={row.id}>
+											{this.state.leaves.map(row => (
+												<TableRow className={classes.row} key={row.Id}>
 
-													<CustomTableCell align="center"  >{row.Employee}</CustomTableCell>
-													<CustomTableCell align="center">{row.DateFrom}</CustomTableCell>
-													<CustomTableCell align="center">{row.DateTo}</CustomTableCell>
+													<CustomTableCell align="center"  >{row.FirstName}</CustomTableCell>
+													<CustomTableCell align="center"  >{row.CompanyName}</CustomTableCell>
+													<CustomTableCell align="center">{moment(row.LeaveStartDate).format('YYYY-MM-DD')}</CustomTableCell>
+													<CustomTableCell align="center">{moment(row.LeaveEndDate).format('YYYY-MM-DD')}</CustomTableCell>
 													<CustomTableCell align="center" component="th" scope="row">
 														<IconButton className={classes.button} aria-label="Delete">
 															<DeleteIcon />
 														</IconButton>
-														<IconButton className={classes.button} aria-label="Edit">
+														<IconButton className={classes.button} onClick={() => this.getLeavesById(row.Id)} aria-label="Edit">
 															<EditIcon />
 														</IconButton>
 													</CustomTableCell>
@@ -168,57 +323,96 @@ class UnpaidLeaves extends Component {
 							</TabContainer>
 							<TabContainer dir={theme.direction}>
 								<form className={classes.container} noValidate autoComplete="off">
+									<Grid item xs={12} sm={5} style={{ marginRight: '5px' }}   >
+										<FormControl className={classes.formControl}>
+											<InputLabel htmlFor="company">Company</InputLabel>
+											<Select
+												value={this.state.company}
+												onChange={this.handleChange}
+												inputProps={{
+													name: 'company',
+													id: 'company',
+												}}
+											>
+												<MenuItem value="">
+													<em>None</em>
+												</MenuItem>
+												{this.state.Companies.map(row => (
+													<MenuItem value={row.Id}>{row.CompanyName}</MenuItem>
+												))}
+											</Select>
+											{this.validator.message('company', this.state.company, 'required')}
+										</FormControl>
+									</Grid>
 
-									<FormControl className={classes.formControl}>
-										<InputLabel htmlFor="Employee">Employee</InputLabel>
-										<Select
-											value={this.state.Employee}
-											onChange={this.handleChange}
-											inputProps={{
-												name: 'Employee',
-												id: 'Employee',
+									<Grid item xs={12} sm={5} >
+										<FormControl className={classes.formControl}>
+											<InputLabel htmlFor="Employee">Employee</InputLabel>
+											<Select
+												value={this.state.employee}
+												onChange={this.handleChange}
+												inputProps={{
+													name: 'employee',
+													id: 'employee',
+												}}
+											>
+												<MenuItem value="">
+													<em>None</em>
+												</MenuItem>
+												{this.state.Employees.map(row => (
+													<MenuItem value={row.Id}>{row.FirstName}</MenuItem>
+												))}
+											</Select>
+											{this.validator.message('employee', this.state.employee, 'required')}
+										</FormControl>
+										{/* {this.validator.message('bankName', this.state.bankName, 'required')} */}
+									</Grid>
+
+									<Grid item xs={12} sm={5} style={{ marginRight: '5px' }}>
+											<TextField
+											label="Date From"
+											name="dateFrom"
+											id="dateFrom"
+											type="date"
+											value={this.state.dateFrom}
+											className={classes.textField}
+											fullWidth
+											InputLabelProps={{
+												shrink: true,
 											}}
-										>
-											<MenuItem value="">
-												<em>None</em>
-											</MenuItem>
-											<MenuItem value={1}>Employee1</MenuItem>
-											<MenuItem value={2}>Employee2</MenuItem>
-										</Select>
-									</FormControl>
-									<TextField
-										id="date"
-										label="Date From"
-										type="date"
-										fullWidth
-										className={classes.textField}
-										InputLabelProps={{
-											shrink: true,
-										}}
-									/>
+										/>
+										{this.validator.message('dateFrom', this.state.dateFrom, 'required')}
+									</Grid>
+									<Grid item xs={12} sm={5}>
 										<TextField
-										id="date"
-										label="Date To"
-										type="date"
-										fullWidth
-										className={classes.textField}
-										InputLabelProps={{
-											shrink: true,
-										}}
-									/>
+											label="Date To"
+											name="dateTo"
+											id="dateTo"
+											type="date"
+											value={this.state.dateTo}
+											className={classes.textField}
+											fullWidth
+											InputLabelProps={{
+												shrink: true,
+											}}
+										/>
+										{this.validator.message('dateTo', this.state.dateTo, 'required')}
+									</Grid>
 
 								</form>
 								<div className="row">
-									<div style={{ float: "right", "marginRight": "8px" }}>
+									<Grid item xs={12} sm={10} >
+										<div style={{ float: "right", "marginRight": "8px", "marginTop": "5px" }}>
 
-										<Button variant="outlined" color="secondary" className={classes.button}>
-											Insert Record
+											<Button variant="outlined" color="secondary" className={classes.button} onClick={this.insertUpdateLeaves} >
+												Insert Record
       								</Button>
-									</div>
+										</div>
+									</Grid>
 								</div>
 							</TabContainer>
 						</SwipeableViews>
-					</div>
+					</ div>
 				}
 			/>
 		)
