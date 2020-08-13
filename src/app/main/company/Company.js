@@ -18,6 +18,9 @@ import EditIcon from '@material-ui/icons/Edit';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import { Icon, Input, MuiThemeProvider} from '@material-ui/core';
+import Grid from '@material-ui/core/Grid';
+import axios from "axios";
+import SimpleReactValidator from 'simple-react-validator';
 const styles = theme => ({
 	container: {
 		display: 'flex',
@@ -70,10 +73,163 @@ const rows = [
 class Company extends Component {
 	state = {
 		value: 0,
+		Name: '',
+		Code: '',
+		Contact: '',
+		Email: '',
+		Address: '',
+		CountryCode: '',
+		Companies: [],
+		Id: 0,
+		Action: 'Insert Record'
+
 	};
-	handleChange = (event, value) => {
+	constructor(props) {
+		super(props);
+		this.validator = new SimpleReactValidator();
+	
+	  }
+
+	  componentDidMount(){
+		this.getCompanyDetail();
+	}
+
+	handleTab = (event, value) => {
 		this.setState({ value });
 	};
+
+
+	handleChange = (e) => {
+		this.setState({ [e.target.name]: e.target.value });
+	};
+	  getCompanyDetail=()=>{
+		axios({
+			method: "get",
+			url: "http://localhost:3000/api/company",
+			headers: {
+			  // 'Authorization': `bearer ${token}`,
+			  "Content-Type": "application/json;charset=utf-8",
+			},
+		  })
+			.then((response) => {
+				console.log(response);
+				this.setState({Companies:response.data});
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	  }
+	insertUpdateRecord=()=>{
+		if (!this.validator.fieldValid('Name')
+		|| !this.validator.fieldValid('Code')
+		|| !this.validator.fieldValid('Contact')
+		|| !this.validator.fieldValid('Email')
+		|| !this.validator.fieldValid('Address')
+		|| !this.validator.fieldValid('CountryCode')) 
+		{
+	    this.validator.showMessages();
+	    this.forceUpdate();
+  		 return false;
+		   }
+		   var method="post";
+		   var url="http://localhost:3000/api/company";
+		   if(this.state.Action!="Insert Record")
+		   {
+			method="put";
+			url="http://localhost:3000/api/company/"+this.state.Id;
+		   }
+		//   this.setState({bankName:'',bankCode:'',bankAddress:''})
+		var obj = {
+			CompanyName: this.state.Name,
+			Code: this.state.Code,
+			Email: this.state.Email,
+			Contact: this.state.Contact,
+			CountryCode: this.state.CountryCode,
+			Adress: this.state.Address
+		  };
+		  axios.interceptors.request.use(function(config) {
+			// document.getElementsByClassName("loader-wrapper")[0].style.display="block"
+			return config;
+		  }, function(error) {
+			console.log('Error');
+			return Promise.reject(error);
+		  });
+		  axios({
+			method: method,
+			url: url,
+			data: JSON.stringify(obj),
+			headers: {
+			  // 'Authorization': `bearer ${token}`,
+			  "Content-Type": "application/json;charset=utf-8",
+			},
+		  })
+			.then((response) => {
+	
+			  console.log(response);
+			  this.setState({
+				Name: "",
+				Code: "",
+				Contact: '',
+		        Email: '',
+		        Address: '',
+				CountryCode: '',
+				Action:'Insert Record',
+				Id:0
+			  });
+			})
+			.catch((error) => {
+				console.log(error);
+			  this.setState({
+				Name: "",
+				Code: "",
+				Contact: '',
+		        Email: '',
+		        Address: '',
+				CountryCode: '',
+				Action:'Insert Record',
+				Id:0
+				})
+			}).finally(()=>{
+			//   document.getElementsByClassName("loader-wrapper")[0].style.display="none";
+			});
+	  }
+
+	  deleteCompany=(id)=>{
+		axios({
+			method: "delete",
+			url: "http://localhost:3000/api/company/"+id,
+			headers: {
+			  // 'Authorization': `bearer ${token}`,
+			  "Content-Type": "application/json;charset=utf-8",
+			},
+		  })
+			.then((response) => {
+				
+				this.getCompanyDetail();
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	  }
+
+	  getCompanyById=(id)=>{
+		axios({
+			method: "get",
+			url: "http://localhost:3000/api/company/"+id,
+			headers: {
+			  // 'Authorization': `bearer ${token}`,
+			  "Content-Type": "application/json;charset=utf-8",
+			},
+		  })
+			.then((response) => {
+				console.log(response);
+				this.setState({Action:'Update Record',value:1,Name:response.data[0].CompanyName,Code:response.data[0].Code,Address:response.data[0].Address,
+				Id:response.data[0].Id, Contact:response.data[0].Contact , Email:response.data[0].Email , CountryCode:response.data[0].CountryCode });
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	  }
 	render() {
 		const { classes, theme } = this.props;
 
@@ -94,7 +250,7 @@ class Company extends Component {
 						<AppBar position="static" color="default">
 							<Tabs
 								value={this.state.value}
-								onChange={this.handleChange}
+								onChange={this.handleTab}
 								indicatorColor="primary"
 								textColor="primary"
 								variant="fullWidth"
@@ -140,20 +296,27 @@ class Company extends Component {
 											</TableRow>
 										</TableHead>
 										<TableBody>
-											{rows.map(row => (
-												<TableRow className={classes.row} key={row.id}>
+										{this.state.Companies.map(row => (
+												<TableRow className={classes.row} key={row.Id}>
 
-													<CustomTableCell align="center">{row.BankName}</CustomTableCell>
-													<CustomTableCell align="center" component="th" scope="row">{row.Code}</CustomTableCell>
-                                                    <CustomTableCell align="center" component="th" scope="row">{row.Contact}</CustomTableCell>
-                                                    <CustomTableCell align="center" component="th" scope="row">{row.Email}</CustomTableCell>
-                                                    <CustomTableCell align="center" component="th" scope="row">{row.Address}</CustomTableCell>
-                                                    <CustomTableCell align="center" component="th" scope="row">{row.Country}</CustomTableCell>
+													<CustomTableCell align="center">{row.CompanyName=="" || row.CompanyName==null || row.CompanyName == undefined ?'N/A':row.CompanyName}</CustomTableCell>
 													<CustomTableCell align="center" component="th" scope="row">
-														<IconButton className={classes.button} aria-label="Delete">
+														{row.Code=="" || row.Code==null || row.Code == undefined ?'N/A':row.Code}
+													</CustomTableCell>
+													<CustomTableCell align="center">{row.Contact=="" || row.Contact==null || row.Contact == undefined ?'N/A':row.Contact}</CustomTableCell>
+													<CustomTableCell align="center">{row.Email=="" || row.Email==null || row.Email == undefined ?'N/A':row.Email}</CustomTableCell>
+													<CustomTableCell align="center" component="th" scope="row">
+														{row.Address=="" || row.Address==null || row.Address == undefined ?'N/A':row.Address}
+													</CustomTableCell>
+													
+													<CustomTableCell align="center" component="th" scope="row">
+														{row.Country=="" || row.Country==null || row.Country == undefined ?'N/A':row.Country}
+													</CustomTableCell>
+													<CustomTableCell align="center" component="th" scope="row">
+														<IconButton className={classes.button} onClick={()=>this.deleteCompany(row.Id)}  aria-label="Delete">
 															<DeleteIcon />
 														</IconButton>
-														<IconButton className={classes.button} aria-label="Edit">
+														<IconButton className={classes.button} onClick={()=>this.getCompanyById(row.Id)} aria-label="Edit">
 															<EditIcon />
 														</IconButton>
 													</CustomTableCell>
@@ -165,71 +328,39 @@ class Company extends Component {
 							</TabContainer>
 							<TabContainer dir={theme.direction}>
 								<form className={classes.container} noValidate autoComplete="off">
-									<TextField
-										id="outlined-name"
-										label="Company Name"
-										className={classes.textField}
-										value={this.state.name}
-										fullWidth
-										//   onChange={this.handleChange('name')}
-										margin="normal"
-										variant="outlined"
-									/>
-									<TextField
-										id="outlined-name"
-										label="Company Code"
-										fullWidth
-										className={classes.textField}
-										value={this.state.name}
-										//   onChange={this.handleChange('name')}
-										margin="normal"
-										variant="outlined"
-									/>
-										<TextField
-										id="outlined-name"
-										label="Contact No."
-										fullWidth
-										className={classes.textField}
-										value={this.state.name}
-										//   onChange={this.handleChange('name')}
-										margin="normal"
-										variant="outlined"
-									/>
-                                    <TextField
-										id="outlined-name"
-										label="Email"
-										fullWidth
-										className={classes.textField}
-										value={this.state.name}
-										//   onChange={this.handleChange('name')}
-										margin="normal"
-										variant="outlined"
-									/>
-                                    <TextField
-										id="outlined-name"
-										label="Address"
-										fullWidth
-										className={classes.textField}
-										value={this.state.name}
-										//   onChange={this.handleChange('name')}
-										margin="normal"
-										variant="outlined"
-									/>
-                                    <TextField
-										id="outlined-name"
-										label="Country"
-										fullWidth
-										className={classes.textField}
-										value={this.state.name}
-										//   onChange={this.handleChange('name')}
-										margin="normal"
-										variant="outlined"
-									/>
+									
+								<Grid item xs={12} sm={5}  style={{marginRight:'5px'}} >
+								<TextField id="Name" fullWidth label="Company Name" name="Name" value={this.state.Name} onChange={this.handleChange} />
+								{this.validator.message('Name', this.state.Name, 'required')}
+									</Grid>
+									<Grid item xs={12} sm={5}  >
+									<TextField id="Code" fullWidth label="Company Code" name="Code" value={this.state.Code} onChange={this.handleChange} />
+									{this.validator.message('Code', this.state.Code, 'required')}
+									</Grid>
+									
+									<Grid item xs={12} sm={5}  style={{marginRight:'5px'}} >
+								<TextField id="Contact" fullWidth label="Contact Number" name="Contact" value={this.state.Contact} onChange={this.handleChange} />
+								{this.validator.message('Contact', this.state.Contact, 'required')}
+									</Grid>
+									<Grid item xs={12} sm={5}  >
+									<TextField id="Email" fullWidth label="Company Email" name="Email" value={this.state.Email} onChange={this.handleChange} />
+									{this.validator.message('Email', this.state.Email, 'required')}
+									</Grid>
+
+									<Grid item xs={12} sm={5}  style={{marginRight:'5px'}} >
+								<TextField id="Address" fullWidth label="Address" name="Address" value={this.state.Address} onChange={this.handleChange} />
+								{this.validator.message('Address', this.state.Contact, 'required')}
+									</Grid>
+									<Grid item xs={12} sm={5}  >
+									<TextField id="CountryCode" fullWidth label="CountryCode" name="CountryCode" value={this.state.CountryCode} onChange={this.handleChange} />
+									{this.validator.message('CountryCode', this.state.CountryCode, 'required')}
+									</Grid>
+
 								</form>
 								<div className="row">
 									<div style={{float: "right","marginRight":"8px"}}>
 									
-									<Button variant="outlined" color="secondary" className={classes.button }>
+									<Button variant="outlined" color="secondary" className={classes.button} onClick={this.insertUpdateRecord}>
 										Insert Record
       								</Button>
 									</div>
