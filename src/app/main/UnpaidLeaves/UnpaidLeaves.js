@@ -73,13 +73,14 @@ class UnpaidLeaves extends Component {
 		value: 0,
 		labelWidth: 0,
 		employee: "",
-		dateTo: moment(),
-		dateFrom: moment(),
+		dateTo: "",
+		dateFrom: "",
 		company: "",
 		Companies: [],
 		Employees: [],
 		leaves: [],
-		Action:""
+		Action:"Insert Record",
+		Id:0
 
 	};
 	constructor(props) {
@@ -146,6 +147,11 @@ class UnpaidLeaves extends Component {
 		} else {
 			var method = "post";
 			var url = "http://localhost:3000/api/Unpaidleaves";
+			if(this.state.Action !="Insert Record")
+			{
+				 method = "put";
+				 url = "http://localhost:3000/api/Unpaidleaves/"+this.state.Id;
+			}
 			// console.log(this.state.company,this.state.employee,this.state.dateFrom,this.state.dateTo);
 			var obj = {
 				CompanyId: this.state.company,
@@ -171,6 +177,7 @@ class UnpaidLeaves extends Component {
 			})
 				.then((response) => {
 					toastr.success('Operation successfull');
+					this.getUnPaidLeaves();
 					this.getBankDetail();
 					this.setState({
 						company: "",
@@ -224,10 +231,12 @@ class UnpaidLeaves extends Component {
 				this.getEmployees(response.data[0].CompanyId);
 				this.setState({
 					employee: response.data[0].EmployeeId,
-					dateTo: moment(response.data[0].LeaveStartDate).format('YYYY-MM-DD'),
-					dateFrom: moment(response.data[0].LeaveEndDate).format('YYYY-MM-DD'),
+					dateFrom: moment(response.data[0].LeaveStartDate).format('YYYY-MM-DD'),
+					dateTo: moment(response.data[0].LeaveEndDate).format('YYYY-MM-DD'),
 					company: response.data[0].CompanyId,
-					value: 1
+					value: 1,
+					Id:response.data[0].Id,
+					Action :"Update Record"
 				});
 
 			})
@@ -235,6 +244,23 @@ class UnpaidLeaves extends Component {
 				console.log(error);
 			})
 	}
+	deleteLeaves=(id)=>{
+		axios({
+			method: "delete",
+			url: "http://localhost:3000/api/Unpaidleaves/"+id,
+			headers: {
+			  // 'Authorization': `bearer ${token}`,
+			  "Content-Type": "application/json;charset=utf-8",
+			},
+		  })
+			.then((response) => {
+				
+				this.getUnPaidLeaves();
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	  }
 	render() {
 		const { classes, theme } = this.props;
 
@@ -308,7 +334,7 @@ class UnpaidLeaves extends Component {
 													<CustomTableCell align="center">{moment(row.LeaveStartDate).format('YYYY-MM-DD')}</CustomTableCell>
 													<CustomTableCell align="center">{moment(row.LeaveEndDate).format('YYYY-MM-DD')}</CustomTableCell>
 													<CustomTableCell align="center" component="th" scope="row">
-														<IconButton className={classes.button} aria-label="Delete">
+														<IconButton className={classes.button} onClick={()=> this.deleteLeaves(row.Id)} aria-label="Delete">
 															<DeleteIcon />
 														</IconButton>
 														<IconButton className={classes.button} onClick={() => this.getLeavesById(row.Id)} aria-label="Edit">
@@ -369,14 +395,7 @@ class UnpaidLeaves extends Component {
 									</Grid>
 
 									<Grid item xs={12} sm={5} style={{ marginRight: '5px' }}>
-											<TextField
-											label="Date From"
-											name="dateFrom"
-											id="dateFrom"
-											type="date"
-											value={this.state.dateFrom}
-											className={classes.textField}
-											fullWidth
+										<TextField id="dateFrom" fullWidth label="Date From" type="date" name="dateFrom"  value={this.state.dateFrom}  onChange={this.handleChange}
 											InputLabelProps={{
 												shrink: true,
 											}}
@@ -384,14 +403,7 @@ class UnpaidLeaves extends Component {
 										{this.validator.message('dateFrom', this.state.dateFrom, 'required')}
 									</Grid>
 									<Grid item xs={12} sm={5}>
-										<TextField
-											label="Date To"
-											name="dateTo"
-											id="dateTo"
-											type="date"
-											value={this.state.dateTo}
-											className={classes.textField}
-											fullWidth
+											<TextField id="dateFrom" fullWidth label="Date To" type="date" name="dateTo"  value={this.state.dateTo}  onChange={this.handleChange}
 											InputLabelProps={{
 												shrink: true,
 											}}
@@ -405,7 +417,7 @@ class UnpaidLeaves extends Component {
 										<div style={{ float: "right", "marginRight": "8px", "marginTop": "5px" }}>
 
 											<Button variant="outlined" color="secondary" className={classes.button} onClick={this.insertUpdateLeaves} >
-												Insert Record
+												{this.state.Action}
       								</Button>
 										</div>
 									</Grid>
