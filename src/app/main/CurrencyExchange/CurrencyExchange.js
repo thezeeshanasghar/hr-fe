@@ -24,8 +24,15 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
 import { Icon, Input, MuiThemeProvider} from '@material-ui/core';
+import SimpleReactValidator from 'simple-react-validator';
+import axios from "axios";
+import toastr from 'toastr';
+import {Lookups} from '../../services/constant/enum'
+import Grid from '@material-ui/core/Grid';
+import moment from 'moment';
 
 const styles = theme => ({
+
 	container: {
 		display: 'flex',
 		flexWrap: 'wrap',
@@ -41,6 +48,10 @@ const styles = theme => ({
 	menu: {
 		width: 200,
 	},
+	formControl: {
+		margin: theme.spacing.unit,
+		minWidth: "99%",
+	}
 });
 
 const CustomTableCell = withStyles(theme => ({
@@ -73,7 +84,168 @@ const rows = [
 class CurrencyExchange extends Component {
 	state = {
 		value: 0,
+		currency:"",
+		toCurrency:"",
+		rate:"",
+		effectiveDate:"",
+		CurrencyList:[],
+		Action:"Insert Record",
+		Id:0,
+		ExchangeRate:[]
 	};
+	constructor(props) {
+		super(props);
+		this.validator = new SimpleReactValidator();
+
+	}
+	componentDidMount() {
+		this.getCurrency();
+		this.getExchangeRate();
+	}
+	InsertUpdateExchange=()=>{
+			if (!this.validator.allValid()) {
+				this.validator.showMessages();
+				this.forceUpdate();
+			} else {
+				var method = "post";
+				var url = "http://localhost:3000/api/Currency";
+				if(this.state.Action !="Insert Record")
+				{
+					 method = "put";
+					 url = "http://localhost:3000/api/Currency/"+this.state.Id;
+				}
+				// console.log(this.state.company,this.state.employee,this.state.dateFrom,this.state.dateTo);
+				var obj = {
+					Currency: this.state.currency,
+					ToCurrency: this.state.toCurrency,
+					Rate: this.state.rate,
+					EffectiveDate: this.state.effectiveDate
+				};
+				axios.interceptors.request.use(function (config) {
+					// document.getElementsByClassName("loader-wrapper")[0].style.display="block"
+					return config;
+				}, function (error) {
+					console.log('Error');
+					return Promise.reject(error);
+				});
+				axios({
+					method: method,
+					url: url,
+					data: JSON.stringify(obj),
+					headers: {
+						// 'Authorization': `bearer ${token}`,
+						"Content-Type": "application/json;charset=utf-8",
+					},
+				})
+					.then((response) => {
+						toastr.success('Operation successfull');
+						this.getExchangeRate();
+						this.setState({
+							currency: "",
+							toCurrency: "",
+							rate: "",
+							effectiveDate: "",
+							Action:"Insert Record",
+							Id:0
+						});
+					})
+					.catch((error) => {
+						console.log(error);
+						toastr.error('Operation unsuccessfull');
+						this.setState({
+							currency: "",
+							toCurrency: "",
+							rate: "",
+							effectiveDate: "",
+							Action:"Insert Record",
+							Id:0
+						})
+					})
+	
+	
+			}
+		
+	}
+	getCurrency = () => {
+		console.log("23423432")
+		axios({
+			method: "get",
+			url: "http://localhost:3000/api/lookups/"+Lookups.Currency,
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response);
+				this.setState({ CurrencyList: response.data });
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
+	getExchangeRate = () => {
+		
+		axios({
+			method: "get",
+			url: "http://localhost:3000/api/Currency",
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response);
+				this.setState({ ExchangeRate: response.data });
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
+
+	getExchangeById=(id)=>{
+		axios({
+			method: "get",
+			url: "http://localhost:3000/api/Currency/"+id,
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response);
+				this.setState({
+				currency:response.data[0].Currency,
+				toCurrency:response.data[0].Currency,
+				rate:response.data[0].Rate,
+				effectiveDate:moment(response.data[0].EffectiveDate).format('YYYY-MM-DD'),
+				Action:"Update Record",
+				Id:response.data[0].Id,
+				value:1
+				});
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
+	deleteExchange=(id)=>{
+		axios({
+			method: "delete",
+			url: "http://localhost:3000/api/Currency/"+id,
+			headers: {
+			  // 'Authorization': `bearer ${token}`,
+			  "Content-Type": "application/json;charset=utf-8",
+			},
+		  })
+			.then((response) => {
+				
+				this.getExchangeRate();
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	  }
+
 	getCurrentDate(separator='-'){
 
 		let newDate = new Date()
@@ -83,8 +255,14 @@ class CurrencyExchange extends Component {
 		
 		return `${year}${separator}${month<10?`0${month}`:`${month}`}${separator}${date}`
 	}
-	handleChange = (event, value) => {
+	
+	handleTabChange = (event, value) => {
 		this.setState({ value });
+		this.setState({ [event.target.name]: event.target.value });
+
+	};
+	handleChange = (e) => {
+		this.setState({ [e.target.name]: e.target.value });
 	};
 	render() {
 		const { classes, theme } = this.props;
@@ -106,7 +284,7 @@ class CurrencyExchange extends Component {
 						<AppBar position="static" color="default">
 							<Tabs
 								value={this.state.value}
-								onChange={this.handleChange}
+								onChange={this.handleTabChange}
 								indicatorColor="primary"
 								textColor="primary"
 								variant="fullWidth"
@@ -150,20 +328,20 @@ class CurrencyExchange extends Component {
 											</TableRow>
 										</TableHead>
 										<TableBody>
-											{rows.map(row => (
-												<TableRow className={classes.row} key={row.id}>
+											{this.state.ExchangeRate.map(row => (
+												<TableRow className={classes.row} key={row.Id}>
 
-													<CustomTableCell align="center">{row.Currency}</CustomTableCell>
+													<CustomTableCell align="center">{this.state.CurrencyList.filter(x=>x.Id==row.Currency)[0].Name }</CustomTableCell>
 													<CustomTableCell align="center">{row.Rate}</CustomTableCell>
-													<CustomTableCell align="center">{row.ToCurrency}</CustomTableCell>
+													<CustomTableCell align="center">{this.state.CurrencyList.filter(x=>x.Id==row.ToCurrency)[0].Name }</CustomTableCell>
 													<CustomTableCell align="center" component="th" scope="row">
-														{row.EffectiveDate}
+														{moment(row.EffectiveDate).format('YYYY-MM-DD')}
 													</CustomTableCell>
 													<CustomTableCell align="center" component="th" scope="row">
-														<IconButton className={classes.button} aria-label="Delete">
+														<IconButton className={classes.button} onClick={()=>this.deleteExchange(row.Id)} aria-label="Delete">
 															<DeleteIcon />
 														</IconButton>
-														<IconButton className={classes.button} aria-label="Edit">
+														<IconButton className={classes.button} onClick={()=>this.getExchangeById(row.Id)} aria-label="Edit">
 															<EditIcon />
 														</IconButton>
 													</CustomTableCell>
@@ -175,73 +353,83 @@ class CurrencyExchange extends Component {
 							</TabContainer>
 							<TabContainer dir={theme.direction}>
 								<form className={classes.container} noValidate autoComplete="off">
-									<TextField
-										id="outlined-name"
-										label="Currency"
-										className={classes.textField}
-										value={this.state.name}
-										fullWidth
-										//   onChange={this.handleChange('name')}
-										margin="normal"
-										variant="outlined"
-									/>
-									<TextField
-										id="outlined-name"
-										label="Rate"
-										fullWidth
-										className={classes.textField}
-										value={this.state.name}
-										//   onChange={this.handleChange('name')}
-										margin="normal"
-										variant="outlined"
-									/>
-									<TextField
-										id="outlined-name"
-										label="To Currency"
-										fullWidth
-										className={classes.textField}
-										value={this.state.name}
-										//   onChange={this.handleChange('name')}
-										margin="normal"
-										variant="outlined"
-									/>
-									<TextField
-										id="date"
-										label="Effective Date"
-										type="date"
-										fullWidth
-										className={classes.textField}
-										InputLabelProps={{
-											shrink: true,
-										}}
-									/>
-									{/* <FormControl className={classes.formControl}>
-										<InputLabel htmlFor="age-simple">Age</InputLabel>
+								<Grid item xs={12} sm={5}  style={{marginRight:'5px'}} >
+									<FormControl className={classes.formControl}>
+										<InputLabel htmlFor="currency">Currency</InputLabel>
 										<Select
-											value={this.state.age}
+											value={this.state.currency}
 											onChange={this.handleChange}
 											inputProps={{
-												name: 'age',
-												id: 'age-simple',
+												name: 'currency',
+												id: 'currency',
 											}}
-											className="form-control"
 										>
 											<MenuItem value="">
 												<em>None</em>
 											</MenuItem>
-											<MenuItem value={10}>Ten</MenuItem>
-											<MenuItem value={20}>Twenty</MenuItem>
-											<MenuItem value={30}>Thirty</MenuItem>
+											{this.state.CurrencyList.map(row => (
+													<MenuItem value={row.Id}>{row.Name}</MenuItem>
+												))}
 										</Select>
-									</FormControl> */}
+										{this.validator.message('currency', this.state.currency, 'required')}
+
+									</FormControl>
+									</Grid>
+									<Grid item xs={12} sm={5}   >
+									<FormControl className={classes.formControl}>
+										<InputLabel htmlFor="toCurrency">To Currency</InputLabel>
+										<Select
+											value={this.state.toCurrency}
+											onChange={this.handleChange}
+											inputProps={{
+												name: 'toCurrency',
+												id: 'toCurrency',
+											}}
+										>
+											<MenuItem value="">
+												<em>None</em>
+											</MenuItem>
+											{this.state.CurrencyList.map(row => (
+													<MenuItem value={row.Id}>{row.Name}</MenuItem>
+												))}
+										</Select>
+										{this.validator.message('toCurrency', this.state.toCurrency, 'required')}
+
+									</FormControl>
+									</Grid>
+									<Grid item xs={12} sm={5}  style={{marginRight:'5px'}} >
+									<TextField
+										id="rate"
+										label="rate"
+										type="number"
+										value={this.state.rate}
+										fullWidth
+										name="rate"
+										onChange={this.handleChange}
+									/>
+									{this.validator.message('rate', this.state.rate, 'required')}
+
+									</Grid>
+									<Grid item xs={12} sm={5}  >
+								
+									<TextField id="effectiveDate" fullWidth label="Effective Date" type="date" name="effectiveDate"  value={this.state.effectiveDate}  onChange={this.handleChange}
+											InputLabelProps={{
+												shrink: true,
+											}}
+										/>
+									{this.validator.message('effectiveDate', this.state.effectiveDate, 'required')}
+
+									</Grid>
 								</form>
 								<div className="row">
+								<Grid item xs={12} sm={10}  >
 									<div style={{ float: "right", "marginRight": "8px", "marginTop": "2px", "marginBottom": "2px" }}>
 
-										<Button variant="outlined" color="secondary" className={classes.button}>
-											Insert Record
+										<Button variant="outlined" color="secondary" className={classes.button} onClick={this.InsertUpdateExchange} >
+											{this.state.Action}
       								</Button>
 									</div>
+									</Grid>
 								</div>
 							</TabContainer>
 						</SwipeableViews>
