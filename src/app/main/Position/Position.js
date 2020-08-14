@@ -23,6 +23,9 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
 import { Icon, Input, MuiThemeProvider} from '@material-ui/core';
+import Grid from '@material-ui/core/Grid';
+import axios from "axios";
+import SimpleReactValidator from 'simple-react-validator';
 const styles = theme => ({
 	container: {
 		display: 'flex',
@@ -75,14 +78,155 @@ class Position extends Component {
 	state = {
 		value: 0,
 		labelWidth: 0,
-		unit: 1,
-		Job: 1
+		unitId: 1,
+		jobId: 1,
+		companyId: 2,
+		code: '',
+		title: '',
+		Positions: [],
+		Id: 0,
+		Action: 'Insert Record'
 	};
-	handleChange = (event, value) => {
-		this.setState({ value });
-		this.setState({ [event.target.name]: event.target.value });
+	
+	constructor(props) {
+		super(props);
+		this.validator = new SimpleReactValidator();
+	
+	  }
 
+	  componentDidMount(){
+		this.getPositionDetail();
+	}
+	  
+	  handleTab = (event, value) => {
+		this.setState({ value });
 	};
+
+	handleChange = (e) => {
+		this.setState({ [e.target.name]: e.target.value });
+	};
+
+	getPositionDetail=()=>{
+		axios({
+			method: "get",
+			url: "http://localhost:5000/api/position",
+			headers: {
+			  // 'Authorization': `bearer ${token}`,
+			  "Content-Type": "application/json;charset=utf-8",
+			},
+		  })
+			.then((response) => {
+				console.log(response);
+				this.setState({Positions:response.data});
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	  }
+	  insertUpdateRecord=()=>{
+		if (!this.validator.allValid()) 
+		{
+			console.log("false");
+	    this.validator.showMessages();
+	    this.forceUpdate();
+  		 return false;
+		   }
+		   console.log("true");
+		//   this.setState({bankName:'',bankCode:'',bankAddress:''})
+		var method="post";
+		var url="http://localhost:5000/api/position";
+		if(this.state.Action!="Insert Record")
+		{
+		 method="put";
+		 url="http://localhost:3000/api/position/"+this.state.Id;
+		}
+
+
+		var obj = {
+			Code: this.state.code,
+			Title: this.state.title,
+		//	CompanyId: 2
+			unitId: 1,
+		    Job: "N/A",
+		    Action: 'Insert Record'
+		  };
+		  axios.interceptors.request.use(function(config) {
+			// document.getElementsByClassName("loader-wrapper")[0].style.display="block"
+			return config;
+		  }, function(error) {
+			console.log('Error');
+			return Promise.reject(error);
+		  });
+		  axios({
+			method: method,
+			url: url,
+			data: JSON.stringify(obj),
+			headers: {
+			  // 'Authorization': `bearer ${token}`,
+			  "Content-Type": "application/json;charset=utf-8",
+			},
+		  })
+			.then((response) => {
+	
+			  console.log(response);
+			  this.setState({
+				unitId: 1,
+		        Job: 1,
+		        code: '',
+		        title: '',
+		        Id: 0,
+		        Action: 'Insert Record'
+			  });
+			})
+			.catch((error) => {
+				console.log(error);
+			  this.setState({
+				unitId: 1,
+		        Job: 1,
+		        code: '',
+		        title: '',
+		        Id: 0,
+		        Action: 'Insert Record'
+				})
+			}).finally(()=>{
+			//   document.getElementsByClassName("loader-wrapper")[0].style.display="none";
+			});
+	  }
+	  deleteposition=(id)=>{
+		axios({
+			method: "delete",
+			url: "http://localhost:3000/api/position/"+id,
+			headers: {
+			  // 'Authorization': `bearer ${token}`,
+			  "Content-Type": "application/json;charset=utf-8",
+			},
+		  })
+			.then((response) => {
+				
+				this.getPositionDetail();
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	  }
+
+	  getPositionById=(id)=>{
+		axios({
+			method: "get",
+			url: "http://localhost:5000/api/position/"+id,
+			headers: {
+			  // 'Authorization': `bearer ${token}`,
+			  "Content-Type": "application/json;charset=utf-8",
+			},
+		  })
+			.then((response) => {
+				console.log(response);
+				this.setState({Action:'Update Record',value:1,jobId:response.data[0].JobId,code:response.data[0].Code, title:response.data[0].Title, Id:response.data[0].Id });
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	  }
 	render() {
 		const { classes, theme } = this.props;
 
@@ -103,7 +247,7 @@ class Position extends Component {
 						<AppBar position="static" color="default">
 							<Tabs
 								value={this.state.value}
-								onChange={this.handleChange}
+								onChange={this.handleTab}
 								indicatorColor="primary"
 								textColor="primary"
 								variant="fullWidth"
@@ -148,18 +292,20 @@ class Position extends Component {
 											</TableRow>
 										</TableHead>
 										<TableBody>
-											{rows.map(row => (
-												<TableRow className={classes.row} key={row.id}>
+										{this.state.Positions.map(row => (
+												<TableRow className={classes.row} key={row.Id}>
 
-													<CustomTableCell align="center"  >{row.Unit}</CustomTableCell>
-													<CustomTableCell align="center">{row.Job}</CustomTableCell>
-													<CustomTableCell align="center">{row.Code}</CustomTableCell>
-													<CustomTableCell align="center">{row.Title}</CustomTableCell>
+													<CustomTableCell align="center">{row.UnitId=="" || row.UnitId==null || row.UnitId == undefined ?'N/A':row.UnitId}</CustomTableCell>
 													<CustomTableCell align="center" component="th" scope="row">
-														<IconButton className={classes.button} aria-label="Delete">
+														{row.JobId=="" || row.JobId==null || row.JobId == undefined ?'N/A':row.JobId}
+													</CustomTableCell>
+													<CustomTableCell align="center">{row.CompanyId=="" || row.CompanyId==null || row.CompanyId == undefined ?'N/A':row.CompanyId}</CustomTableCell>
+													<CustomTableCell align="center">{row.Title=="" || row.Title==null || row.Title == undefined ?'N/A':row.Title}</CustomTableCell>	
+													<CustomTableCell align="center" component="th" scope="row">
+														<IconButton className={classes.button} onClick={()=>this.deletePosition(row.Id)}  aria-label="Delete">
 															<DeleteIcon />
 														</IconButton>
-														<IconButton className={classes.button} aria-label="Edit">
+														<IconButton className={classes.button} onClick={()=>this.getPositionById(row.Id)} aria-label="Edit">
 															<EditIcon />
 														</IconButton>
 													</CustomTableCell>
@@ -171,62 +317,26 @@ class Position extends Component {
 							</TabContainer>
 							<TabContainer dir={theme.direction}>
 								<form className={classes.container} noValidate autoComplete="off">
-
-									<FormControl className={classes.formControl}>
-										<InputLabel htmlFor="Unit">Unit</InputLabel>
-										<Select
-											value={this.state.unit}
-											onChange={this.handleChange}
-											inputProps={{
-												name: 'Unit',
-												id: 'Unit',
-											}}
-										>
-											<MenuItem value="">
-												<em>None</em>
-											</MenuItem>
-											<MenuItem value={1}>Unit1</MenuItem>
-											<MenuItem value={2}>Unit2</MenuItem>
-										</Select>
-									</FormControl>
-									<FormControl className={classes.formControl}>
-										<InputLabel htmlFor="Job">Job</InputLabel>
-										<Select
-											value={this.state.Job}
-											onChange={this.handleChange}
-											inputProps={{
-												name: 'Job',
-												id: 'Job',
-											}}
-										>
-											<MenuItem value="">
-												<em>None</em>
-											</MenuItem>
-											<MenuItem value={1}>Job1</MenuItem>
-											<MenuItem value={2}>Job2</MenuItem>
-										</Select>
-									</FormControl>
-									<TextField
-										id="outlined-name"
-										label=" Code"
-										className={classes.textField}
-										value={this.state.name}
-										fullWidth
-										//   onChange={this.handleChange('name')}
-										margin="normal"
-										variant="outlined"
-									/>
-									<TextField
-										id="outlined-name"
-										label="Title"
-										className={classes.textField}
-										value={this.state.name}
-										fullWidth
-										//   onChange={this.handleChange('name')}
-										margin="normal"
-										variant="outlined"
-									/>
-
+								<Grid item xs={12} sm={5}  style={{marginRight:'5px'}} >
+								<TextField id="unitId" fullWidth label="Unit" name="unitId" value={this.state.unitId} onChange={this.handleChange} />
+								{this.validator.message('unitId', this.state.unitId, 'required')}
+									</Grid>
+									<Grid item xs={12} sm={5}  >
+									<TextField id="jobId" fullWidth label="Job" name="jobId" value={this.state.jobId} onChange={this.handleChange} />
+									{this.validator.message('jobId', this.state.Job, 'required')}
+									</Grid>
+									<Grid item xs={12} sm={5}  style={{marginRight:'5px'}} >
+								<TextField id="companyId" fullWidth label="Unit" name="companyId" value={this.state.companyId} onChange={this.handleChange} />
+								{this.validator.message('companyId', this.state.companyId, 'required')}
+									</Grid>
+									<Grid item xs={12} sm={5}  >
+									<TextField id="code" fullWidth label="Code" name="code" value={this.state.code} onChange={this.handleChange} />
+									{this.validator.message('code', this.state.code, 'required')}
+									</Grid>
+									<Grid item xs={12} sm={5}  >
+									<TextField id="title" fullWidth label="title" name="title" value={this.state.title} onChange={this.handleChange} />
+									{this.validator.message('title', this.state.title, 'required')}
+									</Grid>
 								</form>
 								<div className="row">
 									<div style={{ float: "right", "marginRight": "8px" }}>
