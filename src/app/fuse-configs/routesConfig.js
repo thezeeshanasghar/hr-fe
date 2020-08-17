@@ -22,6 +22,7 @@ import {SocialSecurityElementConfig} from 'app/main/SocialSecurityElement/Social
 import {UnitConfig} from 'app/main/Unit/UnitConfig';
 import {UnpaidLeavesConfig} from 'app/main/UnpaidLeaves/UnpaidLeavesConfig';
 import {UserProtectionConfig} from 'app/main/UserProtection/UserProtectionConfig';
+import {LoginConfig} from 'app/main/Login/LoginConfig'
 const routeConfigs = [
     DashboardConfig,
     BankConfig,
@@ -41,7 +42,8 @@ const routeConfigs = [
     UnitConfig,
     SocialSecurityElementConfig,
     UnpaidLeavesConfig,
-    UserProtectionConfig
+    UserProtectionConfig,
+    LoginConfig
 ];
 
  const routes = [
@@ -49,8 +51,7 @@ const routeConfigs = [
     {
         path     : '/',
         component: () => <Redirect to="/dashboard"/>
-    },
-  
+    }
 ];
 
  export default routes;

@@ -6,13 +6,15 @@ import * as Actions from 'app/store/actions';
 import firebaseService from 'app/services/firebaseService';
 import auth0Service from 'app/services/auth0Service';
 import jwtService from 'app/services/jwtService';
+import jwt_decode from 'jwt-decode';
 
 class Auth extends Component {
     /*eslint-disable-next-line no-useless-constructor*/
-    constructor(props)
+    constructor(props,context)
     {
-        super(props);
-
+        super(props,context);
+  
+    // this.isLogin();
         /**
          * Comment the line if you do not use JWt
          */
@@ -28,7 +30,25 @@ class Auth extends Component {
          */
         //this.firebaseCheck();
     }
+    
+    isLogin=()=>{
+        
+        let token = localStorage.getItem("u");
+        if(token)
+        {
+            var decoded = jwt_decode(token);
+            if(!decoded)
+            {
+                localStorage.clear();
+                this.props.history.push('/login')
+                console.log("login failed")
+            }
+        }else{
+            console.log("login failed")
+            this.props.history.push('/login')
 
+        }
+    }
     jwtCheck = () => {
         jwtService.on('onAutoLogin', () => {
 
@@ -104,7 +124,7 @@ class Auth extends Component {
     render()
     {
         const {children} = this.props;
-
+    
         return (
             <React.Fragment>
                 {children}
