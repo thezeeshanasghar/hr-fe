@@ -18,6 +18,16 @@ import EditIcon from '@material-ui/icons/Edit';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import { Icon, Input, MuiThemeProvider} from '@material-ui/core';
+import {Lookups} from '../../services/constant/enum'
+import axios from "axios";
+import toastr from 'toastr';
+import Grid from '@material-ui/core/Grid';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import SimpleReactValidator from 'simple-react-validator';
+
 const styles = theme => ({
 	container: {
 		display: 'flex',
@@ -34,6 +44,10 @@ const styles = theme => ({
 	menu: {
 		width: 200,
 	},
+	formControl: {
+		margin: theme.spacing.unit,
+		minWidth: "99%",
+	}
 });
 
 const CustomTableCell = withStyles(theme => ({
@@ -66,13 +80,224 @@ const rows = [
 class CountryLaws extends Component {
 	state = {
 		value: 0,
+		code:'',
+		countryCode:[],
+		CurrencyList:[],
+		Currency:'',
+		mode:'',
+		modeList:[],
+		adultAge:'',
+		description:'',
+		Id:0,
+		Action:"Insert Record",
+		CountryLaws:[]
 	};
-	handleChange = (event, value) => {
+	constructor(props) {
+		super(props);
+		this.validator = new SimpleReactValidator();
+
+	}
+	componentDidMount() {
+		this.getCountry();
+		this.getCurrency();
+		this.getMode();
+		this.getCountryLaw();
+	}
+	handleTabChange = (event, value) => {
 		this.setState({ value });
+		this.setState({ [event.target.name]: event.target.value });
+
 	};
+	handleChange = (e) => {
+		this.setState({ [e.target.name]: e.target.value });
+		console.log(e.target.name, e.target.value);
+		if (e.target.name == "company" && e.target.value != "") {
+			this.getEmployees(e.target.value);
+		}
+	};
+	getCountry = () => {
+
+		axios({
+			method: "get",
+			url: "http://localhost:3000/api/lookups/"+Lookups.Country,
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response);
+				this.setState({ countryCode: response.data });
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
+	getCurrency = () => {
+		axios({
+			method: "get",
+			url: "http://localhost:3000/api/lookups/"+Lookups.Currency,
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response);
+				this.setState({ CurrencyList: response.data });
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
+	getMode = () => {
+		axios({
+			method: "get",
+			url: "http://localhost:3000/api/lookups/"+Lookups.mode,
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response);
+				this.setState({ modeList: response.data });
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
+	InsertUpdateCountryLaw=()=>{
+		console.log("**************************************")
+		if (!this.validator.allValid()) {
+			this.validator.showMessages();
+			this.forceUpdate();
+		} else {
+
+			var method = "post";
+			var url = "http://localhost:3000/api/countrylaw";
+			if(this.state.Action !="Insert Record")
+			{
+				 method = "put";
+				 url = "http://localhost:3000/api/countrylaw/"+this.state.Id;
+			}
+
+			var obj = {
+				Detail: this.state.description,
+				CountryCode: this.state.code,
+				Currency: this.state.Currency,
+				AdultAge: this.state.adultAge,
+				CalculationMode: this.state.mode,
+			};
+			axios.interceptors.request.use(function (config) {
+				// document.getElementsByClassName("loader-wrapper")[0].style.display="block"
+				return config;
+			}, function (error) {
+				console.log('Error');
+				return Promise.reject(error);
+			});
+			axios({
+				method: method,
+				url: url,
+				data: JSON.stringify(obj),
+				headers: {
+					// 'Authorization': `bearer ${token}`,
+					"Content-Type": "application/json;charset=utf-8",
+				},
+			})
+				.then((response) => {
+					toastr.success('Operation successfull');
+					this.getCountryLaw();
+					this.setState({
+						description:"",
+						code:"",
+						Currency:"",
+						adultAge:"",
+						mode:"",
+						Action:"Insert Record",
+						Id:0
+					});
+				})
+				.catch((error) => {
+					console.log(error);
+					toastr.error('Operation unsuccessfull');
+					this.setState({
+						description:"",
+						code:"",
+						Currency:"",
+						adultAge:"",
+						mode:"",
+						Action:"Insert Record",
+						Id:0
+					})
+				})
+		}
+	}
+	getCountryLawById = (id) => {
+		axios({
+			method: "get",
+			url: "http://localhost:3000/api/countrylaw/" + id,
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+			
+				this.setState({
+					description:response.data[0].Detail,
+					code:response.data[0].CountryCode,
+					Currency:response.data[0].Currency,
+					adultAge:response.data[0].AdultAge,
+					mode:response.data[0].CalculationMode,
+					value: 1,
+					Id:response.data[0].Id,
+					Action :"Update Record"
+				});
+
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
+	getCountryLaw = () => {
+		
+		axios({
+			method: "get",
+			url: "http://localhost:3000/api/countrylaw",
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response);
+				this.setState({ CountryLaws: response.data });
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
+	deleteCountryLaw=(id)=>{
+		axios({
+			method: "delete",
+			url: "http://localhost:3000/api/countrylaw/"+id,
+			headers: {
+			  // 'Authorization': `bearer ${token}`,
+			  "Content-Type": "application/json;charset=utf-8",
+			},
+		  })
+			.then((response) => {
+				
+				this.getCountryLaw();
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	  }
 	render() {
 		const { classes, theme } = this.props;
-
+		
 		return (
 			<FusePageSimple
 				classes={{
@@ -90,7 +315,7 @@ class CountryLaws extends Component {
 						<AppBar position="static" color="default">
 							<Tabs
 								value={this.state.value}
-								onChange={this.handleChange}
+								onChange={this.handleTabChange}
 								indicatorColor="primary"
 								textColor="primary"
 								variant="fullWidth"
@@ -132,18 +357,18 @@ class CountryLaws extends Component {
 											</TableRow>
 										</TableHead>
 										<TableBody>
-											{rows.map(row => (
+											{this.state.CountryLaws.map(row => (
 												<TableRow className={classes.row} key={row.id}>
 
 													<CustomTableCell align="center">{row.CountryCode}</CustomTableCell>
 													<CustomTableCell align="center" component="th" scope="row">
-														{row.Description}
+														{row.Detail}
 													</CustomTableCell>
 													<CustomTableCell align="center" component="th" scope="row">
-														<IconButton className={classes.button} aria-label="Delete">
+														<IconButton className={classes.button} onClick={()=>this.deleteCountryLaw(row.Id)} aria-label="Delete">
 															<DeleteIcon />
 														</IconButton>
-														<IconButton className={classes.button} aria-label="Edit">
+														<IconButton className={classes.button} onClick={()=>this.getCountryLawById(row.Id)} aria-label="Edit">
 															<EditIcon />
 														</IconButton>
 													</CustomTableCell>
@@ -155,35 +380,104 @@ class CountryLaws extends Component {
 							</TabContainer>
 							<TabContainer dir={theme.direction}>
 								<form className={classes.container} noValidate autoComplete="off">
+								<Grid item xs={12} sm={5} style={{ marginRight: '5px' }}    >
+										 <FormControl className={classes.formControl}>
+										<InputLabel htmlFor="ContractType">Country Code</InputLabel>
+										<Select
+											value={this.state.code}
+											onChange={this.handleChange}
+											inputProps={{
+												name: 'code',
+												id: 'code',
+											}}
+										>
+											<MenuItem value="">
+												<em>None</em>
+											</MenuItem>
+											{this.state.countryCode.map(row => (
+													<MenuItem value={row.Id}>{row.Name}</MenuItem>
+												))}
+										</Select>
+									</FormControl>
+									</Grid>
+
+									<Grid item xs={12} sm={5}   >
+										 <FormControl className={classes.formControl}>
+										<InputLabel htmlFor="Currency">Currency Code</InputLabel>
+										<Select
+											value={this.state.Currency}
+											onChange={this.handleChange}
+											inputProps={{
+												name: 'Currency',
+												id: 'Currency',
+											}}
+										>
+											<MenuItem value="">
+												<em>None</em>
+											</MenuItem>
+											{this.state.CurrencyList.map(row => (
+													<MenuItem value={row.Id}>{row.Name}</MenuItem>
+												))}
+										</Select>
+									</FormControl>
+									</Grid>
+
+									<Grid item xs={12} sm={5} style={{ marginRight: '5px' }} >
+										 <FormControl className={classes.formControl}>
+										<InputLabel htmlFor="mode">Calculation Mode</InputLabel>
+										<Select
+											value={this.state.mode}
+											onChange={this.handleChange}
+											inputProps={{
+												name: 'mode',
+												id: 'mode',
+											}}
+										>
+											<MenuItem value="">
+												<em>None</em>
+											</MenuItem>
+											{this.state.modeList.map(row => (
+													<MenuItem value={row.Id}>{row.Name}</MenuItem>
+												))}
+										</Select>
+									</FormControl>
+									</Grid>
+									<Grid item xs={12} sm={5} >
 									<TextField
-										id="outlined-name"
-										label="Country Code"
-										className={classes.textField}
-										value={this.state.name}
+										id="adultAge"
+										label="Adult Age"
 										fullWidth
-										//   onChange={this.handleChange('name')}
+										type="number"
+										name="adultAge"
+										className={classes.textField}
+										value={this.state.adultAge}
+										  onChange={this.handleChange}
 										margin="normal"
-										variant="outlined"
 									/>
+									</Grid>
+									<Grid item xs={12} sm={10} >
 									<TextField
-										id="outlined-name"
-										label="Country Law"
+										id="description"
+										label="Law"
 										fullWidth
+										type="text"
+										name="description"
 										className={classes.textField}
-										value={this.state.name}
-										//   onChange={this.handleChange('name')}
+										value={this.state.description}
+										  onChange={this.handleChange}
 										margin="normal"
-										variant="outlined"
 									/>
-										
+									</Grid>
 								</form>
 								<div className="row">
+								<Grid item xs={12} sm={10} >
 									<div style={{float: "right","marginRight":"8px"}}>
 									
-									<Button variant="outlined" color="secondary" className={classes.button }>
-										Insert Record
+									<Button variant="outlined" color="secondary" className={classes.button } onClick={this.InsertUpdateCountryLaw} >
+										{this.state.Action}
       								</Button>
 									</div>
+									</Grid>
 								</div>
 							</TabContainer>
 						</SwipeableViews>
