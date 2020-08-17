@@ -331,9 +331,9 @@ class CurrencyExchange extends Component {
 											{this.state.ExchangeRate.map(row => (
 												<TableRow className={classes.row} key={row.Id}>
 
-													<CustomTableCell align="center">{this.state.CurrencyList.filter(x=>x.Id==row.Currency)[0].Name }</CustomTableCell>
+													<CustomTableCell align="center">{row.CurrencyName }</CustomTableCell>
 													<CustomTableCell align="center">{row.Rate}</CustomTableCell>
-													<CustomTableCell align="center">{this.state.CurrencyList.filter(x=>x.Id==row.ToCurrency)[0].Name }</CustomTableCell>
+											<CustomTableCell align="center">{row.ToCurrencyName}</CustomTableCell>
 													<CustomTableCell align="center" component="th" scope="row">
 														{moment(row.EffectiveDate).format('YYYY-MM-DD')}
 													</CustomTableCell>

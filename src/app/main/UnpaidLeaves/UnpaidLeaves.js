@@ -86,7 +86,6 @@ class UnpaidLeaves extends Component {
 	constructor(props) {
 		super(props);
 		this.validator = new SimpleReactValidator();
-
 	}
 	componentDidMount() {
 		this.getCompanies();
