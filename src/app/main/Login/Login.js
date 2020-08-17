@@ -5,6 +5,9 @@ import {FuseAnimate} from '@fuse';
 import classNames from 'classnames';
 import {Link} from 'react-router-dom';
 import _ from '@lodash';
+import axios from "axios";
+import { Redirect } from "react-router-dom";
+// import { useHistory } from "react-router"
 
 const styles = theme => ({
     root: {
@@ -18,8 +21,9 @@ class Login extends Component {
     state = {
         email   : '',
         password: '',
-        // remember: true
+        redirect: localStorage.getItem('IsLoggedIn')
     };
+  
 
     handleChange = (event) => {
         this.setState(_.set({...this.state}, event.target.name, event.target.type === 'checkbox' ? event.target.checked : event.target.value));
@@ -33,8 +37,55 @@ class Login extends Component {
         );
     }
 
+    login=()=>{
+      //  let history = useHistory();
+		var obj = {
+			Email: this.state.email,
+			Password: this.state.password,
+		  };
+		  axios.interceptors.request.use(function(config) {
+			// document.getElementsByClassName("loader-wrapper")[0].style.display="block"
+			return config;
+		  }, function(error) {
+			console.log('Error');
+			return Promise.reject(error);
+		  });
+		  axios({
+			method: "get",
+			url: "http://localhost:5000/api/userLogin/"+this.state.email+"/"+this.state.password,
+			// data: JSON.stringify(obj),
+			headers: {
+			  // 'Authorization': `bearer ${token}`,
+			  "Content-Type": "application/json;charset=utf-8",
+			},
+		  })
+			.then((response) => {
+              localStorage.setItem('IsLoggedIn' , true);
+              localStorage.setItem('token' , response.data);
+           //   history.push("/dashboard")
+
+			  this.setState({
+                redirect: true            
+              });
+			})
+			.catch((error) => {
+				console.log(error);
+			  this.setState({
+				email: "",
+				password: ''
+				})
+			}).finally(()=>{
+			//   document.getElementsByClassName("loader-wrapper")[0].style.display="none";
+			});
+	  }
+
     render()
     {
+        const { redirect } = this.state;
+
+     if (redirect) {
+       return <Redirect to='/dashboard'/>;
+     }
         const {classes} = this.props;
         const {email, password, remember} = this.state;
 
@@ -121,6 +172,7 @@ class Login extends Component {
                                     className="w-full mx-auto mt-16"
                                     aria-label="LOG IN"
                                     disabled={!this.canBeSubmitted()}
+                                    onClick={this.login}
                                 >
                                     LOGIN
                                 </Button>
