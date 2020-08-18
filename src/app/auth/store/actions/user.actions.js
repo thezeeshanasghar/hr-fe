@@ -160,35 +160,12 @@ export function logoutUser()
 {
 
     return (dispatch, getState) => {
-
-        const user = getState().auth.user;
-
-        if ( user.role === 'guest' )
-        {
-            return null;
-        }
+        localStorage.clear();
 
         history.push({
-            pathname: '/'
+            pathname: '/login'
         });
-
-        switch ( user.from )
-        {
-            case 'firebase':
-            {
-                firebaseService.signOut();
-                break;
-            }
-            case 'auth0':
-            {
-                auth0Service.logout();
-                break;
-            }
-            default:
-            {
-                jwtService.logout();
-            }
-        }
+       
 
         dispatch(setInitialSettings());
 
