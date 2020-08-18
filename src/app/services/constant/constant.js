@@ -1,1 +1,2 @@
-export const defaultUrl="https://localhost:3000/";
+const defaultUrl = "http://localhost:3000/api/";
+ export default defaultUrl;
