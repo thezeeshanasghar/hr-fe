@@ -23,6 +23,13 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
 import { Icon, Input, MuiThemeProvider} from '@material-ui/core';
+import SimpleReactValidator from 'simple-react-validator';
+import axios from "axios";
+import toastr from 'toastr';
+import { Lookups } from '../../services/constant/enum'
+import Grid from '@material-ui/core/Grid';
+import moment from 'moment';
+import defaultUrl from "../../../app/services/constant/constant";
 const styles = theme => ({
 	container: {
 		display: 'flex',
@@ -75,14 +82,298 @@ class PayElement extends Component {
 	state = {
 		value: 0,
 		labelWidth: 0,
-		Month:1,
-		Days:1,
-		Periodicity:true
+		Periodicity:"",
+		code:"",
+		description:"",
+		group:"",
+		increment:"",
+		lumpsum:"",
+		currency:"",
+		days:"",
+		month:"",
+		company:"",
+		companies:[],
+		groupList:[],
+		daysList:[],
+		monthList:[],
+		PeriodicityList:[],
+		currencyList:[],
+		payElements:[],
+		Id:0,
+		Action:"Insert Record"
 	};
-	handleChange = (event, value) => {
+	constructor(props) {
+		super(props);
+		this.validator = new SimpleReactValidator();
+
+	}
+	componentDidMount() {
+		this.getCompanies();
+		this.getGroup();
+		this.getDays();
+		this.getMonth();
+		this.getPeriodicity();
+		this.getCurrency();
+		this.getPayElement();
+		
+	}
+	getGroup=()=>{
+		axios({
+			method: "get",
+			url: defaultUrl + "lookups/"+Lookups.Group,
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response);
+				this.setState({ groupList: response.data });
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
+	getCurrency=()=>{
+		axios({
+			method: "get",
+			url: defaultUrl + "lookups/"+Lookups.Currency,
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response);
+				this.setState({ currencyList: response.data });
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
+	getDays=()=>{
+		axios({
+			method: "get",
+			url: defaultUrl + "lookups/"+Lookups.days,
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response);
+				this.setState({ daysList: response.data });
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
+	getMonth=()=>{
+		axios({
+			method: "get",
+			url: defaultUrl + "lookups/"+Lookups.month,
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response);
+				this.setState({ monthList: response.data });
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
+	getPeriodicity=()=>{
+		axios({
+			method: "get",
+			url: defaultUrl + "lookups/"+Lookups.periodicity,
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response);
+				this.setState({ PeriodicityList: response.data });
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
+	getCompanies = () => {
+		axios({
+			method: "get",
+			url: defaultUrl + "Company",
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response);
+				this.setState({ companies: response.data });
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
+	insertUpdatePayElement= () => {
+		if (!this.validator.allValid()) {
+			this.validator.showMessages();
+			this.forceUpdate();
+		} else {
+			var method = "post";
+			var url = defaultUrl+"payelement";
+			if(this.state.Action !="Insert Record")
+			{
+				 method = "put";
+				 url = defaultUrl+"payelement/"+this.state.Id;
+			}
+			// console.log(this.state.company,this.state.employee,this.state.dateFrom,this.state.dateTo);
+			var obj = {
+				Periodicity:this.state.Periodicity,
+				Code:this.state.code,
+				Description:this.state.description,
+				GroupId:this.state.group,
+				Increment:this.state.increment,
+				lumpsum:this.state.lumpsum,
+				CurrencyCode:this.state.currency,
+				noofDays:this.state.days,
+				ofMonth:this.state.month,
+				CompanyId:this.state.company
+			};
+			axios.interceptors.request.use(function (config) {
+				// document.getElementsByClassName("loader-wrapper")[0].style.display="block"
+				return config;
+			}, function (error) {
+				console.log('Error');
+				return Promise.reject(error);
+			});
+			axios({
+				method: method,
+				url: url,
+				data: JSON.stringify(obj),
+				headers: {
+					// 'Authorization': `bearer ${token}`,
+					"Content-Type": "application/json;charset=utf-8",
+				},
+			})
+				.then((response) => {
+					toastr.success('Operation successfull');
+					this.getPayElement();
+				
+					this.setState({
+						Periodicity:"",
+						code:"",
+						description:"",
+						group:"",
+						increment:"",
+						lumpsum:"",
+						currency:"",
+						days:"",
+						month:"",
+						company:"",
+						Id: 0,
+						Action:'Insert Record'
+					});
+				})
+				.catch((error) => {
+					console.log(error);
+					toastr.error('Operation unsuccessfull');
+					this.setState({
+						Periodicity:"",
+						code:"",
+						description:"",
+						group:"",
+						increment:"",
+						lumpsum:"",
+						currency:"",
+						days:"",
+						month:"",
+						company:"",
+						Id: 0,
+						Action:'Insert Record'
+					})
+				})
+
+
+		}
+	}
+	getPayElement = () => {
+		axios({
+			method: "get",
+			url: defaultUrl+"payelement",
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response);
+				this.setState({ payElements: response.data });
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
+	getPayElementById = (id) => {
+		axios({
+			method: "get",
+			url: defaultUrl+"payelement/" + id,
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				
+				this.setState({
+					Periodicity : response.data[0].Periodicity,
+					code : response.data[0].Code,
+					description : response.data[0].Description,
+					group : response.data[0].GroupId,
+					increment : response.data[0].Increment,
+					lumpsum : response.data[0].lumpsum,
+					currency : response.data[0].CurrencyCode,
+					days : response.data[0].noofDays,
+					month : response.data[0].ofMonth,
+					company : response.data[0].CompanyId,
+					value :  1,
+					Id : response.data[0].Id,
+					Action : "Update Record"
+				});
+
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
+	deletePayElement =(id)=>{
+		axios({
+			method: "delete",
+			url: defaultUrl+"payelement/"+id,
+			headers: {
+			  // 'Authorization': `bearer ${token}`,
+			  "Content-Type": "application/json;charset=utf-8",
+			},
+		  })
+			.then((response) => {
+				
+				this.getPayElement();
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	  }
+	handleTabChange = (event, value) => {
 		this.setState({ value });
 		this.setState({ [event.target.name]: event.target.value });
 
+	};
+	handleChange = (e) => {
+		this.setState({ [e.target.name]: e.target.value });
 	};
 	render() {
 		const { classes, theme } = this.props;
@@ -104,7 +395,7 @@ class PayElement extends Component {
 						<AppBar position="static" color="default">
 							<Tabs
 								value={this.state.value}
-								onChange={this.handleChange}
+								onChange={this.handleTabChange}
 								indicatorColor="primary"
 								textColor="primary"
 								variant="fullWidth"
@@ -142,10 +433,10 @@ class PayElement extends Component {
 											<TableRow>
 												<CustomTableCell align="center"  >Code</CustomTableCell>
 												<CustomTableCell align="center" >Description</CustomTableCell>
-												<CustomTableCell align="center">Group</CustomTableCell>
+												{/* <CustomTableCell align="center">Group</CustomTableCell>
 												<CustomTableCell align="center">Increment</CustomTableCell>
 												<CustomTableCell align="center">Periodicity</CustomTableCell>
-												<CustomTableCell align="center">Currency</CustomTableCell>
+												<CustomTableCell align="center">Currency</CustomTableCell> */}
 												{/* <CustomTableCell align="center">Lumpsum</CustomTableCell> */}
 												{/* <CustomTableCell align="center">NoofDays</CustomTableCell> */}
 												{/* <CustomTableCell align="center">ofMonth</CustomTableCell> */}
@@ -154,23 +445,23 @@ class PayElement extends Component {
 											</TableRow>
 										</TableHead>
 										<TableBody>
-											{rows.map(row => (
-												<TableRow className={classes.row} key={row.id}>
+											{this.state.payElements.map(row => (
+												<TableRow className={classes.row} key={row.Id}>
 
 													<CustomTableCell align="center"  >{row.Code}</CustomTableCell>
 													<CustomTableCell align="center">{row.Description}</CustomTableCell>
-													<CustomTableCell align="center">{row.Group}</CustomTableCell>
+													{/* <CustomTableCell align="center">{row.Group}</CustomTableCell>
 													<CustomTableCell align="center">{row.Increment}</CustomTableCell>
 													<CustomTableCell align="center">{row.Periodicity}</CustomTableCell>
-													<CustomTableCell align="center">{row.Currency}</CustomTableCell>
+													<CustomTableCell align="center">{row.Currency}</CustomTableCell> */}
 													{/* <CustomTableCell align="center">{row.Lumpsum}</CustomTableCell> */}
 													{/* <CustomTableCell align="center">{row.NoofDays}</CustomTableCell> */}
 													{/* <CustomTableCell align="center">{row.ofMonth}</CustomTableCell> */}
 													<CustomTableCell align="center" component="th" scope="row">
-														<IconButton className={classes.button} aria-label="Delete">
+														<IconButton className={classes.button} onClick={()=>this.deletePayElement(row.Id)} aria-label="Delete">
 															<DeleteIcon />
 														</IconButton>
-														<IconButton className={classes.button} aria-label="Edit">
+														<IconButton className={classes.button} onClick={()=>this.getPayElementById(row.Id)}  aria-label="Edit">
 															<EditIcon />
 														</IconButton>
 													</CustomTableCell>
@@ -182,48 +473,69 @@ class PayElement extends Component {
 							</TabContainer>
 							<TabContainer dir={theme.direction}>
 								<form className={classes.container} noValidate autoComplete="off">
+								<Grid item xs={12} sm={5} style={{ marginRight: '5px' }}  >
 									<TextField
 										id="outlined-name"
 										label="Code"
 										className={classes.textField}
-										value={this.state.name}
+										value={this.state.code}
+										name="code"
 										fullWidth
-										//   onChange={this.handleChange('name')}
+										onChange={this.handleChange}
 										margin="normal"
-										variant="outlined"
 									/>
+									{this.validator.message('code', this.state.code, 'required')}
+									</Grid>
+									<Grid item xs={12} sm={5} >
 									<TextField
-										id="outlined-name"
+										id="description"
 										label="Description"
 										className={classes.textField}
-										value={this.state.name}
+										value={this.state.description}
+										name="description"
 										fullWidth
-										//   onChange={this.handleChange('name')}
+										onChange={this.handleChange}
 										margin="normal"
-										variant="outlined"
 									/>
-									<TextField
-										id="outlined-name"
-										label="Group Name"
-										className={classes.textField}
-										value={this.state.name}
-										fullWidth
-										//   onChange={this.handleChange('name')}
-										margin="normal"
-										variant="outlined"
-									/>
-									<TextField
-										id="outlined-name"
+									{this.validator.message('description', this.state.description, 'required')}
+									</Grid>
+									<Grid item xs={12} sm={5} style={{ marginRight: '5px' }}  >
+									<FormControl className={classes.formControl}>
+										<InputLabel htmlFor="group">Group</InputLabel>
+										<Select
+											value={this.state.group}
+											onChange={this.handleChange}
+											inputProps={{
+												name: 'group',
+												id: 'group',
+											}}
+										>
+											<MenuItem value="">
+												<em>None</em>
+											</MenuItem>
+											{this.state.groupList.map(row => (
+													<MenuItem value={row.Id}>{row.Name}</MenuItem>
+												))} 
+										</Select>
+										{this.validator.message('group', this.state.group, 'required')}
+									</FormControl>
+										</Grid>
+									<Grid item xs={12} sm={5} >
+										<TextField
+										id="increment"
 										type="number"
 										label="Incremenet/Decrement"
 										className={classes.textField}
-										value={this.state.name}
+										value={this.state.increment}
+										name="increment"
 										fullWidth
-										//   onChange={this.handleChange('name')}
+										  onChange={this.handleChange}
 										margin="normal"
-										variant="outlined"
 									/>
+									{this.validator.message('increment', this.state.increment, 'required')}
+									</Grid>
 								
+									<Grid item xs={12} sm={5} style={{ marginRight: '5px' }}  >
 								<FormControl className={classes.formControl}>
 										<InputLabel htmlFor="Periodicity">Periodicity</InputLabel>
 										<Select
@@ -237,95 +549,122 @@ class PayElement extends Component {
 											<MenuItem value="">
 												<em>None</em>
 											</MenuItem>
-											<MenuItem value={true}>true</MenuItem>
-											<MenuItem value={false}>false</MenuItem>\
+											{this.state.PeriodicityList.map(row => (
+													<MenuItem value={row.Id}>{row.Name}</MenuItem>
+												))} 
 										</Select>
+
 									</FormControl>
-							
+									{this.validator.message('Periodicity', this.state.Periodicity, 'required')}
+										</Grid>
+										<Grid item xs={12} sm={5} >
+										<FormControl className={classes.formControl}>
+										<InputLabel htmlFor="currency">Currency</InputLabel>
+										<Select
+											value={this.state.currency}
+											onChange={this.handleChange}
+											inputProps={{
+												name: 'currency',
+												id: 'currency',
+											}}
+										>
+											<MenuItem value="">
+												<em>None</em>
+											</MenuItem>
+											{this.state.currencyList.map(row => (
+													<MenuItem value={row.Id}>{row.Name}</MenuItem>
+												))} 
+										</Select>
+										{this.validator.message('currency', this.state.currency, 'required')}
+									</FormControl>
+									</Grid>
+									<Grid item xs={12} sm={5} style={{ marginRight: '5px' }}  >
 									<TextField
-										id="outlined-name"
-										label="Currency Code"
-										className={classes.textField}
-										value={this.state.name}
-										fullWidth
-										//   onChange={this.handleChange('name')}
-										margin="normal"
-										variant="outlined"
-									/>
-									<TextField
-										id="outlined-name"
+										id="lumpsum"
 										label="lumpsum"
+										name="lumpsum"
 										className={classes.textField}
-										value={this.state.name}
+										value={this.state.lumpsum}
 										fullWidth
-										//   onChange={this.handleChange('name')}
+										  onChange={this.handleChange}
 										margin="normal"
-										variant="outlined"
 									/>
-								
-								<FormControl className={classes.formControl}>
+									{this.validator.message('lumpsum', this.state.lumpsum, 'required')}
+								</Grid>
+								<Grid item xs={12} sm={5}  >
+									<FormControl className={classes.formControl}>
 										<InputLabel htmlFor="Days">Days</InputLabel>
 										<Select
-											value={this.state.Days}
+											value={this.state.days}
 											onChange={this.handleChange}
 											inputProps={{
-												name: 'Days',
-												id: 'Days',
+												name: 'days',
+												id: 'days',
 											}}
 										>
 											<MenuItem value="">
 												<em>None</em>
 											</MenuItem>
-											<MenuItem value={1}>1</MenuItem>
-											<MenuItem value={2}>2</MenuItem>
-											<MenuItem value={3}>3</MenuItem>
-											<MenuItem value={4}>4</MenuItem>
-											<MenuItem value={5}>5</MenuItem>
-											<MenuItem value={6}>6</MenuItem>
-											<MenuItem value={7}>7</MenuItem>
-											<MenuItem value={8}>8</MenuItem>
-											<MenuItem value={9}>9</MenuItem>
-											<MenuItem value={10}>10</MenuItem>
-											<MenuItem value={20}>20</MenuItem>
-											<MenuItem value={30}>30</MenuItem>
+											{this.state.daysList.map(row => (
+													<MenuItem value={row.Id}>{row.Name}</MenuItem>
+												))} 
 										</Select>
 									</FormControl>
-							
-									<FormControl className={classes.formControl}>
-										<InputLabel htmlFor="Month">Month</InputLabel>
+									{this.validator.message('days', this.state.days, 'required')}
+								</Grid>
+								<Grid item xs={12} sm={5} style={{ marginRight: '5px' }}  >
+								<FormControl className={classes.formControl}>
+										<InputLabel htmlFor="company">Company</InputLabel>
 										<Select
-											value={this.state.Month}
+											value={this.state.company}
 											onChange={this.handleChange}
 											inputProps={{
-												name: 'Month',
-												id: 'Month',
+												name: 'company',
+												id: 'company',
 											}}
 										>
 											<MenuItem value="">
 												<em>None</em>
 											</MenuItem>
-											<MenuItem value={1}>Jan</MenuItem>
-											<MenuItem value={2}>Feb</MenuItem>
-											<MenuItem value={3}>March</MenuItem>
-											<MenuItem value={4}>April</MenuItem>
-											<MenuItem value={5}>May</MenuItem>
-											<MenuItem value={6}>June</MenuItem>
-											<MenuItem value={7}>July</MenuItem>
-											<MenuItem value={8}>Aug</MenuItem>
-											<MenuItem value={9}>Sep</MenuItem>
-											<MenuItem value={10}>Oct</MenuItem>
-											<MenuItem value={11}>Nov</MenuItem>
-											<MenuItem value={12}>Dec</MenuItem>
+											{this.state.companies.map(row => (
+													<MenuItem value={row.Id}>{row.CompanyName}</MenuItem>
+												))} 
 										</Select>
 									</FormControl>
+									{this.validator.message('company', this.state.company, 'required')}
+										</Grid>
+								<Grid item xs={12} sm={5}  >
+									<FormControl className={classes.formControl}>
+										<InputLabel htmlFor="month">Month</InputLabel>
+										<Select
+											value={this.state.month}
+											onChange={this.handleChange}
+											inputProps={{
+												name: 'month',
+												id: 'month',
+											}}
+										>
+											<MenuItem value="">
+												<em>None</em>
+											</MenuItem>
+											{this.state.monthList.map(row => (
+													<MenuItem value={row.Id}>{row.Name}</MenuItem>
+												))} 
+										</Select>
+									</FormControl>
+									{this.validator.message('month', this.state.month, 'required')}
+
+								</Grid>
 								</form>
 								<div className="row">
+								<Grid item xs={12} sm={10}  >
 									<div style={{ float: "right", "marginRight": "8px" }}>
 
-										<Button variant="outlined" color="secondary" className={classes.button}>
-											Insert Record
+										<Button variant="outlined" color="secondary" onClick={this.insertUpdatePayElement} className={classes.button}>
+											{this.state.Action}
       								</Button>
 									</div>
+									</Grid>
 								</div>
 							</TabContainer>
 						</SwipeableViews>

@@ -1,5 +1,9 @@
 export const Lookups = {
     Currency: 1 ,
     Country:2,
-    mode:3
+    mode:3,
+    Group:4,
+    periodicity:5,
+    days:6,
+    month:7
 }

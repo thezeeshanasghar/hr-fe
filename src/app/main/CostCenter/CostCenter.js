@@ -304,7 +304,7 @@ class CostCenter extends Component {
 										</TableHead>
 										<TableBody>
 											{this.state.costcenter.map(row => (
-												<TableRow className={classes.row} key={row.id}>
+												<TableRow className={classes.row} key={row.Id}>
 
 													<CustomTableCell align="center">{row.Code}</CustomTableCell>
 													<CustomTableCell align="center" component="th" scope="row">

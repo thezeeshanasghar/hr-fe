@@ -23,6 +23,14 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
 import { Icon, Input, MuiThemeProvider} from '@material-ui/core';
+import SimpleReactValidator from 'simple-react-validator';
+import axios from "axios";
+import toastr from 'toastr';
+import { Lookups } from '../../services/constant/enum'
+import Grid from '@material-ui/core/Grid';
+import moment from 'moment';
+import defaultUrl from "../../../app/services/constant/constant";
+
 const styles = theme => ({
 	container: {
 		display: 'flex',
@@ -75,18 +83,99 @@ class PayElementGlAccount extends Component {
 	state = {
 		value: 0,
 		labelWidth: 0,
-		Month: 1,
-		Days: 1,
-		Periodicity: true,
-		PayElement: 1,
-		GLAccount: 1,
-		CostCenterPosting: true,
-		CostCenter: 1
+		PayElement:"",
+		GLAccount: "",
+		CostCenterPosting: "",
+		CostCenter: "",
+		payElements:[],
+		postperEmployee:"",
+		glaccountList:[],
+		PeriodicityList:[],
+		costcenterList:[]
 	};
-	handleChange = (event, value) => {
+	componentDidMount() {
+	this.getPayElement();
+	this.getGlAccount();
+	this.getPeriodicity();
+	this.getCostCenter();
+	}
+	getCostCenter = () => {
+		axios({
+			method: "get",
+			url: "http://localhost:3000/api/CostCenter",
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response);
+				this.setState({ costcenterList: response.data });
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
+	getPeriodicity=()=>{
+		axios({
+			method: "get",
+			url: defaultUrl + "lookups/"+Lookups.periodicity,
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response);
+				this.setState({ PeriodicityList: response.data });
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
+
+	getPayElement = () => {
+		axios({
+			method: "get",
+			url: defaultUrl+"payelement",
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response);
+				this.setState({ payElements: response.data });
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
+	getGlAccount = () => {
+		axios({
+			method: "get",
+			url: defaultUrl+"glaccount",
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response);
+				this.setState({ glaccountList: response.data });
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
+
+	handleTabChange = (event, value) => {
 		this.setState({ value });
 		this.setState({ [event.target.name]: event.target.value });
 
+	};
+	handleChange = (e) => {
+		this.setState({ [e.target.name]: e.target.value });
 	};
 	render() {
 		const { classes, theme } = this.props;
@@ -108,7 +197,7 @@ class PayElementGlAccount extends Component {
 						<AppBar position="static" color="default">
 							<Tabs
 								value={this.state.value}
-								onChange={this.handleChange}
+								onChange={this.handleTabChange}
 								indicatorColor="primary"
 								textColor="primary"
 								variant="fullWidth"
@@ -181,6 +270,7 @@ class PayElementGlAccount extends Component {
 							</TabContainer>
 							<TabContainer dir={theme.direction}>
 								<form className={classes.container} noValidate autoComplete="off">
+								<Grid item xs={12} sm={5} style={{ marginRight: '5px' }}>
 									<FormControl className={classes.formControl}>
 										<InputLabel htmlFor="PayElement">PayElement</InputLabel>
 										<Select
@@ -194,10 +284,13 @@ class PayElementGlAccount extends Component {
 											<MenuItem value="">
 												<em>None</em>
 											</MenuItem>
-											<MenuItem value={1}>PayElement1</MenuItem>
-											<MenuItem value={2}>PayElement2</MenuItem>\
+											{this.state.payElements.map(row => (
+													<MenuItem value={row.Id}>{row.Code}</MenuItem>
+												))} 
 										</Select>
 									</FormControl>
+									</Grid>
+									<Grid item xs={12} sm={5}>
 									<FormControl className={classes.formControl}>
 										<InputLabel htmlFor="PayElement">GL-Account</InputLabel>
 										<Select
@@ -211,11 +304,14 @@ class PayElementGlAccount extends Component {
 											<MenuItem value="">
 												<em>None</em>
 											</MenuItem>
-											<MenuItem value={1}>GLAccount1</MenuItem>
-											<MenuItem value={2}>GLAccount2</MenuItem>\
+											{this.state.glaccountList.map(row => (
+													<MenuItem value={row.Id}>{row.Account}</MenuItem>
+												))} 
 										</Select>
 									</FormControl>
-									<FormControl className={classes.formControl}>
+									</Grid>
+									<Grid item xs={12} sm={5} style={{ marginRight: '5px' }} >
+										<FormControl className={classes.formControl}>
 										<InputLabel htmlFor="CostCenterPosting">CostCenter Posting</InputLabel>
 										<Select
 											value={this.state.CostCenterPosting}
@@ -228,11 +324,15 @@ class PayElementGlAccount extends Component {
 											<MenuItem value="">
 												<em>None</em>
 											</MenuItem>
-											<MenuItem value={true}>true</MenuItem>
-											<MenuItem value={false}>false</MenuItem>
+											
+											{this.state.PeriodicityList.map(row => (
+													<MenuItem value={row.Id}>{row.Name}</MenuItem>
+												))} 
 										</Select>
 									</FormControl>
-									<FormControl className={classes.formControl}>
+									</Grid>
+									<Grid item xs={12} sm={5}>
+										<FormControl className={classes.formControl}>
 										<InputLabel htmlFor="PayElement">Cost Center</InputLabel>
 										<Select
 											value={this.state.CostCenter}
@@ -245,48 +345,37 @@ class PayElementGlAccount extends Component {
 											<MenuItem value="">
 												<em>None</em>
 											</MenuItem>
-											<MenuItem value={1}>CostCenter1</MenuItem>
-											<MenuItem value={2}>CostCenter2</MenuItem>\
+											
+											{this.state.costcenterList.map(row => (
+													<MenuItem value={row.Id}>{row.Code}</MenuItem>
+												))} 
 										</Select>
 									</FormControl>
-
-									<FormControl className={classes.formControl}>
-										<InputLabel htmlFor="Periodicity">Periodicity</InputLabel>
-										<Select
-											value={this.state.Periodicity}
-											onChange={this.handleChange}
-											inputProps={{
-												name: 'Periodicity',
-												id: 'Periodicity',
-											}}
-										>
-											<MenuItem value="">
-												<em>None</em>
-											</MenuItem>
-											<MenuItem value={true}>true</MenuItem>
-											<MenuItem value={false}>false</MenuItem>\
-										</Select>
-									</FormControl>
-
-									<TextField
-										id="outlined-name"
+									</Grid>
+									
+									<Grid item xs={12} sm={5}>
+										<TextField
+										id="postperEmployee"
 										type="number"
 										label="Posting Per Employee"
 										className={classes.textField}
-										value={this.state.name}
+										value={this.state.postperEmployee}
+										name="postperEmployee"
 										fullWidth
-										//   onChange={this.handleChange('name')}
+										  onChange={this.handleChange}
 										margin="normal"
-										variant="outlined"
-									/>
+										/>
+									</Grid>
 								</form>
 								<div className="row">
+								<Grid item xs={12} sm={10}>
 									<div style={{ float: "right", "marginRight": "8px" }}>
 
 										<Button variant="outlined" color="secondary" className={classes.button}>
 											Insert Record
       								</Button>
 									</div>
+								</Grid>
 								</div>
 							</TabContainer>
 						</SwipeableViews>
