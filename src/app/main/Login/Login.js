@@ -7,7 +7,7 @@ import {Link} from 'react-router-dom';
 import _ from '@lodash';
 import axios from "axios";
 import { Redirect } from "react-router-dom";
-// import { useHistory } from "react-router"
+import defaultUrl from '../../../app/services/constant/constant';
 
 const styles = theme => ({
     root: {
@@ -52,7 +52,7 @@ class Login extends Component {
 		  });
 		  axios({
 			method: "get",
-			url: "http://localhost:3000/api/userLogin/"+this.state.email+"/"+this.state.password,
+			url: defaultUrl+"userLogin/"+this.state.email+"/"+this.state.password,
 			// data: JSON.stringify(obj),
 			headers: {
 			  // 'Authorization': `bearer ${token}`,
