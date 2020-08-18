@@ -21,6 +21,7 @@ jss.options.insertionPoint = document.getElementById('jss-insertion-point');
 const generateClassName = createGenerateClassName();
 
 const App = () => {
+
     return (
         <AppContext.Provider
             value={{

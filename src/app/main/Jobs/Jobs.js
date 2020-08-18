@@ -17,7 +17,17 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
-import { Icon, Input, MuiThemeProvider} from '@material-ui/core';
+import { Icon, Input, MuiThemeProvider } from '@material-ui/core';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+import InputLabel from '@material-ui/core/InputLabel';
+import SimpleReactValidator from 'simple-react-validator';
+import axios from "axios";
+import toastr from 'toastr';
+import { Lookups } from '../../services/constant/enum'
+import Grid from '@material-ui/core/Grid';
+import MenuItem from '@material-ui/core/MenuItem';
+import moment from 'moment';
 const styles = theme => ({
 	container: {
 		display: 'flex',
@@ -26,7 +36,7 @@ const styles = theme => ({
 	textField: {
 		marginLeft: theme.spacing.unit,
 		marginRight: theme.spacing.unit,
-		
+
 	},
 	dense: {
 		marginTop: 16,
@@ -34,6 +44,10 @@ const styles = theme => ({
 	menu: {
 		width: 200,
 	},
+		formControl: {
+		margin: theme.spacing.unit,
+		minWidth: "99%",
+	}
 });
 
 const CustomTableCell = withStyles(theme => ({
@@ -53,22 +67,180 @@ function TabContainer({ children, dir }) {
 	);
 }
 let id = 0;
-function createData(Code,Description) {
+function createData(Code, Description) {
 	id += 1;
-	return { Code,Description };
+	return { Code, Description };
 }
 
 const rows = [
-	createData('code','desc')
+	createData('code', 'desc')
 ];
 
 class Jobs extends Component {
 	state = {
 		value: 0,
+		code: '',
+		description: '',
+		company: '',
+		Companies: [],
+		jobsList:[],
+		Action: 'Insert Record',
+		Id: 0
 	};
-	handleChange = (event, value) => {
+	constructor(props) {
+		super(props);
+		this.validator = new SimpleReactValidator();
+
+	}
+	componentDidMount() {
+		this.getJobs();
+		this.getCompanies();
+	}
+	handleTabChange = (event, value) => {
 		this.setState({ value });
+		this.setState({ [event.target.name]: event.target.value });
+
 	};
+	handleChange = (e) => {
+		this.setState({ [e.target.name]: e.target.value });
+	};
+	getCompanies = () => {
+		axios({
+			method: "get",
+			url: "http://localhost:3000/api/Company",
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response);
+				this.setState({ Companies: response.data });
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
+	insertUpdateJobs = () => {
+		if (!this.validator.allValid()) {
+			this.validator.showMessages();
+			this.forceUpdate();
+		} else {
+			var method = "post";
+			var url = "http://localhost:3000/api/Job";
+			if(this.state.Action !="Insert Record")
+			{
+				 method = "put";
+				 url = "http://localhost:3000/api/Job/"+this.state.Id;
+			}
+			// console.log(this.state.company,this.state.employee,this.state.dateFrom,this.state.dateTo);
+			var obj = {
+				CompanyId: this.state.company,
+				Code: this.state.code,
+				Description: this.state.description
+			};
+			axios.interceptors.request.use(function (config) {
+				// document.getElementsByClassName("loader-wrapper")[0].style.display="block"
+				return config;
+			}, function (error) {
+				console.log('Error');
+				return Promise.reject(error);
+			});
+			axios({
+				method: method,
+				url: url,
+				data: JSON.stringify(obj),
+				headers: {
+					// 'Authorization': `bearer ${token}`,
+					"Content-Type": "application/json;charset=utf-8",
+				},
+			})
+				.then((response) => {
+					toastr.success('Operation successfull');
+					this.getJobs();
+				
+					this.setState({
+						company: "",
+						code: "",
+						description: "",
+						Id: 0,
+						Action:'Insert Record'
+					});
+				})
+				.catch((error) => {
+					console.log(error);
+					toastr.error('Operation unsuccessfull');
+					this.setState({
+						company: "",
+						code: "",
+						description: "",
+						Id: 0,
+						Action:'Insert Record'
+					})
+				})
+
+
+		}
+	}
+	getJobs = () => {
+		axios({
+			method: "get",
+			url: "http://localhost:3000/api/Job",
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response);
+				this.setState({ jobsList: response.data });
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
+	getJobsById = (id) => {
+		axios({
+			method: "get",
+			url: "http://localhost:3000/api/Job/" + id,
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				
+				this.setState({
+					company:response.data[0].CompanyId,
+					code:response.data[0].Code,
+					description: response.data[0].Description,
+					value: 1,
+					Id:response.data[0].Id,
+					Action :"Update Record"
+				});
+
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
+	deleteJobs=(id)=>{
+		axios({
+			method: "delete",
+			url: "http://localhost:3000/api/Job/"+id,
+			headers: {
+			  // 'Authorization': `bearer ${token}`,
+			  "Content-Type": "application/json;charset=utf-8",
+			},
+		  })
+			.then((response) => {
+				
+				this.getJobs();
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	  }
 	render() {
 		const { classes, theme } = this.props;
 
@@ -89,7 +261,7 @@ class Jobs extends Component {
 						<AppBar position="static" color="default">
 							<Tabs
 								value={this.state.value}
-								onChange={this.handleChange}
+								onChange={this.handleTabChange}
 								indicatorColor="primary"
 								textColor="primary"
 								variant="fullWidth"
@@ -105,42 +277,42 @@ class Jobs extends Component {
 						>
 							<TabContainer dir={theme.direction}>
 								<Paper className={classes.root}>
-								<MuiThemeProvider theme={this.props.theme}>
-                            <Paper className={"flex items-center h-44 w-full"} elevation={1}>
-                                <Input
-                                    placeholder="Search..."
-                                    className="pl-16"
-                                    disableUnderline
-                                    fullWidth
-                                    inputProps={{
-                                        'aria-label': 'Search'
-                                    }}
-                                />
-                                <Icon color="action" className="mr-16">search</Icon>
-								<Button variant="contained"  color="secondary" style={{'marginRight':'2px'}} className={classes.button}>
-											PRINT
+									<MuiThemeProvider theme={this.props.theme}>
+										<Paper className={"flex items-center h-44 w-full"} elevation={1}>
+											<Input
+												placeholder="Search..."
+												className="pl-16"
+												disableUnderline
+												fullWidth
+												inputProps={{
+													'aria-label': 'Search'
+												}}
+											/>
+											<Icon color="action" className="mr-16">search</Icon>
+											<Button variant="contained" color="secondary" style={{ 'marginRight': '2px' }} className={classes.button}>
+												PRINT
       								</Button>
-                            </Paper>
-                        </MuiThemeProvider>
+										</Paper>
+									</MuiThemeProvider>
 									<Table className={classes.table}>
 										<TableHead>
 											<TableRow>
 												<CustomTableCell align="center" >Code</CustomTableCell>
 												<CustomTableCell align="center" >Description</CustomTableCell>
-                                                <CustomTableCell align="center">Action</CustomTableCell>
+												<CustomTableCell align="center">Action</CustomTableCell>
 											</TableRow>
 										</TableHead>
 										<TableBody>
-											{rows.map(row => (
-												<TableRow className={classes.row} key={row.id}>
+											{this.state.jobsList.map(row => (
+												<TableRow className={classes.row} key={row.Id}>
 
 													<CustomTableCell align="center">{row.Code}</CustomTableCell>
 													<CustomTableCell align="center">{row.Description}</CustomTableCell>
 													<CustomTableCell align="center" component="th" scope="row">
-														<IconButton className={classes.button} aria-label="Delete">
+														<IconButton className={classes.button} onClick={()=>this.deleteJobs(row.Id)} aria-label="Delete">
 															<DeleteIcon />
 														</IconButton>
-														<IconButton className={classes.button} aria-label="Edit">
+														<IconButton className={classes.button} onClick={()=>this.getJobsById(row.Id)} aria-label="Edit">
 															<EditIcon />
 														</IconButton>
 													</CustomTableCell>
@@ -152,34 +324,67 @@ class Jobs extends Component {
 							</TabContainer>
 							<TabContainer dir={theme.direction}>
 								<form className={classes.container} noValidate autoComplete="off">
-									<TextField
-										id="outlined-name"
-										label="Code"
-										className={classes.textField}
-										value={this.state.name}
-										fullWidth
-										//   onChange={this.handleChange('name')}
-										margin="normal"
-										variant="outlined"
-									/>
-									<TextField
-										id="outlined-name"
-										label="Description"
-										className={classes.textField}
-										value={this.state.name}
-										fullWidth
-										//   onChange={this.handleChange('name')}
-										margin="normal"
-										variant="outlined"
-									/>
+									<Grid item xs={12} sm={5} style={{ marginRight: '5px' }}  >
+										<TextField
+											id="code"
+											label="Code"
+											className={classes.textField}
+											value={this.state.code}
+											name="code"
+											fullWidth
+											onChange={this.handleChange}
+											margin="normal"
+										/>
+										{this.validator.message('code', this.state.code, 'required')}
+
+										
+									</Grid>
+									<Grid item xs={12} sm={5}   >
+										<TextField
+											id="description"
+											name="description"
+											label="Description"
+											className={classes.textField}
+											value={this.state.description}
+											fullWidth
+											onChange={this.handleChange}
+											margin="normal"
+										/>
+										{this.validator.message('description', this.state.description, 'required')}
+
+									</Grid>
+									<Grid item xs={12} sm={5}   >
+										<FormControl className={classes.formControl}>
+											<InputLabel htmlFor="company">Company</InputLabel>
+											<Select
+												value={this.state.company}
+												onChange={this.handleChange}
+												inputProps={{
+													name: 'company',
+													id: 'company',
+												}}
+											>
+												<MenuItem value="">
+													<em>None</em>
+												</MenuItem>
+												{this.state.Companies.map(row => (
+													<MenuItem value={row.Id}>{row.CompanyName}</MenuItem>
+												))} 
+										</Select>
+										</FormControl>
+										{this.validator.message('company', this.state.company, 'required')}
+
+									</Grid>
 								</form>
 								<div className="row">
-									<div style={{float: "right","marginRight":"8px"}}>
-									
-									<Button variant="outlined" color="secondary" className={classes.button }>
-										Insert Record
+								<Grid item xs={12} sm={10}   >
+									<div style={{ float: "right", "marginRight": "8px" }}>
+
+										<Button variant="outlined" onClick={this.insertUpdateJobs} color="secondary" className={classes.button}>
+												{this.state.Action}
       								</Button>
 									</div>
+									</Grid>
 								</div>
 							</TabContainer>
 						</SwipeableViews>

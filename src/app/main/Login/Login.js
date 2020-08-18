@@ -52,7 +52,7 @@ class Login extends Component {
 		  });
 		  axios({
 			method: "get",
-			url: "http://localhost:5000/api/userLogin/"+this.state.email+"/"+this.state.password,
+			url: "http://localhost:3000/api/userLogin/"+this.state.email+"/"+this.state.password,
 			// data: JSON.stringify(obj),
 			headers: {
 			  // 'Authorization': `bearer ${token}`,

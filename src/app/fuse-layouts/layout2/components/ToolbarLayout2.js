@@ -1,20 +1,20 @@
 import React from 'react';
-import {AppBar, Hidden, MuiThemeProvider, Toolbar, withStyles} from '@material-ui/core';
-import {FuseSearch, FuseShortcuts} from '@fuse';
+import { AppBar, Hidden, MuiThemeProvider, Toolbar, withStyles } from '@material-ui/core';
+import { FuseSearch, FuseShortcuts } from '@fuse';
 import connect from 'react-redux/es/connect/connect';
-import {withRouter} from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 import NavbarMobileToggleButton from 'app/fuse-layouts/shared-components/NavbarMobileToggleButton';
 import QuickPanelToggleButton from 'app/fuse-layouts/shared-components/quickPanel/QuickPanelToggleButton';
-
+import UserMenu from 'app/fuse-layouts/shared-components/UserMenu';
 const styles = theme => ({
     separator: {
-        width          : 1,
-        height         : 64,
+        width: 1,
+        height: 64,
         backgroundColor: theme.palette.divider
     }
 });
 
-const ToolbarLayout2 = ({classes, settings, toolbarTheme}) => {
+const ToolbarLayout2 = ({ classes, settings, toolbarTheme }) => {
 
     const layoutConfig = settings.layout.config;
 
@@ -25,24 +25,29 @@ const ToolbarLayout2 = ({classes, settings, toolbarTheme}) => {
 
                     {layoutConfig.navbar.display && (
                         <Hidden lgUp>
-                            <NavbarMobileToggleButton/>
-                            <div className={classes.separator}/>
+                            <NavbarMobileToggleButton />
+                            <div className={classes.separator} />
                         </Hidden>
                     )}
 
                     <div className="flex flex-1">
                         <Hidden mdDown>
-                            <FuseShortcuts/>
+                            <FuseShortcuts />
                         </Hidden>
                     </div>
 
                     <div className="flex">
 
-                        <FuseSearch/>
+                        <UserMenu />
 
-                        <div className={classes.separator}/>
+                        <div className={classes.separator} />
 
-                        <QuickPanelToggleButton/>
+
+                        <FuseSearch />
+
+                        <div className={classes.separator} />
+
+                        <QuickPanelToggleButton />
                     </div>
 
                 </Toolbar>
@@ -51,12 +56,11 @@ const ToolbarLayout2 = ({classes, settings, toolbarTheme}) => {
     );
 };
 
-function mapStateToProps({fuse})
-{
+function mapStateToProps({ fuse }) {
     return {
-        settings    : fuse.settings.current,
+        settings: fuse.settings.current,
         toolbarTheme: fuse.settings.toolbarTheme
     }
 }
 
-export default withStyles(styles, {withTheme: true})(withRouter(connect(mapStateToProps)(ToolbarLayout2)));
+export default withStyles(styles, { withTheme: true })(withRouter(connect(mapStateToProps)(ToolbarLayout2)));

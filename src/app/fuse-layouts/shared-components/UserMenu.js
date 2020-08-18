@@ -68,48 +68,33 @@ class UserMenu extends Component {
                         paper: "py-8"
                     }}
                 >
-                    {user.role === 'guest' ? (
-                        <React.Fragment>
-                            <MenuItem component={Link} to="/login">
-                                <ListItemIcon>
-                                    <Icon>lock</Icon>
-                                </ListItemIcon>
-                                <ListItemText className="pl-0" primary="Login"/>
-                            </MenuItem>
-                            <MenuItem component={Link} to="/register">
-                                <ListItemIcon>
-                                    <Icon>person_add</Icon>
-                                </ListItemIcon>
-                                <ListItemText className="pl-0" primary="Register"/>
-                            </MenuItem>
-                        </React.Fragment>
-                    ) : (
-                        <React.Fragment>
-                            <MenuItem component={Link} to="/pages/profile" onClick={this.userMenuClose}>
-                                <ListItemIcon>
-                                    <Icon>account_circle</Icon>
-                                </ListItemIcon>
-                                <ListItemText className="pl-0" primary="My Profile"/>
-                            </MenuItem>
-                            <MenuItem component={Link} to="/apps/mail" onClick={this.userMenuClose}>
-                                <ListItemIcon>
-                                    <Icon>mail</Icon>
-                                </ListItemIcon>
-                                <ListItemText className="pl-0" primary="Inbox"/>
-                            </MenuItem>
-                            <MenuItem
-                                onClick={() => {
-                                    logout();
-                                    this.userMenuClose();
-                                }}
-                            >
-                                <ListItemIcon>
-                                    <Icon>exit_to_app</Icon>
-                                </ListItemIcon>
-                                <ListItemText className="pl-0" primary="Logout"/>
-                            </MenuItem>
-                        </React.Fragment>
-                    )}
+                    {
+                         <React.Fragment>
+                         <MenuItem component={Link} to="/pages/profile" onClick={this.userMenuClose}>
+                             <ListItemIcon>
+                                 <Icon>account_circle</Icon>
+                             </ListItemIcon>
+                             <ListItemText className="pl-0" primary="My Profile"/>
+                         </MenuItem>
+                         <MenuItem component={Link} to="/apps/mail" onClick={this.userMenuClose}>
+                             <ListItemIcon>
+                                 <Icon>mail</Icon>
+                             </ListItemIcon>
+                             <ListItemText className="pl-0" primary="Inbox"/>
+                         </MenuItem>
+                         <MenuItem
+                             onClick={() => {
+                                 logout();
+                                 this.userMenuClose();
+                             }}
+                         >
+                             <ListItemIcon>
+                                 <Icon>exit_to_app</Icon>
+                             </ListItemIcon>
+                             <ListItemText className="pl-0" primary="Logout"/>
+                         </MenuItem>
+                     </React.Fragment>
+                    }
                 </Popover>
             </React.Fragment>
         );
