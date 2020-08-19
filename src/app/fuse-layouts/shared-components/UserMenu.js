@@ -4,11 +4,13 @@ import {connect} from 'react-redux';
 import * as authActions from 'app/auth/store/actions';
 import {bindActionCreators} from 'redux';
 import {Link} from 'react-router-dom';
+import { Redirect } from "react-router-dom";
 
 class UserMenu extends Component {
 
     state = {
-        userMenu: null
+        userMenu: null,
+        redirect: localStorage.getItem('IsLoggedIn')
     };
 
     userMenuClick = event => {
@@ -21,6 +23,11 @@ class UserMenu extends Component {
 
     render()
     {
+        const { redirect } = this.state;
+
+        if (!redirect) {
+          return <Redirect to='/login'/>;
+        }
         const {user, logout} = this.props;
         const {userMenu} = this.state;
 

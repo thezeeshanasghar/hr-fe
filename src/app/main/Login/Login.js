@@ -76,6 +76,7 @@ class Login extends Component {
 			.then((response) => {
               localStorage.setItem('IsLoggedIn' , true);
               localStorage.setItem('token' , response.data);
+         
            //   history.push("/dashboard")
           var tokendata = this.parseJwt(response.data); 
            this.props.setUser({role: 'admin',data: {
@@ -205,11 +206,11 @@ class Login extends Component {
 
                             </form>
 
-                            <div className="my-24 flex items-center justify-center">
+                            {/* <div className="my-24 flex items-center justify-center">
                                 <Divider className="w-32"/>
                                 <span className="mx-8 font-bold">OR</span>
                                 <Divider className="w-32"/>
-                            </div>
+                            </div> */}
 {/* 
                             <Button variant="contained" color="secondary" size="small"
                                     className="normal-case w-192 mb-8">
