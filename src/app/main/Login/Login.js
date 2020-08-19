@@ -8,7 +8,8 @@ import _ from '@lodash';
 import axios from "axios";
 import { Redirect } from "react-router-dom";
 import defaultUrl from '../../../app/services/constant/constant';
-
+import {connect} from 'react-redux'
+import {setUser} from '../../../app/auth/store/actions/login.actions'
 const styles = theme => ({
     root: {
         background: 'linear-gradient(to right, ' + theme.palette.primary.dark + ' 0%, ' + darken(theme.palette.primary.dark, 0.5) + ' 100%)',
@@ -23,7 +24,12 @@ class Login extends Component {
         password: '',
         redirect: localStorage.getItem('IsLoggedIn')
     };
-  
+    constructor (props) {
+        super (props)
+        this.setUser=this.props;
+       
+    
+    }
 
     handleChange = (event) => {
         this.setState(_.set({...this.state}, event.target.name, event.target.type === 'checkbox' ? event.target.checked : event.target.value));
@@ -36,7 +42,15 @@ class Login extends Component {
             email.length > 0 && password.length > 0
         );
     }
-
+     parseJwt = function(token) {
+        var base64Url = token.split('.')[1];
+        var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+    
+        return JSON.parse(jsonPayload);
+    };
     login=()=>{
       //  let history = useHistory();
 		var obj = {
@@ -63,7 +77,19 @@ class Login extends Component {
               localStorage.setItem('IsLoggedIn' , true);
               localStorage.setItem('token' , response.data);
            //   history.push("/dashboard")
-
+          var tokendata = this.parseJwt(response.data); 
+           this.props.setUser({role: 'admin',data: {
+            'displayName': tokendata.Name,
+            'photoURL'   :'assets/images/avatars/Velazquez.jpg',
+            'email'      : tokendata.Name+"@gmail.com",
+            shortcuts    : [
+                'calendar',
+                'mail',
+                'contacts',
+                'todo'
+            ]
+          }
+        });
 			  this.setState({
                 redirect: true            
               });
@@ -207,5 +233,7 @@ class Login extends Component {
         );
     }
 }
+// export default connect(null, {setUser})(Login);
+// export default withStyles(styles, {withTheme: true}).connect(null,{setUser})(Login);
 
-export default withStyles(styles, {withTheme: true})(Login);
+export default connect(null, {setUser})(withStyles(styles, {withTheme: true})(Login));

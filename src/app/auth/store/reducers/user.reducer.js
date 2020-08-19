@@ -20,14 +20,14 @@ const initialState = {
     data: {
         'displayName': tokendata.Name,
         'photoURL'   : 'assets/images/avatars/Velazquez.jpg',
-        'email'      : 'johndoe@withinpixels.com',
+        'email'      : tokendata.Name+"@gmail.com",
         shortcuts    : [
             'calendar',
             'mail',
             'contacts',
             'todo'
         ]
-    }
+      }
 };
 
 const user = function (state = initialState, action) {

@@ -91,13 +91,22 @@ class PayElementGlAccount extends Component {
 		postperEmployee:"",
 		glaccountList:[],
 		PeriodicityList:[],
-		costcenterList:[]
+		costcenterList:[],
+		payelementglAccountList:[],
+		Id:0,
+		Action:"Insert Record"
 	};
+	constructor(props) {
+		super(props);
+		this.validator = new SimpleReactValidator();
+
+	}
 	componentDidMount() {
 	this.getPayElement();
 	this.getGlAccount();
 	this.getPeriodicity();
 	this.getCostCenter();
+	this.getpayelementglAccountList();
 	}
 	getCostCenter = () => {
 		axios({
@@ -168,7 +177,134 @@ class PayElementGlAccount extends Component {
 				console.log(error);
 			})
 	}
+	insertUpdatePayElementGLAccount= () => {
+		if (!this.validator.allValid()) {
+			this.validator.showMessages();
+			this.forceUpdate();
+		} else {
+			var method = "post";
+			var url = defaultUrl+"PayElementGLAccount";
+			if(this.state.Action !="Insert Record")
+			{
+				 method = "put";
+				 url = defaultUrl+"PayElementGLAccount/"+this.state.Id;
+			}
+			// console.log(this.state.company,this.state.employee,this.state.dateFrom,this.state.dateTo);
+			var obj = {
+				PayElementId:this.state.PayElement,
+				GLAccountId:this.state.GLAccount,
+				CostCenterPosting:this.state.CostCenterPosting,
+				CostCenterId:this.state.CostCenter,
+				PostingPerEmployee:this.state.postperEmployee,
 
+			};
+			axios.interceptors.request.use(function (config) {
+				// document.getElementsByClassName("loader-wrapper")[0].style.display="block"
+				return config;
+			}, function (error) {
+				console.log('Error');
+				return Promise.reject(error);
+			});
+			axios({
+				method: method,
+				url: url,
+				data: JSON.stringify(obj),
+				headers: {
+					// 'Authorization': `bearer ${token}`,
+					"Content-Type": "application/json;charset=utf-8",
+				},
+			})
+				.then((response) => {
+					toastr.success('Operation successfull');
+				this.getpayelementglAccountList();
+					this.setState({
+						PayElement:"",
+						GLAccount:"",
+						CostCenterPosting:"",
+						CostCenter:"",
+						postperEmployee:"",
+						Id: 0,
+						Action:'Insert Record'
+					});
+				})
+				.catch((error) => {
+					console.log(error);
+					toastr.error('Operation unsuccessfull');
+					this.setState({
+						PayElement:"",
+						GLAccount:"",
+						CostCenterPosting:"",
+						CostCenter:"",
+						postperEmployee:"",
+						Id: 0,
+						Action:'Insert Record'
+					})
+				})
+
+
+		}
+	}
+	getpayelementglAccountList = () => {
+		axios({
+			method: "get",
+			url: defaultUrl+"PayElementGLAccount",
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response);
+				this.setState({ payelementglAccountList: response.data });
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
+	getPayElementById = (id) => {
+		axios({
+			method: "get",
+			url: defaultUrl+"PayElementGLAccount/" + id,
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				
+				this.setState({
+					PayElement:response.data[0].PayElementId,
+					GLAccount: response.data[0].GLAccountId,
+					CostCenterPosting: response.data[0].CostCenterPosting,
+					CostCenter:response.data[0].CostCenterId,
+					postperEmployee:response.data[0].PostingPerEmployee,
+					value :  1,
+					Id : response.data[0].Id,
+					Action : "Update Record"
+				});
+
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
+	deletePayElement =(id)=>{
+		axios({
+			method: "delete",
+			url: defaultUrl+"PayElementGLAccount/"+id,
+			headers: {
+			  // 'Authorization': `bearer ${token}`,
+			  "Content-Type": "application/json;charset=utf-8",
+			},
+		  })
+			.then((response) => {
+				
+				this.getpayelementglAccountList();
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	  }
 	handleTabChange = (event, value) => {
 		this.setState({ value });
 		this.setState({ [event.target.name]: event.target.value });
@@ -233,10 +369,10 @@ class PayElementGlAccount extends Component {
 									<Table className={classes.table}>
 										<TableHead>
 											<TableRow>
-												<CustomTableCell align="center"  >PayElement</CustomTableCell>
-												<CustomTableCell align="center" >GlAccount</CustomTableCell>
+												{/* <CustomTableCell align="center"  >PayElement</CustomTableCell> */}
+												{/* <CustomTableCell align="center" >GlAccount</CustomTableCell> */}
 												<CustomTableCell align="center">CostCenterPosting</CustomTableCell>
-												<CustomTableCell align="center">CostCenter</CustomTableCell>
+												{/* <CustomTableCell align="center">CostCenter</CustomTableCell> */}
 												{/* <CustomTableCell align="center">Periodicity</CustomTableCell> */}
 												<CustomTableCell align="center">PostingPerEmployee</CustomTableCell>
 
@@ -245,20 +381,20 @@ class PayElementGlAccount extends Component {
 											</TableRow>
 										</TableHead>
 										<TableBody>
-											{rows.map(row => (
+											{this.state.payelementglAccountList.map(row => (
 												<TableRow className={classes.row} key={row.id}>
 
-													<CustomTableCell align="center"  >{row.PayElement}</CustomTableCell>
-													<CustomTableCell align="center">{row.GlAccount}</CustomTableCell>
+													{/* <CustomTableCell align="center"  >{row.PayElement}</CustomTableCell> */}
+													{/* <CustomTableCell align="center">{row.GlAccount}</CustomTableCell> */}
 													<CustomTableCell align="center">{row.CostCenterPosting}</CustomTableCell>
-													<CustomTableCell align="center">{row.CostCenter}</CustomTableCell>
+													{/* <CustomTableCell align="center">{row.CostCenter}</CustomTableCell> */}
 													{/* <CustomTableCell align="center">{row.Periodicity}</CustomTableCell> */}
 													<CustomTableCell align="center">{row.PostingPerEmployee}</CustomTableCell>
 													<CustomTableCell align="center" component="th" scope="row">
-														<IconButton className={classes.button} aria-label="Delete">
+														<IconButton className={classes.button} onClick={()=>this.deletePayElement(row.Id)}  aria-label="Delete">
 															<DeleteIcon />
 														</IconButton>
-														<IconButton className={classes.button} aria-label="Edit">
+														<IconButton className={classes.button} onClick={()=>this.getPayElementById(row.Id)}  aria-label="Edit">
 															<EditIcon />
 														</IconButton>
 													</CustomTableCell>
@@ -289,6 +425,8 @@ class PayElementGlAccount extends Component {
 												))} 
 										</Select>
 									</FormControl>
+									{this.validator.message('PayElement', this.state.PayElement, 'required')}
+
 									</Grid>
 									<Grid item xs={12} sm={5}>
 									<FormControl className={classes.formControl}>
@@ -309,6 +447,8 @@ class PayElementGlAccount extends Component {
 												))} 
 										</Select>
 									</FormControl>
+									{this.validator.message('GLAccount', this.state.GLAccount, 'required')}
+
 									</Grid>
 									<Grid item xs={12} sm={5} style={{ marginRight: '5px' }} >
 										<FormControl className={classes.formControl}>
@@ -330,6 +470,8 @@ class PayElementGlAccount extends Component {
 												))} 
 										</Select>
 									</FormControl>
+									{this.validator.message('CostCenterPosting', this.state.CostCenterPosting, 'required')}
+
 									</Grid>
 									<Grid item xs={12} sm={5}>
 										<FormControl className={classes.formControl}>
@@ -351,6 +493,8 @@ class PayElementGlAccount extends Component {
 												))} 
 										</Select>
 									</FormControl>
+									{this.validator.message('CostCenter', this.state.CostCenter, 'required')}
+
 									</Grid>
 									
 									<Grid item xs={12} sm={5}>
@@ -365,14 +509,16 @@ class PayElementGlAccount extends Component {
 										  onChange={this.handleChange}
 										margin="normal"
 										/>
+										{this.validator.message('postperEmployee', this.state.postperEmployee, 'required')}
+
 									</Grid>
 								</form>
 								<div className="row">
 								<Grid item xs={12} sm={10}>
 									<div style={{ float: "right", "marginRight": "8px" }}>
 
-										<Button variant="outlined" color="secondary" className={classes.button}>
-											Insert Record
+										<Button variant="outlined" color="secondary" onClick={this.insertUpdatePayElementGLAccount} className={classes.button}>
+											{this.state.Action}
       								</Button>
 									</div>
 								</Grid>

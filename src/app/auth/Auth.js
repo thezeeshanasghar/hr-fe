@@ -8,6 +8,7 @@ import auth0Service from 'app/services/auth0Service';
 import jwtService from 'app/services/jwtService';
 import jwt_decode from 'jwt-decode';
 
+import { Redirect, Route } from 'react-router-dom';
 class Auth extends Component {
     /*eslint-disable-next-line no-useless-constructor*/
     constructor(props,context)
@@ -30,7 +31,11 @@ class Auth extends Component {
          */
         //this.firebaseCheck();
     }
-    
+
+
+// Utils
+
+
     isLogin=()=>{
         
         let token = localStorage.getItem("u");
@@ -123,8 +128,8 @@ class Auth extends Component {
 
     render()
     {
+
         const {children} = this.props;
-    
         return (
             <React.Fragment>
                 {children}

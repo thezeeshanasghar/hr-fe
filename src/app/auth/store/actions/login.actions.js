@@ -26,6 +26,15 @@ export function submitLogin({email, password})
             });
 }
 
+export const setUser = (user) => (dispatch) => {
+   
+    dispatch(setUserData(user));
+    return dispatch({
+        type: LOGIN_SUCCESS
+    });
+
+}
+
 export function submitLoginWithFireBase({username, password})
 {
     return (dispatch) =>
