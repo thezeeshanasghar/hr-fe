@@ -31,24 +31,6 @@ class Auth extends Component {
         //this.firebaseCheck();
     }
     
-    isLogin=()=>{
-        
-        let token = localStorage.getItem("u");
-        if(token)
-        {
-            var decoded = jwt_decode(token);
-            if(!decoded)
-            {
-                localStorage.clear();
-                this.props.history.push('/login')
-                console.log("login failed")
-            }
-        }else{
-            console.log("login failed")
-            this.props.history.push('/login')
-
-        }
-    }
     jwtCheck = () => {
         jwtService.on('onAutoLogin', () => {
 

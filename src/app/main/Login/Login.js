@@ -8,7 +8,9 @@ import _ from '@lodash';
 import axios from "axios";
 import { Redirect } from "react-router-dom";
 import defaultUrl from '../../../app/services/constant/constant';
-
+import * as Actions from '../../../app/auth/store/actions/user.actions';
+import * as userActions from 'app/auth/store/actions';
+import {bindActionCreators} from 'redux';
 const styles = theme => ({
     root: {
         background: 'linear-gradient(to right, ' + theme.palette.primary.dark + ' 0%, ' + darken(theme.palette.primary.dark, 0.5) + ' 100%)',
@@ -24,7 +26,12 @@ class Login extends Component {
         redirect: localStorage.getItem('IsLoggedIn')
     };
   
-
+    constructor(props,context)
+    {
+        super(props,context);
+       
+    }
+    
     handleChange = (event) => {
         this.setState(_.set({...this.state}, event.target.name, event.target.type === 'checkbox' ? event.target.checked : event.target.value));
     };
@@ -62,6 +69,7 @@ class Login extends Component {
 			.then((response) => {
               localStorage.setItem('IsLoggedIn' , true);
               localStorage.setItem('token' , response.data);
+         
            //   history.push("/dashboard")
 
 			  this.setState({
@@ -179,11 +187,11 @@ class Login extends Component {
 
                             </form>
 
-                            <div className="my-24 flex items-center justify-center">
+                            {/* <div className="my-24 flex items-center justify-center">
                                 <Divider className="w-32"/>
                                 <span className="mx-8 font-bold">OR</span>
                                 <Divider className="w-32"/>
-                            </div>
+                            </div> */}
 {/* 
                             <Button variant="contained" color="secondary" size="small"
                                     className="normal-case w-192 mb-8">
@@ -207,5 +215,6 @@ class Login extends Component {
         );
     }
 }
+
 
 export default withStyles(styles, {withTheme: true})(Login);

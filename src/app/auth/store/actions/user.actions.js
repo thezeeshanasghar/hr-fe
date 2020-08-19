@@ -21,16 +21,18 @@ export function setUserDataAuth0(tokenData)
         role: 'admin',
         from: 'auth0',
         data: {
-            displayName: tokenData.username,
-            photoURL   : tokenData.picture,
-            email      : tokenData.email,
-            settings   : (tokenData.user_metadata && tokenData.user_metadata.settings) ? tokenData.user_metadata.settings : {},
-            shortcuts  : (tokenData.user_metadata && tokenData.user_metadata.shortcuts) ? tokenData.user_metadata.shortcuts : []
+            displayName: "irfan" ,//tokenData.username,
+            // photoURL   : tokenData.picture,
+            // email      : tokenData.email,
+            // settings   : (tokenData.user_metadata && tokenData.user_metadata.settings) ? tokenData.user_metadata.settings : {},
+            // shortcuts  : (tokenData.user_metadata && tokenData.user_metadata.shortcuts) ? tokenData.user_metadata.shortcuts : []
         }
     };
 
     return setUserData(user);
 }
+
+
 
 /**
  * Set user data from Firebase data
@@ -185,21 +187,21 @@ function updateUserData(user)
         return;
     }
 
-    switch ( user.from )
-    {
-        case 'firebase':
-        {
-            firebaseService.updateUserData(user)
-                .then(() => {
-                    store.dispatch(Actions.showMessage({message: "User data saved to firebase"}));
-                })
-                .catch(error => {
-                    store.dispatch(Actions.showMessage({message: error.message}));
-                });
-            break;
-        }
-        case 'auth0':
-        {
+    // switch ( user.from )
+    // {
+        // case 'firebase':
+        // {
+        //     firebaseService.updateUserData(user)
+        //         .then(() => {
+        //             store.dispatch(Actions.showMessage({message: "User data saved to firebase"}));
+        //         })
+        //         .catch(error => {
+        //             store.dispatch(Actions.showMessage({message: error.message}));
+        //         });
+        //     break;
+        // }
+        // case 'auth0':
+        // {
             auth0Service.updateUserData({
                 settings : user.data.settings,
                 shortcuts: user.data.shortcuts
@@ -210,18 +212,18 @@ function updateUserData(user)
                 .catch(error => {
                     store.dispatch(Actions.showMessage({message: error.message}));
                 });
-            break;
-        }
-        default:
-        {
-            jwtService.updateUserData(user)
-                .then(() => {
-                    store.dispatch(Actions.showMessage({message: "User data saved with api"}));
-                })
-                .catch(error => {
-                    store.dispatch(Actions.showMessage({message: error.message}));
-                });
-            break;
-        }
-    }
+        //     break;
+        // }
+        // default:
+        // {
+        //     jwtService.updateUserData(user)
+        //         .then(() => {
+        //             store.dispatch(Actions.showMessage({message: "User data saved with api"}));
+        //         })
+        //         .catch(error => {
+        //             store.dispatch(Actions.showMessage({message: error.message}));
+        //         });
+        //     break;
+        // }
+    // }
 }
