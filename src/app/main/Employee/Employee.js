@@ -102,6 +102,10 @@ class Employee extends Component {
 		company:"",
 		Position:"",
 		grade:"",
+		Bank:"",
+		Currency:"",
+		PaymentMethod:"",
+		SalaryStatus:"",	
 		Companies:[],
 		companyList:[],
 		genderList:[],
@@ -109,9 +113,15 @@ class Employee extends Component {
 		maritallist:[],
 		contractTypeList:[],
 		statusList:[],
+		currencyList:[],
 		parttimeList:[],
 		positionList:[],
-		gradeList:[]
+		gradeList:[],
+		salaryStatusList:[],
+		paymentmethodList:[],
+		socialList:[],
+		taxationList:[],
+		bankList:[]
 	};
 	componentDidMount() {
 		this.getGender();
@@ -121,6 +131,11 @@ class Employee extends Component {
 		this.getEmployeeStatus();
 		this.getPartTime();
 		this.getCompanyDetail();
+		this.getCurrency();
+		this.getSalaryStatus();
+		this.getPaymentMethod();
+		this.getBanks();
+
 	}
 	handleTabChange = (event, value) => {
 		this.setState({ value });
@@ -220,10 +235,61 @@ class Employee extends Component {
 				console.log(error);
 			})
 	}
+	getCurrency = () => {
+		axios({
+			method: "get",
+			url: defaultUrl +"/lookups/"+Lookups.Currency,
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response);
+				this.setState({ currencyList: response.data });
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
+	getSalaryStatus = () => {
+		axios({
+			method: "get",
+			url: defaultUrl +"/lookups/"+Lookups.salarystatus,
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response);
+				this.setState({ salaryStatusList: response.data });
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
+	getPaymentMethod = () => {
+		axios({
+			method: "get",
+			url: defaultUrl +"/lookups/"+Lookups.paymentmethod,
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response);
+				this.setState({ paymentmethodList: response.data });
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
 	getCompanyDetail=()=>{
 		axios({
 			method: "get",
-			url: "http://localhost:3000/api/company",
+			url: defaultUrl+"company",
 			headers: {
 			  // 'Authorization': `bearer ${token}`,
 			  "Content-Type": "application/json;charset=utf-8",
@@ -297,6 +363,69 @@ class Employee extends Component {
 			.catch((error) => {
 				console.log(error);
 			})
+	}
+	getSocialSecurity = (id) => {
+	
+		axios({
+			method: "get",
+			url: defaultUrl+"socialsecurity",
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response.data);
+				this.setState({
+					socialList:response.data
+				});
+
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
+
+	getTaxation = (id) => {
+	
+		axios({
+			method: "get",
+			url: defaultUrl+"taxation",
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response.data);
+				this.setState({
+					taxationList:response.data
+				});
+
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
+ getBanks=()=>{
+		axios({
+			method: "get",
+			url: defaultUrl+"Bank",
+			headers: {
+			  // 'Authorization': `bearer ${token}`,
+			  "Content-Type": "application/json;charset=utf-8",
+			},
+		  })
+			.then((response) => {
+				console.log(response);
+				this.setState({bankList:response.data});
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	  }
+	nextTab = (val)=> {
+		this.setState({value: val});
 	}
 	render() {
 		const { classes, theme } = this.props;
@@ -522,7 +651,7 @@ class Employee extends Component {
 									<TextField id="standard-basic" fullWidth label="Cnic" onChange={this.handleChange} name="cnic" />
 
 									</Grid>
-									<Grid item xs={12} sm={5}   >
+									<Grid item xs={12} sm={5}>
 										 <FormControl className={classes.formControl}>
 										<InputLabel htmlFor="ContractType">Contract Type</InputLabel>
 										<Select
@@ -639,7 +768,7 @@ class Employee extends Component {
 										}}
 									/>
 									</Grid>
-									<Grid item xs={12} sm={5}  >
+									<Grid item xs={12} sm={5} >
 									<FormControl className={classes.formControl}>
 										<InputLabel htmlFor="company">Company</InputLabel>
 										<Select
@@ -703,25 +832,7 @@ class Employee extends Component {
 										</Select>
 									</FormControl>	
 									</Grid>
-									<Grid item xs={12} sm={5} >
-										<FormControl className={classes.formControl}>
-										<InputLabel htmlFor="ContractType">Currency</InputLabel>
-										<Select
-											value={this.state.Currency}
-											onChange={this.handleChange}
-											inputProps={{
-												name: 'Currency',
-												id: 'Currency',
-											}}
-										>
-											<MenuItem value="">
-												<em>None</em>
-											</MenuItem>
-											<MenuItem value='1'>pkr</MenuItem>
-											<MenuItem value='2'>usd</MenuItem>
-										</Select>
-									</FormControl>
-									</Grid>
+								
 									<Grid item xs={12} sm={5}  style={{marginRight:'5px'}} >
 										<FormControl className={classes.formControl}>
 										<InputLabel htmlFor="SalaryStatus">Salary Status</InputLabel>
@@ -736,8 +847,9 @@ class Employee extends Component {
 											<MenuItem value="">
 												<em>None</em>
 											</MenuItem>
-											<MenuItem value='Active'>Active</MenuItem>
-											<MenuItem value='Deactive'>Deactive</MenuItem>
+											{this.state.salaryStatusList.map(row => (
+													<MenuItem value={row.Id}>{row.Name}</MenuItem>
+												))} 
 										</Select>
 									</FormControl>
 									</Grid>
@@ -755,8 +867,9 @@ class Employee extends Component {
 											<MenuItem value="">
 												<em>None</em>
 											</MenuItem>
-											<MenuItem value='1'>By Hand</MenuItem>
-											<MenuItem value='2'>By Bank</MenuItem>
+											{this.state.paymentmethodList.map(row => (
+													<MenuItem value={row.Id}>{row.Name}</MenuItem>
+												))} 
 										</Select>
 									</FormControl>
 									</Grid>
@@ -804,8 +917,8 @@ class Employee extends Component {
 								<Grid item xs={12} sm={10}  >
 									<div style={{float: "right","marginRight":"8px"}}>
 									
-									<Button variant="outlined" color="secondary" className={classes.button }>
-										Insert Record
+									<Button variant="outlined" color="secondary"  className={classes.button } onClick={()=>this.nextTab(2)}>
+										Next
       								</Button>
 									</div>
 								</Grid>
@@ -815,23 +928,7 @@ class Employee extends Component {
 							<TabContainer dir={theme.direction}>
 							<h4>Add New Account</h4>
 								<form className={classes.container} noValidate autoComplete="off">
-								<FormControl className={classes.formControl}>
-										<InputLabel htmlFor="Employee">Employee</InputLabel>
-										<Select
-											value={this.state.Employee}
-											onChange={this.handleChange}
-											inputProps={{
-												name: 'Employee',
-												id: 'Employee',
-											}}
-										>
-											<MenuItem value="">
-												<em>None</em>
-											</MenuItem>
-											<MenuItem value='1'>Employee1</MenuItem>
-											<MenuItem value='2'>Employee2</MenuItem>
-										</Select>
-									</FormControl>
+								<Grid item xs={12} sm={5} >
 									<FormControl className={classes.formControl}>
 										<InputLabel htmlFor="Bank">Bank</InputLabel>
 										<Select
@@ -845,10 +942,33 @@ class Employee extends Component {
 											<MenuItem value="">
 												<em>None</em>
 											</MenuItem>
-											<MenuItem value='1'>Bank1</MenuItem>
-											<MenuItem value='2'>Bank2</MenuItem>
+											{this.state.bankList.map(row => (
+													<MenuItem value={row.Id}>{row.BankName}</MenuItem>
+												))} 
 										</Select>
 									</FormControl>
+									</Grid>
+									<Grid item xs={12} sm={5} >
+										<FormControl className={classes.formControl}>
+										<InputLabel htmlFor="ContractType">Currency</InputLabel>
+										<Select
+											value={this.state.Currency}
+											onChange={this.handleChange}
+											inputProps={{
+												name: 'Currency',
+												id: 'Currency',
+											}}
+										>
+											<MenuItem value="">
+												<em>None</em>
+											</MenuItem>
+											{this.state.currencyList.map(row => (
+													<MenuItem value={row.Id}>{row.Name}</MenuItem>
+												))} 
+										</Select>
+									</FormControl>
+									</Grid>
+									<Grid item xs={12} sm={5} >
 									<TextField
 										id="outlined-name"
 										label="IBAN"
@@ -857,18 +977,10 @@ class Employee extends Component {
 										fullWidth
 										//   onChange={this.handleChange('name')}
 										margin="normal"
-										variant="outlined"
+										//variant="outlined"
 									/>
-									<TextField
-										id="outlined-name"
-										label="Currency"
-										fullWidth
-										className={classes.textField}
-										value={this.state.name}
-										//   onChange={this.handleChange('name')}
-										margin="normal"
-										variant="outlined"
-									/>
+									</Grid>
+									<Grid item xs={12} sm={5} >
 										<TextField
 										id="date"
 										label="Effective Date"
@@ -879,6 +991,9 @@ class Employee extends Component {
 											shrink: true,
 										}}
 									/>
+									</Grid>
+
+									<Grid item xs={12} sm={5} >
                                     <TextField
 										id="outlined-name"
 										label="IsPrimary"
@@ -887,14 +1002,108 @@ class Employee extends Component {
 										value={this.state.name}
 										//   onChange={this.handleChange('name')}
 										margin="normal"
-										variant="outlined"
 									/>
+									</Grid>
 								</form>
 								<div className="row">
 									<div style={{float: "right","marginRight":"8px"}}>
 									
-									<Button variant="outlined" color="secondary" className={classes.button }>
-										Insert Record
+									<Button variant="outlined" color="secondary" className={classes.button } onClick={()=>this.nextTab(3)}>
+										Next
+      								</Button>
+									</div>
+								</div>
+							</TabContainer>
+
+							<TabContainer dir={theme.direction}>
+							<h4>Employee PayRoll</h4>
+								<form className={classes.container} noValidate autoComplete="off">
+								
+								<Grid item xs={12} sm={5} >
+									<FormControl className={classes.formControl}>
+										<InputLabel htmlFor="Bank">Pay Element</InputLabel>
+										<Select
+											value={this.state.Bank}
+											onChange={this.handleChange}
+											inputProps={{
+												name: 'Bank',
+												id: 'Bank',
+											}}
+										>
+											<MenuItem value="">
+												<em>None</em>
+											</MenuItem>
+											{this.state.bankList.map(row => (
+													<MenuItem value={row.Id}>{row.BankName}</MenuItem>
+												))} 
+										</Select>
+									</FormControl>
+									</Grid>
+
+									<Grid item xs={12} sm={5} >
+                                    <TextField
+										id="outlined-name"
+										label="Value"
+										fullWidth
+										className={classes.textField}
+										value={this.state.name}
+										//   onChange={this.handleChange('name')}
+										margin="normal"
+									/>
+									</Grid>
+									<Grid item xs={12} sm={5} >
+										<FormControl className={classes.formControl}>
+										<InputLabel htmlFor="ContractType">Currency</InputLabel>
+										<Select
+											value={this.state.Currency}
+											onChange={this.handleChange}
+											inputProps={{
+												name: 'Currency',
+												id: 'Currency',
+											}}
+										>
+											<MenuItem value="">
+												<em>None</em>
+											</MenuItem>
+											{this.state.currencyList.map(row => (
+													<MenuItem value={row.Id}>{row.Name}</MenuItem>
+												))} 
+										</Select>
+									</FormControl>
+									</Grid>
+		
+									<Grid item xs={12} sm={5} >
+										<TextField
+										id="date"
+										label="Start Date"
+										type="date"
+										fullWidth
+										className={classes.textField}
+										InputLabelProps={{
+											shrink: true,
+										}}
+									/>
+									</Grid>
+									
+									<Grid item xs={12} sm={5} >
+										<TextField
+										id="date"
+										label="End Date"
+										type="date"
+										fullWidth
+										className={classes.textField}
+										InputLabelProps={{
+											shrink: true,
+										}}
+									/>
+									</Grid>
+									
+								</form>
+								<div className="row">
+									<div style={{float: "right","marginRight":"8px"}}>
+									
+									<Button variant="outlined" color="secondary" className={classes.button } onClick={()=>this.nextTab(3)}>
+										Add
       								</Button>
 									</div>
 								</div>

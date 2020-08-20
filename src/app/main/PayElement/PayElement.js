@@ -521,17 +521,23 @@ class PayElement extends Component {
 									</FormControl>
 										</Grid>
 									<Grid item xs={12} sm={5} >
-										<TextField
-										id="increment"
-										type="number"
-										label="Incremenet/Decrement"
-										className={classes.textField}
-										value={this.state.increment}
-										name="increment"
-										fullWidth
-										  onChange={this.handleChange}
-										margin="normal"
-									/>
+									<FormControl className={classes.formControl}>
+										<InputLabel htmlFor="ContractType">Entitlement</InputLabel>
+										<Select
+											value={this.state.increment}
+											onChange={this.handleChange}
+											inputProps={{
+												name: 'increment',
+												id: 'increment',
+											}}
+										>
+											<MenuItem value="">
+												<em>None</em>
+											</MenuItem>
+													<MenuItem value="true">true</MenuItem>
+													<MenuItem value="false">false</MenuItem>			
+										</Select>
+									</FormControl>
 									{this.validator.message('increment', this.state.increment, 'required')}
 									</Grid>
 								

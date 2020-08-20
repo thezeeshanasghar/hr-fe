@@ -27,6 +27,11 @@ import { colors, Icon, Input, MuiThemeProvider } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
 import axios from "axios";
 import SimpleReactValidator from 'simple-react-validator';
+import defaultUrl from "../../../app/services/constant/constant";
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
+import InputLabel from '@material-ui/core/InputLabel';
 
 
 const styles = theme => ({
@@ -82,6 +87,8 @@ class Unit extends Component {
 		value: 0,
 		code: "",
 		description: "",
+		companyId: "",
+		Companies:[],
 		Units: [],
 		Id: 0,
 		Action: 'Insert Record'
@@ -95,6 +102,7 @@ class Unit extends Component {
 
 	  componentDidMount(){
 		this.getUnitDetail();
+		this.getCompanyDetail();
 	}
 	  
 	  handleTab = (event, value) => {
@@ -144,7 +152,7 @@ class Unit extends Component {
 		var obj = {
 			Code: this.state.code,
 			Description: this.state.description,
-			CompanyId: 2
+			CompanyId: this.state.companyId
 		  };
 		  axios.interceptors.request.use(function(config) {
 			// document.getElementsByClassName("loader-wrapper")[0].style.display="block"
@@ -214,6 +222,23 @@ class Unit extends Component {
 			.then((response) => {
 				console.log(response);
 				this.setState({Action:'Update Record',value:1,code:response.data[0].Code,description:response.data[0].Description, Id:response.data[0].Id });
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	  }
+	  getCompanyDetail=()=>{
+		axios({
+			method: "get",
+			url: defaultUrl+"company",
+			headers: {
+			  // 'Authorization': `bearer ${token}`,
+			  "Content-Type": "application/json;charset=utf-8",
+			},
+		  })
+			.then((response) => {
+				console.log(response);
+				this.setState({Companies:response.data});
 			})
 			.catch((error) => {
 				console.log(error);
@@ -317,6 +342,29 @@ class Unit extends Component {
 									<TextField id="description" fullWidth label="Description" name="description" value={this.state.description} onChange={this.handleChange} />
 									{this.validator.message('decription', this.state.description, 'required')}
 									</Grid>
+
+									<Grid item xs={12} sm={5} >
+									<FormControl className={classes.formControl}>
+										<InputLabel htmlFor="company">Company</InputLabel>
+										<Select
+											value={this.state.companyId}
+											onChange={this.handleChange}
+											inputProps={{
+												name: 'companyId',
+												id: 'companyId',
+											}}
+										>
+											<MenuItem value="">
+												<em>None</em>
+											</MenuItem>
+											
+											{this.state.Companies.map(row => (
+													<MenuItem value={row.Id}>{row.CompanyName}</MenuItem>
+												))} 
+										</Select>
+									</FormControl>
+									</Grid>
+									
 
 								</form>
 								<div className="row">
