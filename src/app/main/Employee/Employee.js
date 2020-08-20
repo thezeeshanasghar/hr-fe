@@ -23,7 +23,9 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Icon, Input, MuiThemeProvider} from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
-
+import axios from "axios";
+import { Lookups } from '../../services/constant/enum'
+import defaultUrl from "../../../app/services/constant/constant";
 const styles = theme => ({
 	container: {
 		display: 'flex',
@@ -81,16 +83,221 @@ const rows = [
 
 class Employee extends Component {
 	state = {
+		firstName:"",
+		lastName:"",
+		dateOfBirth:"",
+		email:"",
+		employeeCode:"",
+		insuranceId:"",
+		texationId:"",
+		texationId:"",
+		PartTime:"",
+		cnic:"",
 		value: 0,
-		Gender:'Male',
-		Status:'Single',
-		Country:'Pakistan',
-		ContractType:'1',
-		EmployeeStatus:'Active'
+		Gender:'',
+		Status:'',
+		Country:'',
+		ContractType:'',
+		EmployeeStatus:'',
+		company:"",
+		Position:"",
+		grade:"",
+		Companies:[],
+		companyList:[],
+		genderList:[],
+		countryList:[],
+		maritallist:[],
+		contractTypeList:[],
+		statusList:[],
+		parttimeList:[],
+		positionList:[],
+		gradeList:[]
 	};
-	handleChange = (event, value) => {
+	componentDidMount() {
+		this.getGender();
+		this.getCountry();
+		this.getMaritalStatus();
+		this.getContractType();
+		this.getEmployeeStatus();
+		this.getPartTime();
+		this.getCompanyDetail();
+	}
+	handleTabChange = (event, value) => {
 		this.setState({ value });
+		this.setState({ [event.target.name]: event.target.value });
+
 	};
+	handleChange = (e) => {
+		this.setState({ [e.target.name]: e.target.value });
+		if(e.target.name=="company")
+		{
+			this.getPosition(e.target.value);
+			this.getGrades(e.target.value);
+		}
+	};
+	getMaritalStatus= () => {
+		axios({
+			method: "get",
+			url: defaultUrl +"/lookups/"+Lookups.marital_Status,
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response);
+				this.setState({ maritallist: response.data });
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
+	getGender = () => {
+		axios({
+			method: "get",
+			url: defaultUrl +"/lookups/"+Lookups.gender,
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response);
+				this.setState({ genderList: response.data });
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
+	getCountry = () => {
+		axios({
+			method: "get",
+			url: defaultUrl +"/lookups/"+Lookups.Country,
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response);
+				this.setState({ countryList: response.data });
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
+	getContractType = () => {
+		axios({
+			method: "get",
+			url: defaultUrl +"/lookups/"+Lookups.Contract_Type,
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response);
+				this.setState({ contractTypeList: response.data });
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
+	getEmployeeStatus = () => {
+		axios({
+			method: "get",
+			url: defaultUrl +"/lookups/"+Lookups.EmployeeStatus,
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response);
+				this.setState({ statusList: response.data });
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
+	getCompanyDetail=()=>{
+		axios({
+			method: "get",
+			url: "http://localhost:3000/api/company",
+			headers: {
+			  // 'Authorization': `bearer ${token}`,
+			  "Content-Type": "application/json;charset=utf-8",
+			},
+		  })
+			.then((response) => {
+				console.log(response);
+				this.setState({Companies:response.data});
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	  }
+	
+	getPartTime=()=>{
+		
+		axios({
+			method: "get",
+			url: defaultUrl +"/lookups/"+Lookups.parttime,
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response);
+				this.setState({ parttimeList: response.data });
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
+	getPosition = (id) => {
+		console.log(id);
+		axios({
+			method: "get",
+			url: defaultUrl+"position/ByCompany/" + id,
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response.data);
+				this.setState({
+					positionList:response.data
+				});
+
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
+	getGrades = (id) => {
+	
+		axios({
+			method: "get",
+			url: defaultUrl+"Grades/ByCompany/" + id,
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response.data);
+				this.setState({
+					gradeList:response.data
+				});
+
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
 	render() {
 		const { classes, theme } = this.props;
 
@@ -112,7 +319,7 @@ class Employee extends Component {
 						<AppBar position="static" color="default">
 							<Tabs
 								value={this.state.value}
-								onChange={this.handleChange}
+								onChange={this.handleTabChange}
 								indicatorColor="primary"
 								textColor="primary"
 								variant="fullWidth"
@@ -214,10 +421,10 @@ class Employee extends Component {
 								<form className={classes.container} noValidate autoComplete="off">
 								
 								<Grid item xs={12} sm={5}  style={{marginRight:'5px'}} >
-									 <TextField id="standard-basic" fullWidth label="First Name" />
+									 <TextField id="standard-basic" fullWidth label="First Name" name="firstName" onChange={this.handleChange} />
 									</Grid>
 									<Grid item xs={12} sm={5}>
-									<TextField id="standard-basic" fullWidth label="Last Name" />
+									<TextField id="standard-basic" fullWidth label="Last Name" name="lastName" onChange={this.handleChange} />
 
 									</Grid>
 									<Grid item xs={12} sm={5}  style={{marginRight:'5px'}} >
@@ -234,8 +441,9 @@ class Employee extends Component {
 											<MenuItem value="">
 												<em>None</em>
 											</MenuItem>
-											<MenuItem value='Male'>Male</MenuItem>
-											<MenuItem value='Female'>Female</MenuItem>
+											{this.state.genderList.map(row => (
+													<MenuItem value={row.Id}>{row.Name}</MenuItem>
+												))} 
 										</Select>
 									</FormControl>
 									</Grid>
@@ -243,7 +451,7 @@ class Employee extends Component {
 									<FormControl className={classes.formControl}>
 										<InputLabel htmlFor="Country">Country</InputLabel>
 										<Select
-											value={this.state.Gender}
+											value={this.state.Country}
 											onChange={this.handleChange}
 											inputProps={{
 												name: 'Country',
@@ -253,15 +461,16 @@ class Employee extends Component {
 											<MenuItem value="">
 												<em>None</em>
 											</MenuItem>
-											<MenuItem value='Pakistan'>Pakistan</MenuItem>
-											<MenuItem value='Turkey'>Turkey</MenuItem>\
+											{this.state.countryList.map(row => (
+													<MenuItem value={row.Id}>{row.Name}</MenuItem>
+												))} 
 										</Select>
 									</FormControl>
 									</Grid>
                                
 									<Grid item xs={12} sm={5}  style={{marginRight:'5px'}} >
 									<FormControl className={classes.formControl}>
-										<InputLabel htmlFor="Gender">Marital Status</InputLabel>
+										<InputLabel htmlFor="Status">Marital Status</InputLabel>
 										<Select
 											value={this.state.Status}
 											onChange={this.handleChange}
@@ -273,8 +482,9 @@ class Employee extends Component {
 											<MenuItem value="">
 												<em>None</em>
 											</MenuItem>
-											<MenuItem value='Married'>Married</MenuItem>
-											<MenuItem value='Single'>Single</MenuItem>
+											{this.state.maritallist.map(row => (
+													<MenuItem value={row.Id}>{row.Name}</MenuItem>
+											))} 
 										</Select>
 									</FormControl>
 									</Grid>
@@ -284,7 +494,9 @@ class Employee extends Component {
 										label="Date of Birth"
 										type="date"
 										fullWidth
+										name="dateOfBirth"
 										className={classes.textField}
+										onChange={this.handleChange}
 										InputLabelProps={{
 											shrink: true,
 										}}
@@ -292,32 +504,29 @@ class Employee extends Component {
 									</Grid>
 									
 									<Grid item xs={12} sm={5}  style={{marginRight:'5px'}} >
-									<TextField id="standard-basic" fullWidth label="Email" />
+									<TextField id="standard-basic" fullWidth label="Email" onChange={this.handleChange} name="email" />
 
 									</Grid>
 								
 									<Grid item xs={12} sm={5}   >
-									<TextField id="standard-basic" fullWidth label="Employee Cdoe" />
+									<TextField id="standard-basic" fullWidth label="Employee Cdoe" name="employeeCode" onChange={this.handleChange} />
 
 									</Grid>
 									<Grid item xs={12} sm={5}  style={{marginRight:'5px'}} >
-									<TextField id="standard-basic" fullWidth label="Insurance Id" />
-
+									<TextField id="standard-basic" fullWidth label="Insurance Id" name="insuranceId" onChange={this.handleChange} />
 									</Grid>
-
 									<Grid item xs={12} sm={5}  >
-									<TextField id="standard-basic" fullWidth label="Texation Id" />
-
+									<TextField id="standard-basic" fullWidth label="Texation Id" onChange={this.handleChange} name="texationId" />
 									</Grid>
 									<Grid item xs={12} sm={5}  style={{marginRight:'5px'}} >
-									<TextField id="standard-basic" fullWidth label="Cnic" />
+									<TextField id="standard-basic" fullWidth label="Cnic" onChange={this.handleChange} name="cnic" />
 
 									</Grid>
 									<Grid item xs={12} sm={5}   >
 										 <FormControl className={classes.formControl}>
 										<InputLabel htmlFor="ContractType">Contract Type</InputLabel>
 										<Select
-											value={this.state.Gender}
+											value={this.state.ContractType}
 											onChange={this.handleChange}
 											inputProps={{
 												name: 'ContractType',
@@ -327,15 +536,17 @@ class Employee extends Component {
 											<MenuItem value="">
 												<em>None</em>
 											</MenuItem>
-											<MenuItem value='1'>Permanent</MenuItem>
-											<MenuItem value='2'>Part-time</MenuItem>\
+											{this.state.contractTypeList.map(row => (
+													<MenuItem value={row.Id}>{row.Name}</MenuItem>
+												))} 
 										</Select>
 									</FormControl>
 									</Grid>
-									<FormControl className={classes.formControl}>
+									<Grid item xs={12} sm={5}  style={{marginRight:'5px'}} >
+											<FormControl className={classes.formControl}>
 										<InputLabel htmlFor="ContractType">Employee Status</InputLabel>
 										<Select
-											value={this.state.Gender}
+											value={this.state.EmployeeStatus}
 											onChange={this.handleChange}
 											inputProps={{
 												name: 'EmployeeStatus',
@@ -345,10 +556,13 @@ class Employee extends Component {
 											<MenuItem value="">
 												<em>None</em>
 											</MenuItem>
-											<MenuItem value='Active'>Active</MenuItem>
-											<MenuItem value='Deactive'>Deactive</MenuItem>\
+											{this.state.statusList.map(row => (
+													<MenuItem value={row.Id}>{row.Name}</MenuItem>
+												))} 
 										</Select>
 									</FormControl>
+									</Grid>
+									<Grid item xs={12} sm={5}  >
 									<TextField
 										id="date"
 										label="Hire Date"
@@ -359,16 +573,32 @@ class Employee extends Component {
 											shrink: true,
 										}}
 									/>
-										<TextField
-										id="outlined-name"
-										label="Hiring Reason"
-										fullWidth
-										className={classes.textField}
-										value={this.state.name}
-										//   onChange={this.handleChange('name')}
-										margin="normal"
-										variant="outlined"
-									/>
+									</Grid>
+									<Grid item xs={12} sm={5}  style={{marginRight:'5px'}} >
+									
+									<TextField id="standard-basic" value={this.state.reason} fullWidth label="Cnic" onChange={this.handleChange} name="reason" />
+									</Grid>
+									<Grid item xs={12} sm={5}   >
+											<FormControl className={classes.formControl}>
+										<InputLabel htmlFor="ContractType">PartTime Situation</InputLabel>
+										<Select
+											value={this.state.PartTime}
+											onChange={this.handleChange}
+											inputProps={{
+												name: 'PartTime',
+												id: 'PartTime',
+											}}
+										>
+											<MenuItem value="">
+												<em>None</em>
+											</MenuItem>
+											{this.state.parttimeList.map(row => (
+													<MenuItem value={row.Id}>{row.Name}</MenuItem>
+												))} 
+										</Select>
+									</FormControl>
+									</Grid>
+									<Grid item xs={12} sm={5}   style={{marginRight:'5px'}}  >
 											<TextField
 										id="date"
 										label="Service Start Date"
@@ -379,7 +609,9 @@ class Employee extends Component {
 											shrink: true,
 										}}
 									/>
-											<TextField
+									</Grid>
+									<Grid item xs={12} sm={5}   >
+										<TextField
 										id="date"
 										label="Probation End Date"
 										type="date"
@@ -389,28 +621,14 @@ class Employee extends Component {
 											shrink: true,
 										}}
 									/>
-									<TextField
-										id="outlined-name"
-										label="Part-time Situation"
-										fullWidth
-										className={classes.textField}
-										value={this.state.name}
-										//   onChange={this.handleChange('name')}
-										margin="normal"
-										variant="outlined"
-									/>
+									</Grid>
+								
+									<Grid item xs={12} sm={5}  style={{marginRight:'5px'}} >
+									
+									<TextField id="standard-basic" type="number" value={this.state.parttime} fullWidth label="Part Time Percentage" onChange={this.handleChange} name="parttime" />
+									</Grid>
+									<Grid item xs={12} sm={5}   >
 										<TextField
-										id="outlined-name"
-										label="Part-time Percentage"
-										type="number"
-										fullWidth
-										className={classes.textField}
-										value={this.state.name}
-										//   onChange={this.handleChange('name')}
-										margin="normal"
-										variant="outlined"
-									/>
-											<TextField
 										id="date"
 										label="Contract End Date"
 										type="date"
@@ -420,41 +638,31 @@ class Employee extends Component {
 											shrink: true,
 										}}
 									/>
+									</Grid>
+									<Grid item xs={12} sm={5}  >
 									<FormControl className={classes.formControl}>
-										<InputLabel htmlFor="ContractType">Unit</InputLabel>
+										<InputLabel htmlFor="company">Company</InputLabel>
 										<Select
-											value={this.state.Unit}
+											value={this.state.company}
 											onChange={this.handleChange}
 											inputProps={{
-												name: 'Unit',
-												id: 'Unit',
+												name: 'company',
+												id: 'company',
 											}}
 										>
 											<MenuItem value="">
 												<em>None</em>
 											</MenuItem>
-											<MenuItem value='Active'>Unit1</MenuItem>
-											<MenuItem value='Deactive'>Unit2</MenuItem>
+											
+											{this.state.Companies.map(row => (
+													<MenuItem value={row.Id}>{row.CompanyName}</MenuItem>
+												))} 
 										</Select>
 									</FormControl>
-									<FormControl className={classes.formControl}>
-										<InputLabel htmlFor="Job">Job</InputLabel>
-										<Select
-											value={this.state.Job}
-											onChange={this.handleChange}
-											inputProps={{
-												name: 'Job',
-												id: 'Job',
-											}}
-										>
-											<MenuItem value="">
-												<em>None</em>
-											</MenuItem>
-											<MenuItem value='Active'>Job1</MenuItem>
-											<MenuItem value='Deactive'>Job2</MenuItem>
-										</Select>
-									</FormControl>
-									<FormControl className={classes.formControl}>
+									</Grid>
+								
+									<Grid item xs={12} sm={5}  >
+										<FormControl className={classes.formControl}>
 										<InputLabel htmlFor="Position">Position</InputLabel>
 										<Select
 											value={this.state.Position}
@@ -467,28 +675,36 @@ class Employee extends Component {
 											<MenuItem value="">
 												<em>None</em>
 											</MenuItem>
-											<MenuItem value='1'>Position1</MenuItem>
-											<MenuItem value='2'>Position2</MenuItem>
+											
+											{this.state.positionList.map(row => (
+													<MenuItem value={row.Id}>{row.Title}</MenuItem>
+												))} 
 										</Select>
 									</FormControl>
-									<FormControl className={classes.formControl}>
+									</Grid>
+									<Grid item xs={12} sm={5}  style={{marginRight:'5px'}} >
+										<FormControl className={classes.formControl}>
 										<InputLabel htmlFor="Grade">Grade</InputLabel>
 										<Select
-											value={this.state.Grade}
+											value={this.state.grade}
 											onChange={this.handleChange}
 											inputProps={{
-												name: 'Grade',
-												id: 'Grade',
+												name: 'grade',
+												id: 'grade',
 											}}
 										>
 											<MenuItem value="">
 												<em>None</em>
 											</MenuItem>
-											<MenuItem value='1'>Grade1</MenuItem>
-											<MenuItem value='2'>Grade2</MenuItem>
+											
+											{this.state.gradeList.map(row => (
+													<MenuItem value={row.Id}>{row.Code}</MenuItem>
+												))} 
 										</Select>
-									</FormControl>
-									<FormControl className={classes.formControl}>
+									</FormControl>	
+									</Grid>
+									<Grid item xs={12} sm={5} >
+										<FormControl className={classes.formControl}>
 										<InputLabel htmlFor="ContractType">Currency</InputLabel>
 										<Select
 											value={this.state.Currency}
@@ -505,7 +721,9 @@ class Employee extends Component {
 											<MenuItem value='2'>usd</MenuItem>
 										</Select>
 									</FormControl>
-									<FormControl className={classes.formControl}>
+									</Grid>
+									<Grid item xs={12} sm={5}  style={{marginRight:'5px'}} >
+										<FormControl className={classes.formControl}>
 										<InputLabel htmlFor="SalaryStatus">Salary Status</InputLabel>
 										<Select
 											value={this.state.SalaryStatus}
@@ -522,7 +740,9 @@ class Employee extends Component {
 											<MenuItem value='Deactive'>Deactive</MenuItem>
 										</Select>
 									</FormControl>
-									<FormControl className={classes.formControl}>
+									</Grid>
+									<Grid item xs={12} sm={5}  >
+										<FormControl className={classes.formControl}>
 										<InputLabel htmlFor="PaymentMethod">Payment Method</InputLabel>
 										<Select
 											value={this.state.PaymentMethod}
@@ -539,7 +759,9 @@ class Employee extends Component {
 											<MenuItem value='2'>By Bank</MenuItem>
 										</Select>
 									</FormControl>
-									<FormControl className={classes.formControl}>
+									</Grid>
+									<Grid item xs={12} sm={5}  style={{marginRight:'5px'}} >
+										<FormControl className={classes.formControl}>
 										<InputLabel htmlFor="Social">Social Security</InputLabel>
 										<Select
 											value={this.state.Social}
@@ -556,7 +778,9 @@ class Employee extends Component {
 											<MenuItem value='2'>Social2</MenuItem>
 										</Select>
 									</FormControl>
-									<FormControl className={classes.formControl}>
+									</Grid>
+									<Grid item xs={12} sm={5} >
+										<FormControl className={classes.formControl}>
 										<InputLabel htmlFor="taxation">Applicable taxation</InputLabel>
 										<Select
 											value={this.state.taxation}
@@ -570,17 +794,22 @@ class Employee extends Component {
 												<em>None</em>
 											</MenuItem>
 											<MenuItem value='1'>tax 1</MenuItem>
-											<MenuItem value='2'>tax 2</MenuItem>\
+											<MenuItem value='2'>tax 2</MenuItem>
 										</Select>
 									</FormControl>
+									</Grid>
+									
 								</form>
 								<div className="row">
+								<Grid item xs={12} sm={10}  >
 									<div style={{float: "right","marginRight":"8px"}}>
 									
 									<Button variant="outlined" color="secondary" className={classes.button }>
 										Insert Record
       								</Button>
 									</div>
+								</Grid>
+									
 								</div>
 							</TabContainer>
 							<TabContainer dir={theme.direction}>
