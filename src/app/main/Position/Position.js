@@ -26,6 +26,7 @@ import { Icon, Input, MuiThemeProvider} from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
 import axios from "axios";
 import SimpleReactValidator from 'simple-react-validator';
+import defaultUrl from "../../../app/services/constant/constant";
 const styles = theme => ({
 	container: {
 		display: 'flex',
@@ -78,6 +79,7 @@ class Position extends Component {
 	state = {
 		value: 0,
 		labelWidth: 0,
+		Units:[],
 		unitId: 1,
 		jobId: 1,
 		companyId: 2,
@@ -96,6 +98,7 @@ class Position extends Component {
 
 	  componentDidMount(){
 		this.getPositionDetail();
+		this.getUnitDetail();
 	}
 	  
 	  handleTab = (event, value) => {
@@ -123,6 +126,25 @@ class Position extends Component {
 				console.log(error);
 			})
 	  }
+	 
+	  getUnitDetail=()=>{
+		axios({
+			method: "get",
+			url: defaultUrl+"unit",
+			headers: {
+			  // 'Authorization': `bearer ${token}`,
+			  "Content-Type": "application/json;charset=utf-8",
+			},
+		  })
+			.then((response) => {
+				console.log(response);
+				this.setState({Units:response.data});
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	  }
+
 	  insertUpdateRecord=()=>{
 		if (!this.validator.allValid()) 
 		{
@@ -146,7 +168,7 @@ class Position extends Component {
 			Code: this.state.code,
 			Title: this.state.title,
 		//	CompanyId: 2
-			unitId: 1,
+			UnitId: this.state.unitId,
 		    Job: "N/A",
 		    Action: 'Insert Record'
 		  };
@@ -169,8 +191,10 @@ class Position extends Component {
 			.then((response) => {
 	
 			  console.log(response);
+			  this.getPositionDetail();
 			  this.setState({
-				unitId: 1,
+				value: 0,
+				unitId: 0,
 		        Job: 1,
 		        code: '',
 		        title: '',
@@ -221,7 +245,7 @@ class Position extends Component {
 		  })
 			.then((response) => {
 				console.log(response);
-				this.setState({Action:'Update Record',value:1,jobId:response.data[0].JobId,code:response.data[0].Code, title:response.data[0].Title, Id:response.data[0].Id });
+				this.setState({Action:'Update Record',value:1,jobId:response.data[0].JobId,code:response.data[0].Code, title:response.data[0].Title, Id:response.data[0].Id , unitId:response.data[0].UnitId });
 			})
 			.catch((error) => {
 				console.log(error);
@@ -317,23 +341,40 @@ class Position extends Component {
 							</TabContainer>
 							<TabContainer dir={theme.direction}>
 								<form className={classes.container} noValidate autoComplete="off">
-								<Grid item xs={12} sm={5}  style={{marginRight:'5px'}} >
-								<TextField id="unitId" fullWidth label="Unit" name="unitId" value={this.state.unitId} onChange={this.handleChange} />
-								{this.validator.message('unitId', this.state.unitId, 'required')}
+								<Grid item xs={12} sm={5} >
+									<FormControl className={classes.formControl}>
+										<InputLabel htmlFor="company">Unit</InputLabel>
+										<Select
+											value={this.state.unitId}
+											onChange={this.handleChange}
+											inputProps={{
+												name: 'unitId',
+												id: 'unitId',
+											}}
+										>
+											<MenuItem value="">
+												<em>None</em>
+											</MenuItem>
+											
+											{this.state.Units.map(row => (
+													<MenuItem value={row.Id}>{row.Code}</MenuItem>
+												))} 
+										</Select>
+									</FormControl>
 									</Grid>
 									<Grid item xs={12} sm={5}  >
 									<TextField id="jobId" fullWidth label="Job" name="jobId" value={this.state.jobId} onChange={this.handleChange} />
 									{this.validator.message('jobId', this.state.Job, 'required')}
 									</Grid>
-									<Grid item xs={12} sm={5}  style={{marginRight:'5px'}} >
-								<TextField id="companyId" fullWidth label="Unit" name="companyId" value={this.state.companyId} onChange={this.handleChange} />
+									<Grid item xs={12} sm={5}  style={{marginRight:'5px'}}>
+								<TextField id="companyId" fullWidth label="Company" name="companyId" value={this.state.companyId} onChange={this.handleChange} />
 								{this.validator.message('companyId', this.state.companyId, 'required')}
 									</Grid>
-									<Grid item xs={12} sm={5}  >
+									<Grid item xs={12} sm={5}>
 									<TextField id="code" fullWidth label="Code" name="code" value={this.state.code} onChange={this.handleChange} />
 									{this.validator.message('code', this.state.code, 'required')}
 									</Grid>
-									<Grid item xs={12} sm={5}  >
+									<Grid item xs={12} sm={5} >
 									<TextField id="title" fullWidth label="title" name="title" value={this.state.title} onChange={this.handleChange} />
 									{this.validator.message('title', this.state.title, 'required')}
 									</Grid>
@@ -342,7 +383,7 @@ class Position extends Component {
 									<div style={{ float: "right", "marginRight": "8px" }}>
 
 										<Button variant="outlined" color="secondary" className={classes.button}>
-											Insert Record
+										{this.state.Action}
       								</Button>
 									</div>
 								</div>
