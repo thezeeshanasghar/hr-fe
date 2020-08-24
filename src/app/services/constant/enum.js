@@ -12,5 +12,6 @@ export const Lookups = {
     EmployeeStatus:11,
     parttime:12,
     salarystatus: 13,
-    paymentmethod: 14
+    paymentmethod: 14,
+    Title:15
 }
