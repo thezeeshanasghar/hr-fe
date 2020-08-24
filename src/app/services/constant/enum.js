@@ -13,5 +13,6 @@ export const Lookups = {
     parttime:12,
     salarystatus: 13,
     paymentmethod: 14,
-    Title:15
+    Title:15,
+    lawtypes:16
 }
