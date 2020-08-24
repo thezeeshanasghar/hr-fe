@@ -11,6 +11,7 @@ import jwtService from 'app/services/jwtService';
 export const SET_USER_DATA = '[USER] SET DATA';
 export const REMOVE_USER_DATA = '[USER] REMOVE DATA';
 export const USER_LOGGED_OUT = '[USER] LOGGED OUT';
+export const SET_STATUS = 'SET_STATUS';
 
 /**
  * Set user data from Auth0 token data
@@ -87,9 +88,20 @@ export function createUserSettingsFirebase(authUser)
     }
 }
 
+export function setStatus(Status)
+{
+    return (dispatch) => {
+
+        dispatch({
+            type   : SET_STATUS,
+            payload: Status
+        })
+}
+}
 /**
  * Set User Data
  */
+
 export function setUserData(user)
 {
     return (dispatch) => {

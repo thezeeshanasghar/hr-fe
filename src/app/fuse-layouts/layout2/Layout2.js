@@ -103,10 +103,10 @@ const Layout2 = ({classes, settings, children}) => {
                             </div>
 
                         </FuseScrollbars>
-
+{/* 
                         {layoutConfig.footer.display && layoutConfig.footer.style === 'fixed' && (
                             <FooterLayout2/>
-                        )}
+                        )} */}
 
                         <SettingsPanel/>
 
