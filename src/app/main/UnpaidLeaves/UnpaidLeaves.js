@@ -28,6 +28,7 @@ import SimpleReactValidator from 'simple-react-validator';
 import axios from "axios";
 import toastr from 'toastr';
 import moment from 'moment';
+import defaultUrl from "../../../app/services/constant/constant";
 
 const styles = theme => ({
 	container: {
@@ -94,7 +95,7 @@ class UnpaidLeaves extends Component {
 	getCompanies = () => {
 		axios({
 			method: "get",
-			url: "http://localhost:3000/api/Company",
+			url: defaultUrl+"Company",
 			headers: {
 				// 'Authorization': `bearer ${token}`,
 				"Content-Type": "application/json;charset=utf-8",
@@ -111,7 +112,7 @@ class UnpaidLeaves extends Component {
 	getEmployees = (companyId) => {
 		axios({
 			method: "get",
-			url: "http://localhost:3000/api/Employees/ByCompany/" + companyId,
+			url: defaultUrl+"ByCompany/" + companyId,
 			headers: {
 				// 'Authorization': `bearer ${token}`,
 				"Content-Type": "application/json;charset=utf-8",
@@ -145,11 +146,11 @@ class UnpaidLeaves extends Component {
 			this.forceUpdate();
 		} else {
 			var method = "post";
-			var url = "http://localhost:3000/api/Unpaidleaves";
+			var url =  defaultUrl+"Unpaidleaves";
 			if(this.state.Action !="Insert Record")
 			{
 				 method = "put";
-				 url = "http://localhost:3000/api/Unpaidleaves/"+this.state.Id;
+				 url = defaultUrl+"Unpaidleaves/"+this.state.Id;
 			}
 			// console.log(this.state.company,this.state.employee,this.state.dateFrom,this.state.dateTo);
 			var obj = {
@@ -202,7 +203,7 @@ class UnpaidLeaves extends Component {
 	getUnPaidLeaves = () => {
 		axios({
 			method: "get",
-			url: "http://localhost:3000/api/Unpaidleaves",
+			url: defaultUrl+"Unpaidleaves",
 			headers: {
 				// 'Authorization': `bearer ${token}`,
 				"Content-Type": "application/json;charset=utf-8",
@@ -219,7 +220,7 @@ class UnpaidLeaves extends Component {
 	getLeavesById = (id) => {
 		axios({
 			method: "get",
-			url: "http://localhost:3000/api/Unpaidleaves/" + id,
+			url: defaultUrl+"Unpaidleaves/" + id,
 			headers: {
 				// 'Authorization': `bearer ${token}`,
 				"Content-Type": "application/json;charset=utf-8",
@@ -246,7 +247,7 @@ class UnpaidLeaves extends Component {
 	deleteLeaves=(id)=>{
 		axios({
 			method: "delete",
-			url: "http://localhost:3000/api/Unpaidleaves/"+id,
+			url: defaultUrl+"Unpaidleaves/"+id,
 			headers: {
 			  // 'Authorization': `bearer ${token}`,
 			  "Content-Type": "application/json;charset=utf-8",

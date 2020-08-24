@@ -111,7 +111,7 @@ class PayElementGlAccount extends Component {
 	getCostCenter = () => {
 		axios({
 			method: "get",
-			url: "http://localhost:3000/api/CostCenter",
+			url: defaultUrl+"CostCenter",
 			headers: {
 				// 'Authorization': `bearer ${token}`,
 				"Content-Type": "application/json;charset=utf-8",

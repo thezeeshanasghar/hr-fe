@@ -22,6 +22,7 @@ import Grid from '@material-ui/core/Grid';
 import SimpleReactValidator from 'simple-react-validator';
 import axios from "axios";
 import toastr from 'toastr'
+import defaultUrl from "../../../app/services/constant/constant";
 const styles = theme => ({
 	container: {
 		display: 'flex',
@@ -86,7 +87,7 @@ class Bank extends Component {
 	  getBankDetail=()=>{
 		axios({
 			method: "get",
-			url: "http://localhost:3000/api/Bank",
+			url: defaultUrl+"Bank",
 			headers: {
 			  // 'Authorization': `bearer ${token}`,
 			  "Content-Type": "application/json;charset=utf-8",
@@ -110,11 +111,11 @@ class Bank extends Component {
   		 return false;
 		   }
 		   var method="post";
-		   var url="http://localhost:3000/api/Bank";
+		   var url= defaultUrl+"Bank";
 		   if(this.state.Action!="Insert Record")
 		   {
 			method="put";
-			url="http://localhost:3000/api/Bank/"+this.state.Id;
+			url= defaultUrl+"Bank/"+this.state.Id;
 		   }
 		   
 		//   this.setState({bankName:'',bankCode:'',bankAddress:''})
@@ -165,7 +166,7 @@ class Bank extends Component {
 	  deleteBank=(id)=>{
 		axios({
 			method: "delete",
-			url: "http://localhost:3000/api/Bank/"+id,
+			url: defaultUrl+"Bank/"+id,
 			headers: {
 			  // 'Authorization': `bearer ${token}`,
 			  "Content-Type": "application/json;charset=utf-8",
@@ -182,7 +183,7 @@ class Bank extends Component {
 	  getBankById=(id)=>{
 		axios({
 			method: "get",
-			url: "http://localhost:3000/api/Bank/"+id,
+			url: defaultUrl+"Bank/"+id,
 			headers: {
 			  // 'Authorization': `bearer ${token}`,
 			  "Content-Type": "application/json;charset=utf-8",

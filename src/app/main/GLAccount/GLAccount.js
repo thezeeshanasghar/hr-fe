@@ -127,7 +127,7 @@ class GLAccount extends Component {
 		if(this.state.Action!="Insert Record")
 		{
 		 method="put";
-		 url="http://localhost:5000/api/glaccount/"+this.state.Id;
+		 url= defaultUrl+"glaccount/"+this.state.Id;
 		}
 
 

@@ -27,6 +27,7 @@ import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import SimpleReactValidator from 'simple-react-validator';
+import defaultUrl from "../../../app/services/constant/constant";
 
 const styles = theme => ({
 	container: {
@@ -119,7 +120,7 @@ class CountryLaws extends Component {
 
 		axios({
 			method: "get",
-			url: "http://localhost:3000/api/lookups/"+Lookups.Country,
+			url: defaultUrl+"lookups/"+Lookups.Country,
 			headers: {
 				// 'Authorization': `bearer ${token}`,
 				"Content-Type": "application/json;charset=utf-8",
@@ -136,7 +137,7 @@ class CountryLaws extends Component {
 	getCurrency = () => {
 		axios({
 			method: "get",
-			url: "http://localhost:3000/api/lookups/"+Lookups.Currency,
+			url: defaultUrl+"lookups/"+Lookups.Currency,
 			headers: {
 				// 'Authorization': `bearer ${token}`,
 				"Content-Type": "application/json;charset=utf-8",
@@ -153,7 +154,7 @@ class CountryLaws extends Component {
 	getMode = () => {
 		axios({
 			method: "get",
-			url: "http://localhost:3000/api/lookups/"+Lookups.mode,
+			url: defaultUrl+"lookups/"+Lookups.mode,
 			headers: {
 				// 'Authorization': `bearer ${token}`,
 				"Content-Type": "application/json;charset=utf-8",
@@ -175,11 +176,11 @@ class CountryLaws extends Component {
 		} else {
 
 			var method = "post";
-			var url = "http://localhost:3000/api/countrylaw";
+			var url = defaultUrl+"countrylaw";
 			if(this.state.Action !="Insert Record")
 			{
 				 method = "put";
-				 url = "http://localhost:3000/api/countrylaw/"+this.state.Id;
+				 url = defaultUrl+"countrylaw/"+this.state.Id;
 			}
 
 			var obj = {
@@ -236,7 +237,7 @@ class CountryLaws extends Component {
 	getCountryLawById = (id) => {
 		axios({
 			method: "get",
-			url: "http://localhost:3000/api/countrylaw/" + id,
+			url: defaultUrl+"countrylaw/" + id,
 			headers: {
 				// 'Authorization': `bearer ${token}`,
 				"Content-Type": "application/json;charset=utf-8",
@@ -264,7 +265,7 @@ class CountryLaws extends Component {
 		
 		axios({
 			method: "get",
-			url: "http://localhost:3000/api/countrylaw",
+			url: defaultUrl+"countrylaw",
 			headers: {
 				// 'Authorization': `bearer ${token}`,
 				"Content-Type": "application/json;charset=utf-8",
@@ -281,7 +282,7 @@ class CountryLaws extends Component {
 	deleteCountryLaw=(id)=>{
 		axios({
 			method: "delete",
-			url: "http://localhost:3000/api/countrylaw/"+id,
+			url: defaultUrl+"countrylaw/"+id,
 			headers: {
 			  // 'Authorization': `bearer ${token}`,
 			  "Content-Type": "application/json;charset=utf-8",

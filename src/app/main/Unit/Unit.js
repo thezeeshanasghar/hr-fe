@@ -115,7 +115,7 @@ class Unit extends Component {
 	getUnitDetail=()=>{
 		axios({
 			method: "get",
-			url: "http://localhost:5000/api/unit",
+			url: defaultUrl+"unit",
 			headers: {
 			  // 'Authorization': `bearer ${token}`,
 			  "Content-Type": "application/json;charset=utf-8",
@@ -141,11 +141,11 @@ class Unit extends Component {
 		   console.log("true");
 		//   this.setState({bankName:'',bankCode:'',bankAddress:''})
 		var method="post";
-		var url="http://localhost:5000/api/unit";
+		var url= defaultUrl+"unit";
 		if(this.state.Action!="Insert Record")
 		{
 		 method="put";
-		 url="http://localhost:5000/api/unit/"+this.state.Id;
+		 url= defaultUrl+"unit/"+this.state.Id;
 		}
 
 
@@ -174,8 +174,10 @@ class Unit extends Component {
 	
 			  console.log(response);
 			  this.setState({
+				value:0,
 				code: "",
 				description: '',
+				companyId: 0,
 				Action:'Insert Record',
 				Id:0
 			  });
@@ -196,7 +198,7 @@ class Unit extends Component {
 	  deleteUnit=(id)=>{
 		axios({
 			method: "delete",
-			url: "http://localhost:3000/api/unit/"+id,
+			url: defaultUrl+"unit/"+id,
 			headers: {
 			  // 'Authorization': `bearer ${token}`,
 			  "Content-Type": "application/json;charset=utf-8",
@@ -213,7 +215,7 @@ class Unit extends Component {
 	  getUnitById=(id)=>{
 		axios({
 			method: "get",
-			url: "http://localhost:5000/api/unit/"+id,
+			url: defaultUrl+"unit/"+id,
 			headers: {
 			  // 'Authorization': `bearer ${token}`,
 			  "Content-Type": "application/json;charset=utf-8",
@@ -371,7 +373,7 @@ class Unit extends Component {
 									<div style={{ float: "right", "marginRight": "8px" }}>
 
 										<Button variant="outlined" color="secondary" className={classes.button}onClick={this.insertUpdateRecord}>
-											Insert Record
+										{this.state.Action}
       								</Button>
 									</div>
 								</div>
