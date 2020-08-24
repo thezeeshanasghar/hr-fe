@@ -86,6 +86,12 @@ class CountryLaws extends Component {
 		CurrencyList:[],
 		Currency:'',
 		mode:'',
+		adultAge: '',
+		minSalary:'',
+		maxSalary:'',
+		percentage:'',
+		type:'',
+		typeList:[],
 		modeList:[],
 		adultAge:'',
 		description:'',
@@ -99,10 +105,12 @@ class CountryLaws extends Component {
 
 	}
 	componentDidMount() {
+		this.getCountryLaw();
 		this.getCountry();
 		this.getCurrency();
 		this.getMode();
-		this.getCountryLaw();
+		this.getType();
+		
 	}
 	handleTabChange = (event, value) => {
 		this.setState({ value });
@@ -168,6 +176,25 @@ class CountryLaws extends Component {
 				console.log(error);
 			})
 	}
+
+	getType = () => {
+		axios({
+			method: "get",
+			url: defaultUrl+"lookups/"+Lookups.lawtypes,
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response);
+				this.setState({typeList: response.data });
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
+
 	InsertUpdateCountryLaw=()=>{
 		console.log("**************************************")
 		if (!this.validator.allValid()) {
@@ -189,6 +216,10 @@ class CountryLaws extends Component {
 				Currency: this.state.Currency,
 				AdultAge: this.state.adultAge,
 				CalculationMode: this.state.mode,
+				MaxSalary: this.state.maxSalary,
+				MinSalary: this.state.minSalary,
+				Percentage: this.state.percentage,
+				Type: this.state.type
 			};
 			axios.interceptors.request.use(function (config) {
 				// document.getElementsByClassName("loader-wrapper")[0].style.display="block"
@@ -215,8 +246,13 @@ class CountryLaws extends Component {
 						Currency:"",
 						adultAge:"",
 						mode:"",
+						maxSalary:"",
+						minSalary: "",
+						percentage:"",
+						type:"",
 						Action:"Insert Record",
-						Id:0
+						Id:0,
+						value:0
 					});
 				})
 				.catch((error) => {
@@ -228,6 +264,10 @@ class CountryLaws extends Component {
 						Currency:"",
 						adultAge:"",
 						mode:"",
+						maxSalary:"",
+						minSalary: "",
+						percentage:"",
+						type:"",
 						Action:"Insert Record",
 						Id:0
 					})
@@ -251,6 +291,10 @@ class CountryLaws extends Component {
 					Currency:response.data[0].Currency,
 					adultAge:response.data[0].AdultAge,
 					mode:response.data[0].CalculationMode,
+					maxSalary:response.data[0].MaxSalary,
+					minSalary:response.data[0].MinSalary,
+					percentage:response.data[0].Percentage,
+					type:response.data[0].Type,
 					value: 1,
 					Id:response.data[0].Id,
 					Action :"Update Record"
@@ -354,6 +398,12 @@ class CountryLaws extends Component {
 											<TableRow>
 												<CustomTableCell align="center" >Country Code</CustomTableCell>
 												<CustomTableCell align="center">Description</CustomTableCell>
+												<CustomTableCell align="center">Currency</CustomTableCell>
+												<CustomTableCell align="center">Adult Age</CustomTableCell>
+												<CustomTableCell align="center">Calculation Mode</CustomTableCell>
+												<CustomTableCell align="center">Min Salary</CustomTableCell>
+												<CustomTableCell align="center">Percentage</CustomTableCell>
+												<CustomTableCell align="center">Type</CustomTableCell>
 												<CustomTableCell align="center">Action</CustomTableCell>
 											</TableRow>
 										</TableHead>
@@ -364,6 +414,24 @@ class CountryLaws extends Component {
 													<CustomTableCell align="center">{row.CountryCode}</CustomTableCell>
 													<CustomTableCell align="center" component="th" scope="row">
 														{row.Detail}
+													</CustomTableCell>
+													<CustomTableCell align="center" component="th" scope="row">
+														{row.Currency}
+													</CustomTableCell>
+													<CustomTableCell align="center" component="th" scope="row">
+														{row.AdultAge}
+													</CustomTableCell>
+													<CustomTableCell align="center" component="th" scope="row">
+														{row.CalculationMode}
+													</CustomTableCell>
+													<CustomTableCell align="center" component="th" scope="row">
+														{row.MinSalary}
+													</CustomTableCell>
+													<CustomTableCell align="center" component="th" scope="row">
+														{row.Percentage}
+													</CustomTableCell>
+													<CustomTableCell align="center" component="th" scope="row">
+														{row.Type}
 													</CustomTableCell>
 													<CustomTableCell align="center" component="th" scope="row">
 														<IconButton className={classes.button} onClick={()=>this.deleteCountryLaw(row.Id)} aria-label="Delete">
@@ -402,7 +470,7 @@ class CountryLaws extends Component {
 									</FormControl>
 									</Grid>
 
-									<Grid item xs={12} sm={5}   >
+									<Grid item xs={12} sm={5}>
 										 <FormControl className={classes.formControl}>
 										<InputLabel htmlFor="Currency">Currency Code</InputLabel>
 										<Select
@@ -423,7 +491,7 @@ class CountryLaws extends Component {
 									</FormControl>
 									</Grid>
 
-									<Grid item xs={12} sm={5} style={{ marginRight: '5px' }} >
+									<Grid item xs={12} sm={5} style={{ marginRight: '5px' }}>
 										 <FormControl className={classes.formControl}>
 										<InputLabel htmlFor="mode">Calculation Mode</InputLabel>
 										<Select
@@ -455,6 +523,53 @@ class CountryLaws extends Component {
 										  onChange={this.handleChange}
 										margin="normal"
 									/>
+									</Grid>
+									<Grid item xs={12} sm={5} >
+									<TextField
+										id="minSalary"
+										label="Min Salary"
+										fullWidth
+										type="number"
+										name="minSalary"
+										className={classes.textField}
+										value={this.state.minSalary}
+										  onChange={this.handleChange}
+										margin="normal"
+									/>
+									</Grid>
+
+									<Grid item xs={12} sm={5} >
+									<TextField
+										id="maxSalary"
+										label="Max Salary"
+										fullWidth
+										type="number"
+										name="maxSalary"
+										className={classes.textField}
+										value={this.state.maxSalary}
+										  onChange={this.handleChange}
+										margin="normal"
+									/>
+									</Grid>
+									<Grid item xs={12} sm={5} style={{ marginRight: '5px' }}>
+										 <FormControl className={classes.formControl}>
+										<InputLabel htmlFor="mode">Type</InputLabel>
+										<Select
+											value={this.state.type}
+											onChange={this.handleChange}
+											inputProps={{
+												name: 'type',
+												id: 'type',
+											}}
+										>
+											<MenuItem value="">
+												<em>None</em>
+											</MenuItem>
+											{this.state.typeList.map(row => (
+													<MenuItem value={row.Id}>{row.Name}</MenuItem>
+												))}
+										</Select>
+									</FormControl>
 									</Grid>
 									<Grid item xs={12} sm={10} >
 									<TextField

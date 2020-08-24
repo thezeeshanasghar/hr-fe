@@ -236,6 +236,7 @@ class Company extends Component {
 
 		return (
 			<FusePageSimple
+			
 				classes={{
 					root: classes.layoutRoot
 				}}
@@ -362,7 +363,7 @@ class Company extends Component {
 									<div style={{float: "right","marginRight":"8px"}}>
 									
 									<Button variant="outlined" color="secondary" className={classes.button} onClick={this.insertUpdateRecord}>
-										Insert Record
+										{this.state.Action}
       								</Button>
 									</div>
 								</div>
