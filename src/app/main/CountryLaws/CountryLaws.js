@@ -196,7 +196,6 @@ class CountryLaws extends Component {
 	}
 
 	InsertUpdateCountryLaw=()=>{
-		console.log("**************************************")
 		if (!this.validator.allValid()) {
 			this.validator.showMessages();
 			this.forceUpdate();
@@ -468,6 +467,8 @@ class CountryLaws extends Component {
 												))}
 										</Select>
 									</FormControl>
+									{this.validator.message('code', this.state.code, 'required')}
+
 									</Grid>
 
 									<Grid item xs={12} sm={5}>
@@ -489,6 +490,7 @@ class CountryLaws extends Component {
 												))}
 										</Select>
 									</FormControl>
+									{this.validator.message('Currency', this.state.Currency, 'required')}
 									</Grid>
 
 									<Grid item xs={12} sm={5} style={{ marginRight: '5px' }}>
@@ -510,6 +512,7 @@ class CountryLaws extends Component {
 												))}
 										</Select>
 									</FormControl>
+									{this.validator.message('mode', this.state.mode, 'required')}
 									</Grid>
 									<Grid item xs={12} sm={5} >
 									<TextField
@@ -523,6 +526,7 @@ class CountryLaws extends Component {
 										  onChange={this.handleChange}
 										margin="normal"
 									/>
+									{this.validator.message('adultAge', this.state.adultAge, 'required')}
 									</Grid>
 									<Grid item xs={12} sm={5} >
 									<TextField
@@ -536,6 +540,7 @@ class CountryLaws extends Component {
 										  onChange={this.handleChange}
 										margin="normal"
 									/>
+									{this.validator.message('minSalary', this.state.minSalary, 'required')}
 									</Grid>
 
 									<Grid item xs={12} sm={5} >
@@ -550,10 +555,11 @@ class CountryLaws extends Component {
 										  onChange={this.handleChange}
 										margin="normal"
 									/>
+									{this.validator.message('maxSalary', this.state.maxSalary, 'required')}
 									</Grid>
 									<Grid item xs={12} sm={5} style={{ marginRight: '5px' }}>
 										 <FormControl className={classes.formControl}>
-										<InputLabel htmlFor="mode">Type</InputLabel>
+										<InputLabel htmlFor="type">Type</InputLabel>
 										<Select
 											value={this.state.type}
 											onChange={this.handleChange}
@@ -570,7 +576,23 @@ class CountryLaws extends Component {
 												))}
 										</Select>
 									</FormControl>
+									{this.validator.message('type', this.state.type, 'required')}
 									</Grid>
+									<Grid item xs={12} sm={5} >
+									<TextField
+										id="percentage"
+										label="Percentage"
+										fullWidth
+										type="number"
+										name="percentage"
+										className={classes.textField}
+										value={this.state.percentage}
+										  onChange={this.handleChange}
+										margin="normal"
+									/>
+									{this.validator.message('percentage', this.state.percentage, 'required')}
+									</Grid>
+
 									<Grid item xs={12} sm={10} >
 									<TextField
 										id="description"
@@ -583,6 +605,7 @@ class CountryLaws extends Component {
 										  onChange={this.handleChange}
 										margin="normal"
 									/>
+									{this.validator.message('description', this.state.description, 'required')}
 									</Grid>
 								</form>
 								<div className="row">
