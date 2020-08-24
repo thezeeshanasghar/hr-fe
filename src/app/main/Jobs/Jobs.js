@@ -28,6 +28,7 @@ import { Lookups } from '../../services/constant/enum'
 import Grid from '@material-ui/core/Grid';
 import MenuItem from '@material-ui/core/MenuItem';
 import moment from 'moment';
+import defaultUrl from "../../../app/services/constant/constant";
 const styles = theme => ({
 	container: {
 		display: 'flex',
@@ -107,7 +108,7 @@ class Jobs extends Component {
 	getCompanies = () => {
 		axios({
 			method: "get",
-			url: "http://localhost:3000/api/Company",
+			url: defaultUrl+"Company",
 			headers: {
 				// 'Authorization': `bearer ${token}`,
 				"Content-Type": "application/json;charset=utf-8",
@@ -127,11 +128,11 @@ class Jobs extends Component {
 			this.forceUpdate();
 		} else {
 			var method = "post";
-			var url = "http://localhost:3000/api/Job";
+			var url =  defaultUrl+"Job";
 			if(this.state.Action !="Insert Record")
 			{
 				 method = "put";
-				 url = "http://localhost:3000/api/Job/"+this.state.Id;
+				 url =  defaultUrl+"Job/"+this.state.Id;
 			}
 			// console.log(this.state.company,this.state.employee,this.state.dateFrom,this.state.dateTo);
 			var obj = {
@@ -185,7 +186,7 @@ class Jobs extends Component {
 	getJobs = () => {
 		axios({
 			method: "get",
-			url: "http://localhost:3000/api/Job",
+			url: defaultUrl+"Job",
 			headers: {
 				// 'Authorization': `bearer ${token}`,
 				"Content-Type": "application/json;charset=utf-8",
@@ -202,7 +203,7 @@ class Jobs extends Component {
 	getJobsById = (id) => {
 		axios({
 			method: "get",
-			url: "http://localhost:3000/api/Job/" + id,
+			url: defaultUrl+"Job/" + id,
 			headers: {
 				// 'Authorization': `bearer ${token}`,
 				"Content-Type": "application/json;charset=utf-8",
@@ -227,7 +228,7 @@ class Jobs extends Component {
 	deleteJobs=(id)=>{
 		axios({
 			method: "delete",
-			url: "http://localhost:3000/api/Job/"+id,
+			url: defaultUrl+"Job/"+id,
 			headers: {
 			  // 'Authorization': `bearer ${token}`,
 			  "Content-Type": "application/json;charset=utf-8",

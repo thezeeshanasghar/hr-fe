@@ -26,6 +26,7 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
+import defaultUrl from "../../../app/services/constant/constant";
 
 const styles = theme => ({
 	container: {
@@ -99,7 +100,7 @@ class CostCenter extends Component {
 	getCompanies = () => {
 		axios({
 			method: "get",
-			url: "http://localhost:3000/api/Company",
+			url: defaultUrl+"Company",
 			headers: {
 				// 'Authorization': `bearer ${token}`,
 				"Content-Type": "application/json;charset=utf-8",
@@ -119,11 +120,11 @@ class CostCenter extends Component {
 			this.forceUpdate();
 		} else {
 			var method = "post";
-			var url = "http://localhost:3000/api/CostCenter";
+			var url = defaultUrl+"CostCenter";
 			if(this.state.Action !="Insert Record")
 			{
 				 method = "put";
-				 url = "http://localhost:3000/api/CostCenter/"+this.state.Id;
+				 url = defaultUrl+"CostCenter/"+this.state.Id;
 			}
 			// console.log(this.state.company,this.state.employee,this.state.dateFrom,this.state.dateTo);
 			var obj = {
@@ -176,7 +177,7 @@ class CostCenter extends Component {
 	getCostCenter = () => {
 		axios({
 			method: "get",
-			url: "http://localhost:3000/api/CostCenter",
+			url: defaultUrl+"CostCenter",
 			headers: {
 				// 'Authorization': `bearer ${token}`,
 				"Content-Type": "application/json;charset=utf-8",
@@ -193,7 +194,7 @@ class CostCenter extends Component {
 	getCostCenterById = (id) => {
 		axios({
 			method: "get",
-			url: "http://localhost:3000/api/CostCenter/" + id,
+			url: defaultUrl+"CostCenter/" + id,
 			headers: {
 				// 'Authorization': `bearer ${token}`,
 				"Content-Type": "application/json;charset=utf-8",
@@ -218,7 +219,7 @@ class CostCenter extends Component {
 	deleteCostCenter=(id)=>{
 		axios({
 			method: "delete",
-			url: "http://localhost:3000/api/CostCenter/"+id,
+			url: defaultUrl+"CostCenter/"+id,
 			headers: {
 			  // 'Authorization': `bearer ${token}`,
 			  "Content-Type": "application/json;charset=utf-8",

@@ -30,6 +30,7 @@ import toastr from 'toastr';
 import {Lookups} from '../../services/constant/enum'
 import Grid from '@material-ui/core/Grid';
 import moment from 'moment';
+import defaultUrl from "../../../app/services/constant/constant";
 
 const styles = theme => ({
 
@@ -108,11 +109,11 @@ class CurrencyExchange extends Component {
 				this.forceUpdate();
 			} else {
 				var method = "post";
-				var url = "http://localhost:3000/api/Currency";
+				var url = defaultUrl+"Currency";
 				if(this.state.Action !="Insert Record")
 				{
 					 method = "put";
-					 url = "http://localhost:3000/api/Currency/"+this.state.Id;
+					 url = defaultUrl+"Currency/"+this.state.Id;
 				}
 				// console.log(this.state.company,this.state.employee,this.state.dateFrom,this.state.dateTo);
 				var obj = {
@@ -170,7 +171,7 @@ class CurrencyExchange extends Component {
 		console.log("23423432")
 		axios({
 			method: "get",
-			url: "http://localhost:3000/api/lookups/"+Lookups.Currency,
+			url: defaultUrl+"lookups/"+Lookups.Currency,
 			headers: {
 				// 'Authorization': `bearer ${token}`,
 				"Content-Type": "application/json;charset=utf-8",
@@ -188,7 +189,7 @@ class CurrencyExchange extends Component {
 		
 		axios({
 			method: "get",
-			url: "http://localhost:3000/api/Currency",
+			url: defaultUrl+"Currency",
 			headers: {
 				// 'Authorization': `bearer ${token}`,
 				"Content-Type": "application/json;charset=utf-8",
@@ -206,7 +207,7 @@ class CurrencyExchange extends Component {
 	getExchangeById=(id)=>{
 		axios({
 			method: "get",
-			url: "http://localhost:3000/api/Currency/"+id,
+			url:  defaultUrl+"Currency/"+id,
 			headers: {
 				// 'Authorization': `bearer ${token}`,
 				"Content-Type": "application/json;charset=utf-8",
@@ -231,7 +232,7 @@ class CurrencyExchange extends Component {
 	deleteExchange=(id)=>{
 		axios({
 			method: "delete",
-			url: "http://localhost:3000/api/Currency/"+id,
+			url:  defaultUrl+"Currency/"+id,
 			headers: {
 			  // 'Authorization': `bearer ${token}`,
 			  "Content-Type": "application/json;charset=utf-8",

@@ -21,6 +21,7 @@ import { Icon, Input, MuiThemeProvider} from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
 import axios from "axios";
 import SimpleReactValidator from 'simple-react-validator';
+import defaultUrl from "../../../app/services/constant/constant";
 const styles = theme => ({
 	container: {
 		display: 'flex',
@@ -105,7 +106,7 @@ class Company extends Component {
 	  getCompanyDetail=()=>{
 		axios({
 			method: "get",
-			url: "http://localhost:3000/api/company",
+			url: defaultUrl+"company",
 			headers: {
 			  // 'Authorization': `bearer ${token}`,
 			  "Content-Type": "application/json;charset=utf-8",
@@ -132,11 +133,11 @@ class Company extends Component {
   		 return false;
 		   }
 		   var method="post";
-		   var url="http://localhost:3000/api/company";
+		   var url= defaultUrl+"company";
 		   if(this.state.Action!="Insert Record")
 		   {
 			method="put";
-			url="http://localhost:3000/api/company/"+this.state.Id;
+			url= defaultUrl+"company/"+this.state.Id;
 		   }
 		//   this.setState({bankName:'',bankCode:'',bankAddress:''})
 		var obj = {
@@ -197,7 +198,7 @@ class Company extends Component {
 	  deleteCompany=(id)=>{
 		axios({
 			method: "delete",
-			url: "http://localhost:3000/api/company/"+id,
+			url:  defaultUrl+"company/"+id,
 			headers: {
 			  // 'Authorization': `bearer ${token}`,
 			  "Content-Type": "application/json;charset=utf-8",
@@ -215,7 +216,7 @@ class Company extends Component {
 	  getCompanyById=(id)=>{
 		axios({
 			method: "get",
-			url: "http://localhost:3000/api/company/"+id,
+			url: defaultUrl+"company/"+id,
 			headers: {
 			  // 'Authorization': `bearer ${token}`,
 			  "Content-Type": "application/json;charset=utf-8",
