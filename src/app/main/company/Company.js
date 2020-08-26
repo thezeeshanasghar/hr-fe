@@ -165,9 +165,9 @@ class Company extends Component {
 			},
 		  })
 			.then((response) => {
-	
-			  console.log(response);
-			  this.setState({
+			   this.getCompanyDetail();
+			   console.log(response);
+			   this.setState({
 				Name: "",
 				Code: "",
 				Contact: '',
@@ -175,7 +175,8 @@ class Company extends Component {
 		        Address: '',
 				CountryCode: '',
 				Action:'Insert Record',
-				Id:0
+				Id:0,
+				value:0
 			  });
 			})
 			.catch((error) => {
@@ -188,7 +189,8 @@ class Company extends Component {
 		        Address: '',
 				CountryCode: '',
 				Action:'Insert Record',
-				Id:0
+				Id:0,
+				value:0
 				})
 			}).finally(()=>{
 			//   document.getElementsByClassName("loader-wrapper")[0].style.display="none";

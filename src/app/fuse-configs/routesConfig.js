@@ -10,19 +10,18 @@ import {CompanyConfig} from 'app/main/company/CompanyConfig';
 import {ElementGroupConfig} from 'app/main/element_group/ElementGroupConfig';
 import {EmployeeBankAccountConfig} from 'app/main/EmployeeBankAccount/EmployeeBankAccountConfig';
 import {EmployeeConfig} from 'app/main/Employee/EmployeeConfig';
-
 import {GLAccountConfig} from 'app/main/GLAccount/GLAccountConfig';
 import {GradesConfig} from 'app/main/Grades/GradesConfig';
 import {PayElementConfig} from 'app/main/PayElement/PayElementConfig';
 import {JobsConfig} from 'app/main/Jobs/JobsConfig';
 import {PositionConfig} from 'app/main/Position/PositionConfig';
 import {PayElementGlAccountConfig} from 'app/main/PayElementGlAccount/PayElementGlAccountConfig';
-
 import {SocialSecurityElementConfig} from 'app/main/SocialSecurityElement/SocialSecurityElementConfig';
 import {UnitConfig} from 'app/main/Unit/UnitConfig';
 import {UnpaidLeavesConfig} from 'app/main/UnpaidLeaves/UnpaidLeavesConfig';
 import {UserProtectionConfig} from 'app/main/UserProtection/UserProtectionConfig';
 import {LoginConfig} from 'app/main/Login/LoginConfig'
+import {SalaryPayRollConfig} from 'app/main/SalaryPayRoll/SalaryPayRollConfig.js'
 const routeConfigs = [
     DashboardConfig,
     BankConfig,
@@ -43,7 +42,8 @@ const routeConfigs = [
     SocialSecurityElementConfig,
     UnpaidLeavesConfig,
     UserProtectionConfig,
-    LoginConfig
+    LoginConfig,
+    SalaryPayRollConfig
 ];
 
  const routes = [

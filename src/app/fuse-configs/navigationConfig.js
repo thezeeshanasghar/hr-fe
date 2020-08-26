@@ -124,6 +124,13 @@ const navigationConfig = [
                 'type': 'item',
                 'icon': 'whatshot',
                 'url': '/userprotection'
+            },
+            {
+                'id': 'SalaryPayRoll-component',
+                'title': 'Salary Payroll',
+                'type': 'item',
+                'icon': 'whatshot',
+                'url': '/salarypayroll'
             }
         ]
     },
