@@ -100,28 +100,30 @@ class SalaryPayRoll extends Component {
 		this.validator = new SimpleReactValidator();
 
 	}
+	
 	componentDidMount() {
 		this.getCompanyDetail();
-		this.getEmployeeDetail();
+		//this.getEmployeeDetail();
 	}
-	InsertUpdateExchange=()=>{
+	
+	InsertSalaryPayRoll=()=>{
 			if (!this.validator.allValid()) {
 				this.validator.showMessages();
 				this.forceUpdate();
 			} else {
 				var method = "post";
-				var url = defaultUrl+"Currency";
-				if(this.state.Action !="Insert Record")
-				{
-					 method = "put";
-					 url = defaultUrl+"Currency/"+this.state.Id;
-				}
+				var url = defaultUrl+"payslip";
+				// if(this.state.Action !="Generate")
+				// {
+				// 	 method = "put";
+				// 	 url = defaultUrl+"Currency/"+this.state.Id;
+				// }
 				// console.log(this.state.company,this.state.employee,this.state.dateFrom,this.state.dateTo);
 				var obj = {
-					Currency: this.state.currency,
-					ToCurrency: this.state.toCurrency,
-					Rate: this.state.rate,
-					EffectiveDate: this.state.effectiveDate
+					CompanyId: this.state.companyId,
+					EmployeesIds: this.state.employeeIds,
+					PayMonth: this.state.Date,
+					SalaryType: this.state.type
 				};
 				axios.interceptors.request.use(function (config) {
 					// document.getElementsByClassName("loader-wrapper")[0].style.display="block"
@@ -143,11 +145,10 @@ class SalaryPayRoll extends Component {
 						toastr.success('Operation successfull');
 						this.getExchangeRate();
 						this.setState({
-							currency: "",
-							toCurrency: "",
-							rate: "",
-							effectiveDate: "",
-							Action:"Insert Record",
+							companyId: "",
+							employeeIds: "",
+							Date: "",
+							type: "",
 							Id:0
 						});
 					})
@@ -155,11 +156,10 @@ class SalaryPayRoll extends Component {
 						console.log(error);
 						toastr.error('Operation unsuccessfull');
 						this.setState({
-							currency: "",
-							toCurrency: "",
-							rate: "",
-							effectiveDate: "",
-							Action:"Insert Record",
+							companyId: "",
+							employeeIds: "",
+							Date: "",
+							type: "",
 							Id:0
 						})
 					})
@@ -176,6 +176,9 @@ class SalaryPayRoll extends Component {
 	};
 	handleChange = (e) => {
 		this.setState({ [e.target.name]: e.target.value });
+		if (e.target.name == "companyId") {
+			this.getEmployeeDetail(e.target.value);
+		}
 	};
 	getCompanyDetail=()=>{
 		axios({
@@ -194,10 +197,10 @@ class SalaryPayRoll extends Component {
 				console.log(error);
 			})
 	  }
-	  getEmployeeDetail=()=>{
+	  getEmployeeDetail=(id)=>{
 		axios({
 			method: "get",
-			url: defaultUrl+"employee",
+			url: defaultUrl+"employee/bycompany/"+id,
 			headers: {
 			  // 'Authorization': `bearer ${token}`,
 			  "Content-Type": "application/json;charset=utf-8",
@@ -287,6 +290,7 @@ class SalaryPayRoll extends Component {
 										<Select
 											value={this.state.companyId}
 											onChange={this.handleChange}
+											//onChange={this.getEmployeeDetail()}
 											inputProps={{
 												name: 'companyId',
 												id: 'companyId',
@@ -308,7 +312,6 @@ class SalaryPayRoll extends Component {
 										<Select
 											value={this.state.type}
 											onChange={this.handleChange}
-											onChange={this.getEmployeeDetail}
 											inputProps={{
 												name: 'type',
 												id: 'type',
@@ -322,7 +325,7 @@ class SalaryPayRoll extends Component {
 													<MenuItem value="Grouped">Grouped</MenuItem>
 												
 										</Select>
-										{this.validator.message('toCurrency', this.state.toCurrency, 'required')}
+										{this.validator.message('type', this.state.type, 'required')}
 
 									</FormControl>
 									</Grid>
@@ -365,7 +368,7 @@ class SalaryPayRoll extends Component {
 								<Grid item xs={12} sm={10}  >
 									<div style={{ float: "right", "marginRight": "8px", "marginTop": "2px", "marginBottom": "2px" }}>
 
-										<Button variant="outlined" color="secondary" className={classes.button} onClick={this.InsertUpdateExchange} >
+										<Button variant="outlined" color="secondary" className={classes.button} onClick={this.InsertSalaryPayRoll} >
 											{this.state.Action}
       								</Button>
 									</div>
