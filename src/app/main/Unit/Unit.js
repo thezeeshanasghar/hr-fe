@@ -32,7 +32,9 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import InputLabel from '@material-ui/core/InputLabel';
-
+import $ from 'jquery';
+import DataTable from "datatables.net";
+import * as responsive from "datatables.net-responsive";
 
 const styles = theme => ({
 	container: {
@@ -88,64 +90,90 @@ class Unit extends Component {
 		code: "",
 		description: "",
 		companyId: "",
-		Companies:[],
+		Companies: [],
 		Units: [],
 		Id: 0,
-		Action: 'Insert Record'
+		Action: 'Insert Record',
+		table:null
 
 	};
 	constructor(props) {
 		super(props);
 		this.validator = new SimpleReactValidator();
-	
-	  }
+		 this.SelectedIds=[];
+	}
 
-	  componentDidMount(){
+	componentDidMount() {
+		localStorage.removeItem("ids");
 		this.getUnitDetail();
 		this.getCompanyDetail();
 	}
-	  
-	  handleTab = (event, value) => {
+
+	handleTab = (event, value) => {
 		this.setState({ value });
 	};
 	handleChange = (e) => {
 		this.setState({ [e.target.name]: e.target.value });
 	};
 
-	getUnitDetail=()=>{
-		axios({
-			method: "get",
-			url: defaultUrl+"unit",
-			headers: {
-			  // 'Authorization': `bearer ${token}`,
-			  "Content-Type": "application/json;charset=utf-8",
-			},
-		  })
-			.then((response) => {
-				console.log(response);
-				this.setState({Units:response.data});
-			})
-			.catch((error) => {
-				console.log(error);
-			})
-	  }
+	getUnitDetail = () => {
+		
+		
+		if (!$.fn.dataTable.isDataTable('#unit_Table')) {
+			this.state.table = $('#unit_Table').DataTable({
+				ajax: defaultUrl + "unit",
+				"columns": [
+					{ "data": "Code" },
+					{ "data": "Name" },
+					{ "data": "Action",
+					sortable: false,
+					"render": function ( data, type, full, meta ) {
+					   
+						return `<input type="checkbox" name="radio"  value=`+full.Id+`
+						onclick=" const checkboxes = document.querySelectorAll('input[name=radio]:checked');
+									let values = [];
+									checkboxes.forEach((checkbox) => {
+										values.push(checkbox.value);
+									});
+									localStorage.setItem('ids',values);
+									"
+						/>`;
+					}
+				 }
 
-	  insertUpdateRecord=()=>{
-		if (!this.validator.allValid()) 
-		{
+				],
+				rowReorder: {
+					selector: 'td:nth-child(2)'
+				},
+				responsive: true,
+				dom: 'Bfrtip',
+				buttons: [
+
+				],
+				columnDefs: [{
+					"defaultContent": "-",
+					"targets": "_all"
+				  }]
+			});
+		} else {
+			this.state.table.ajax.reload();
+		}
+	}
+
+	insertUpdateRecord = () => {
+		if (!this.validator.allValid()) {
 			console.log("false");
-	    this.validator.showMessages();
-	    this.forceUpdate();
-  		 return false;
-		   }
-		   console.log("true");
+			this.validator.showMessages();
+			this.forceUpdate();
+			return false;
+		}
+		console.log("true");
 		//   this.setState({bankName:'',bankCode:'',bankAddress:''})
-		var method="post";
-		var url= defaultUrl+"unit";
-		if(this.state.Action!="Insert Record")
-		{
-		 method="put";
-		 url= defaultUrl+"unit/"+this.state.Id;
+		var method = "post";
+		var url = defaultUrl + "unit";
+		if (this.state.Action != "Insert Record") {
+			method = "put";
+			url = defaultUrl + "unit/" + this.state.Id;
 		}
 
 
@@ -153,99 +181,113 @@ class Unit extends Component {
 			Code: this.state.code,
 			Description: this.state.description,
 			CompanyId: this.state.companyId
-		  };
-		  axios.interceptors.request.use(function(config) {
+		};
+		axios.interceptors.request.use(function (config) {
 			// document.getElementsByClassName("loader-wrapper")[0].style.display="block"
 			return config;
-		  }, function(error) {
+		}, function (error) {
 			console.log('Error');
 			return Promise.reject(error);
-		  });
-		  axios({
+		});
+		axios({
 			method: method,
 			url: url,
 			data: JSON.stringify(obj),
 			headers: {
-			  // 'Authorization': `bearer ${token}`,
-			  "Content-Type": "application/json;charset=utf-8",
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
 			},
-		  })
+		})
 			.then((response) => {
-	
-			  console.log(response);
-			  this.setState({
-				value:0,
-				code: "",
-				description: '',
-				companyId: 0,
-				Action:'Insert Record',
-				Id:0
-			  });
+				
+				this.getUnitDetail();
+
+				this.setState({
+					value: 0,
+					code: "",
+					description: '',
+					companyId: 0,
+					Action: 'Insert Record',
+					Id: 0
+				});
 			})
 			.catch((error) => {
 				console.log(error);
-			  this.setState({
-				code: "",
-				description: '',
-				Action:'Insert Record',
-				Id:0
+				this.setState({
+					code: "",
+					description: '',
+					Action: 'Insert Record',
+					Id: 0
 				})
-			}).finally(()=>{
-			//   document.getElementsByClassName("loader-wrapper")[0].style.display="none";
+			}).finally(() => {
+				//   document.getElementsByClassName("loader-wrapper")[0].style.display="none";
 			});
-	  }
+	}
 
-	  deleteUnit=(id)=>{
+	deleteUnit = () => {
+		var ids=localStorage.getItem("ids");
+		if(ids===null)
+		{
+			alert("No Record Selected");
+		return false;
+		}
+		
 		axios({
 			method: "delete",
-			url: defaultUrl+"unit/"+id,
+			url: defaultUrl + "unit/"+ids,
 			headers: {
-			  // 'Authorization': `bearer ${token}`,
-			  "Content-Type": "application/json;charset=utf-8",
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
 			},
-		  })
+		})
 			.then((response) => {
-				
+				localStorage.removeItem("ids");
 				this.getUnitDetail();
 			})
 			.catch((error) => {
 				console.log(error);
 			})
-	  }
-	  getUnitById=(id)=>{
+	}
+	getUnitById = () => {
+		let ids = localStorage.getItem("ids")
+		if(ids=== null || localStorage.getItem("ids").split(",").length>1)
+		{
+			alert("kindly Select one record");
+			return false;
+		}
 		axios({
 			method: "get",
-			url: defaultUrl+"unit/"+id,
+			url: defaultUrl + "unit/" + ids,
 			headers: {
-			  // 'Authorization': `bearer ${token}`,
-			  "Content-Type": "application/json;charset=utf-8",
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
 			},
-		  })
+		})
 			.then((response) => {
 				console.log(response);
-				this.setState({Action:'Update Record',value:1,code:response.data[0].Code,description:response.data[0].Description, Id:response.data[0].Id });
+				this.setState({ Action: 'Update Record', value: 1, code: response.data[0].Code, description: response.data[0].Description, Id: response.data[0].Id });
 			})
 			.catch((error) => {
 				console.log(error);
 			})
-	  }
-	  getCompanyDetail=()=>{
+	}
+	getCompanyDetail = () => {
 		axios({
 			method: "get",
-			url: defaultUrl+"company",
+			url: defaultUrl + "company",
 			headers: {
-			  // 'Authorization': `bearer ${token}`,
-			  "Content-Type": "application/json;charset=utf-8",
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
 			},
-		  })
+		})
 			.then((response) => {
 				console.log(response);
-				this.setState({Companies:response.data});
+				this.setState({ Companies: response.data });
 			})
 			.catch((error) => {
 				console.log(error);
 			})
-	  }
+	}
 	render() {
 		const { classes, theme } = this.props;
 
@@ -282,99 +324,73 @@ class Unit extends Component {
 						>
 							<TabContainer dir={theme.direction}>
 								<Paper className={classes.root}>
-									<MuiThemeProvider theme={this.props.theme}>
-										<Paper className={"flex items-center h-44 w-full"} elevation={1}>
-											<Input
-												placeholder="Search..."
-												className="pl-16"
-												disableUnderline
-												fullWidth
-												inputProps={{
-													'aria-label': 'Search'
-												}}
-											/>
-											<Icon color="action" className="mr-16">search</Icon>
-											<Button variant="contained" color="secondary" style={{ 'marginRight': '2px' }} className={classes.button}>
-												PRINT
-      								</Button>
-										</Paper>
-									</MuiThemeProvider>
-									<Table className={classes.table}>
-										<TableHead>
-											<TableRow>
-												<CustomTableCell align="center"  >Code</CustomTableCell>
-												<CustomTableCell align="center" >Description</CustomTableCell>
-												<CustomTableCell align="center" >Company</CustomTableCell>
-												<CustomTableCell align="center" >Action</CustomTableCell>
+								<div className="row">
+									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
+										<Button variant="outlined" color="primary" className={classes.button} onClick={this.getUnitById}>
+											Edit
+										</Button>
+									</div>
+									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
+										<Button variant="outlined" color="inherit" className={classes.button} onClick={this.deleteUnit}>
+											Delete
+										</Button>
+									</div>
+								</div>
+									<table id="unit_Table" className="nowrap header_custom" style={{ "width": "100%" }}>
+										<thead>
+											<tr>
+												<th>Code</th>
+												<th>Name</th>
+												<th>Action</th>
 
-											</TableRow>
-										</TableHead>
-										<TableBody>
-										{this.state.Units.map(row => (
-												<TableRow className={classes.row} key={row.Id}>
+											</tr>
+										</thead>
 
-													<CustomTableCell align="center">{row.Code=="" || row.Code==null || row.Code == undefined ?'N/A':row.Code}</CustomTableCell>
-													<CustomTableCell align="center" component="th" scope="row">
-														{row.Description=="" || row.Description==null || row.Description == undefined ?'N/A':row.Description}
-													</CustomTableCell>
-													<CustomTableCell align="center">{row.CompanyId=="" || row.CompanyId==null || row.CompanyId == undefined ?'N/A':row.CompanyId}</CustomTableCell>
-													
-													<CustomTableCell align="center" component="th" scope="row">
-														<IconButton className={classes.button} onClick={()=>this.deleteUnit(row.Id)}  aria-label="Delete">
-															<DeleteIcon />
-														</IconButton>
-														<IconButton className={classes.button} onClick={()=>this.getUnitById(row.Id)} aria-label="Edit">
-															<EditIcon />
-														</IconButton>
-													</CustomTableCell>
-												</TableRow>
-											))}
-										</TableBody>
-									</Table>
+									</table>
 								</Paper>
 							</TabContainer>
 							<TabContainer dir={theme.direction}>
 								<form className={classes.container} noValidate autoComplete="off">
 
-								<Grid item xs={12} sm={5}  style={{marginRight:'5px'}} >
-								<TextField id="code" fullWidth label="Unit Code" name="code" value={this.state.code} onChange={this.handleChange} />
-								{this.validator.message('code', this.state.code, 'required')}
+									<Grid item xs={12} sm={5} style={{ marginRight: '5px' }} >
+										<TextField id="code" fullWidth label="Unit Code" name="code" value={this.state.code} onChange={this.handleChange} />
+										{this.validator.message('code', this.state.code, 'required')}
 									</Grid>
 									<Grid item xs={12} sm={5}  >
-									<TextField id="description" fullWidth label="Description" name="description" value={this.state.description} onChange={this.handleChange} />
-									{this.validator.message('decription', this.state.description, 'required')}
+										<TextField id="description" fullWidth label="Description" name="description" value={this.state.description} onChange={this.handleChange} />
+										{this.validator.message('decription', this.state.description, 'required')}
 									</Grid>
 
 									<Grid item xs={12} sm={5} >
-									<FormControl className={classes.formControl}>
-										<InputLabel htmlFor="company">Company</InputLabel>
-										<Select
-											value={this.state.companyId}
-											onChange={this.handleChange}
-											inputProps={{
-												name: 'companyId',
-												id: 'companyId',
-											}}
-										>
-											<MenuItem value="">
-												<em>None</em>
-											</MenuItem>
-											
-											{this.state.Companies.map(row => (
+										<FormControl className={classes.formControl}>
+											<InputLabel htmlFor="company">Company</InputLabel>
+											<Select
+												value={this.state.companyId}
+												onChange={this.handleChange}
+												inputProps={{
+													name: 'companyId',
+													id: 'companyId',
+												}}
+											>
+												<MenuItem value="">
+													<em>None</em>
+												</MenuItem>
+
+												{this.state.Companies.map(row => (
 													<MenuItem value={row.Id}>{row.CompanyName}</MenuItem>
-												))} 
-										</Select>
-									</FormControl>
+												))}
+											</Select>
+										</FormControl>
 									</Grid>
-									
+
 
 								</form>
 								<div className="row">
 									<div style={{ float: "right", "marginRight": "8px" }}>
 
-										<Button variant="outlined" color="secondary" className={classes.button}onClick={this.insertUpdateRecord}>
-										{this.state.Action}
-      								</Button>
+										<Button variant="outlined" color="secondary" className={classes.button} onClick={this.insertUpdateRecord}>
+											{this.state.Action}
+										</Button>
 									</div>
 								</div>
 							</TabContainer>
