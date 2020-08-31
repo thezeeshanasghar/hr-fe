@@ -29,6 +29,9 @@ import Grid from '@material-ui/core/Grid';
 import MenuItem from '@material-ui/core/MenuItem';
 import moment from 'moment';
 import defaultUrl from "../../../app/services/constant/constant";
+import $ from 'jquery';
+import DataTable from "datatables.net";
+import * as responsive from "datatables.net-responsive";
 const styles = theme => ({
 	container: {
 		display: 'flex',
@@ -86,8 +89,10 @@ class Jobs extends Component {
 		Companies: [],
 		jobsList:[],
 		Action: 'Insert Record',
-		Id: 0
+		Id: 0,
+		table:null
 	};
+	
 	constructor(props) {
 		super(props);
 		this.validator = new SimpleReactValidator();
@@ -100,7 +105,6 @@ class Jobs extends Component {
 	handleTabChange = (event, value) => {
 		this.setState({ value });
 		this.setState({ [event.target.name]: event.target.value });
-
 	};
 	handleChange = (e) => {
 		this.setState({ [e.target.name]: e.target.value });
@@ -108,15 +112,15 @@ class Jobs extends Component {
 	getCompanies = () => {
 		axios({
 			method: "get",
-			url: defaultUrl+"Company",
+			url: defaultUrl+"company",
 			headers: {
-				// 'Authorization': `bearer ${token}`,
-				"Content-Type": "application/json;charset=utf-8",
+			  // 'Authorization': `bearer ${token}`,
+			  "Content-Type": "application/json;charset=utf-8",
 			},
-		})
+		  })
 			.then((response) => {
 				console.log(response);
-				this.setState({ Companies: response.data });
+				this.setState({Companies:response.data});
 			})
 			.catch((error) => {
 				console.log(error);
@@ -184,26 +188,57 @@ class Jobs extends Component {
 		}
 	}
 	getJobs = () => {
-		axios({
-			method: "get",
-			url: defaultUrl+"Job",
-			headers: {
-				// 'Authorization': `bearer ${token}`,
-				"Content-Type": "application/json;charset=utf-8",
-			},
-		})
-			.then((response) => {
-				console.log(response);
-				this.setState({ jobsList: response.data });
-			})
-			.catch((error) => {
-				console.log(error);
-			})
+		if (!$.fn.dataTable.isDataTable('#job_Table')) {
+			this.state.table = $('#job_Table').DataTable({
+				ajax: defaultUrl + "job",
+				"columns": [
+					{ "data": "Code" },
+					{ "data": "Description" },
+					{ "data": "CompanyId" },
+					{ "data": "Action",
+					sortable: false,
+					"render": function ( data, type, full, meta ) {
+					   
+						return `<input type="checkbox" name="radio"  value=`+full.Id+`
+						onclick=" const checkboxes = document.querySelectorAll('input[name=radio]:checked');
+									let values = [];
+									checkboxes.forEach((checkbox) => {
+										values.push(checkbox.value);
+									});
+									localStorage.setItem('ids',values);
+									"
+						/>`;
+					}
+				 }
+
+				],
+				rowReorder: {
+					selector: 'td:nth-child(2)'
+				},
+				responsive: true,
+				dom: 'Bfrtip',
+				buttons: [
+
+				],
+				columnDefs: [{
+					"defaultContent": "-",
+					"targets": "_all"
+				  }]
+			});
+		} else {
+			this.state.table.ajax.reload();
+		}
 	}
-	getJobsById = (id) => {
+	getJobsById = () => {
+		let ids = localStorage.getItem("ids")
+		if(ids=== null || localStorage.getItem("ids").split(",").length>1)
+		{
+			alert("kindly Select one record");
+			return false;
+		}
 		axios({
 			method: "get",
-			url: defaultUrl+"Job/" + id,
+			url: defaultUrl+"Job/" + ids,
 			headers: {
 				// 'Authorization': `bearer ${token}`,
 				"Content-Type": "application/json;charset=utf-8",
@@ -225,17 +260,23 @@ class Jobs extends Component {
 				console.log(error);
 			})
 	}
-	deleteJobs=(id)=>{
+	deleteJobs=()=>{
+		var ids=localStorage.getItem("ids");
+		if(ids===null)
+		{
+			alert("No Record Selected");
+		return false;
+		}
 		axios({
 			method: "delete",
-			url: defaultUrl+"Job/"+id,
+			url: defaultUrl+"Job/"+ids,
 			headers: {
 			  // 'Authorization': `bearer ${token}`,
 			  "Content-Type": "application/json;charset=utf-8",
 			},
 		  })
 			.then((response) => {
-				
+				localStorage.removeItem("ids");
 				this.getJobs();
 			})
 			.catch((error) => {
@@ -278,49 +319,30 @@ class Jobs extends Component {
 						>
 							<TabContainer dir={theme.direction}>
 								<Paper className={classes.root}>
-									<MuiThemeProvider theme={this.props.theme}>
-										<Paper className={"flex items-center h-44 w-full"} elevation={1}>
-											<Input
-												placeholder="Search..."
-												className="pl-16"
-												disableUnderline
-												fullWidth
-												inputProps={{
-													'aria-label': 'Search'
-												}}
-											/>
-											<Icon color="action" className="mr-16">search</Icon>
-											<Button variant="contained" color="secondary" style={{ 'marginRight': '2px' }} className={classes.button}>
-												PRINT
-      								</Button>
-										</Paper>
-									</MuiThemeProvider>
-									<Table className={classes.table}>
-										<TableHead>
-											<TableRow>
-												<CustomTableCell align="center" >Code</CustomTableCell>
-												<CustomTableCell align="center" >Description</CustomTableCell>
-												<CustomTableCell align="center">Action</CustomTableCell>
-											</TableRow>
-										</TableHead>
-										<TableBody>
-											{this.state.jobsList.map(row => (
-												<TableRow className={classes.row} key={row.Id}>
+								<div className="row">
+									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
+										<Button variant="outlined" color="primary" className={classes.button} onClick={this.getJobsById}>
+											Edit
+										</Button>
+									</div>
+									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
+										<Button variant="outlined" color="inherit" className={classes.button} onClick={this.deleteJobs}>
+											Delete
+										</Button>
+									</div>
+								</div>
+								<table id="job_Table" className="nowrap header_custom" style={{ "width": "100%" }}>
+										<thead>
+											<tr>
+												<th>Code</th>
+												<th>Description</th>
+												<th>Company</th>
+												<th>Action</th>
+											</tr>
+										</thead>
 
-													<CustomTableCell align="center">{row.Code}</CustomTableCell>
-													<CustomTableCell align="center">{row.Description}</CustomTableCell>
-													<CustomTableCell align="center" component="th" scope="row">
-														<IconButton className={classes.button} onClick={()=>this.deleteJobs(row.Id)} aria-label="Delete">
-															<DeleteIcon />
-														</IconButton>
-														<IconButton className={classes.button} onClick={()=>this.getJobsById(row.Id)} aria-label="Edit">
-															<EditIcon />
-														</IconButton>
-													</CustomTableCell>
-												</TableRow>
-											))}
-										</TableBody>
-									</Table>
+									</table>
+									
 								</Paper>
 							</TabContainer>
 							<TabContainer dir={theme.direction}>
