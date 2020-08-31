@@ -27,6 +27,9 @@ import Grid from '@material-ui/core/Grid';
 import axios from "axios";
 import SimpleReactValidator from 'simple-react-validator';
 import defaultUrl from "../../../app/services/constant/constant";
+import $ from 'jquery';
+import DataTable from "datatables.net";
+import * as responsive from "datatables.net-responsive";
 const styles = theme => ({
 	container: {
 		display: 'flex',
@@ -80,20 +83,21 @@ class Position extends Component {
 		value: 0,
 		labelWidth: 0,
 		Units:[],
-		unitId: 1,
-		jobId: 1,
-		companyId: 2,
+		unitId: "",
+		jobId: "",
+		companyId: "",
 		code: '',
 		title: '',
 		Positions: [],
 		Id: 0,
-		Action: 'Insert Record'
+		Action: 'Insert Record',
+		table:null
 	};
 	
 	constructor(props) {
 		super(props);
 		this.validator = new SimpleReactValidator();
-	
+		this.SelectedIds=[];
 	  }
 
 	  componentDidMount(){
@@ -110,21 +114,63 @@ class Position extends Component {
 	};
 
 	getPositionDetail=()=>{
-		axios({
-			method: "get",
-			url: "http://localhost:5000/api/position",
-			headers: {
-			  // 'Authorization': `bearer ${token}`,
-			  "Content-Type": "application/json;charset=utf-8",
-			},
-		  })
-			.then((response) => {
-				console.log(response);
-				this.setState({Positions:response.data});
-			})
-			.catch((error) => {
-				console.log(error);
-			})
+		if (!$.fn.dataTable.isDataTable('#position_Table')) {
+			this.state.table = $('#position_Table').DataTable({
+				ajax: defaultUrl + "position",
+				"columns": [
+					{ "data": "UnitId" },
+					{ "data": "JobId" },
+					{ "data": "Code"},
+					{ "data": "Title"},
+					{ "data": "CompanyId"},
+					{ "data": "Action",
+					sortable: false,
+					"render": function ( data, type, full, meta ) {
+					   
+						return `<input type="checkbox" name="radio"  value=`+full.Id+`
+						onclick=" const checkboxes = document.querySelectorAll('input[name=radio]:checked');
+									let values = [];
+									checkboxes.forEach((checkbox) => {
+										values.push(checkbox.value);
+									});
+									localStorage.setItem('ids',values);
+									"
+						/>`;
+					}
+				 }
+
+				],
+				rowReorder: {
+					selector: 'td:nth-child(2)'
+				},
+				responsive: true,
+				dom: 'Bfrtip',
+				buttons: [
+
+				],
+				columnDefs: [{
+					"defaultContent": "-",
+					"targets": "_all"
+				  }]
+			});
+		} else {
+			this.state.table.ajax.reload();
+		}
+		// axios({
+		// 	method: "get",
+		// 	url: defaultUrl+"position",
+		// 	headers: {
+		// 	  // 'Authorization': `bearer ${token}`,
+		// 	  "Content-Type": "application/json;charset=utf-8",
+		// 	},
+		//   })
+		// 	.then((response) => {
+		// 		console.log(response);
+		// 		this.setState({Positions:response.data});
+		// 	})
+		// 	.catch((error) => {
+		// 		console.log(error);
+		// 	})
 	  }
 	 
 	  getUnitDetail=()=>{
@@ -138,7 +184,7 @@ class Position extends Component {
 		  })
 			.then((response) => {
 				console.log(response);
-				this.setState({Units:response.data});
+				this.setState({Units:response.data.data});
 			})
 			.catch((error) => {
 				console.log(error);
@@ -156,11 +202,11 @@ class Position extends Component {
 		   console.log("true");
 		//   this.setState({bankName:'',bankCode:'',bankAddress:''})
 		var method="post";
-		var url="http://localhost:5000/api/position";
+		var url=defaultUrl+"position";
 		if(this.state.Action!="Insert Record")
 		{
 		 method="put";
-		 url="http://localhost:3000/api/position/"+this.state.Id;
+		 url=defaultUrl+"position/"+this.state.Id;
 		}
 
 
@@ -217,16 +263,22 @@ class Position extends Component {
 			});
 	  }
 	  deleteposition=(id)=>{
+		var ids=localStorage.getItem("ids");
+		if(ids===null)
+		{
+			alert("No Record Selected");
+		return false;
+		}
 		axios({
 			method: "delete",
-			url: "http://localhost:3000/api/position/"+id,
+			url: defaultUrl+"position/"+id,
 			headers: {
 			  // 'Authorization': `bearer ${token}`,
 			  "Content-Type": "application/json;charset=utf-8",
 			},
 		  })
 			.then((response) => {
-				
+				localStorage.removeItem("ids");
 				this.getPositionDetail();
 			})
 			.catch((error) => {
@@ -234,10 +286,16 @@ class Position extends Component {
 			})
 	  }
 
-	  getPositionById=(id)=>{
+	  getPositionById=()=>{
+		let ids = localStorage.getItem("ids")
+		if(ids=== null || localStorage.getItem("ids").split(",").length>1)
+		{
+			alert("kindly Select one record");
+			return false;
+		}
 		axios({
 			method: "get",
-			url: "http://localhost:5000/api/position/"+id,
+			url: defaultUrl+"position/"+ids,
 			headers: {
 			  // 'Authorization': `bearer ${token}`,
 			  "Content-Type": "application/json;charset=utf-8",
@@ -287,57 +345,33 @@ class Position extends Component {
 						>
 							<TabContainer dir={theme.direction}>
 								<Paper className={classes.root}>
-								<MuiThemeProvider theme={this.props.theme}>
-                            <Paper className={"flex items-center h-44 w-full"} elevation={1}>
-                                <Input
-                                    placeholder="Search..."
-                                    className="pl-16"
-                                    disableUnderline
-                                    fullWidth
-                                    inputProps={{
-                                        'aria-label': 'Search'
-                                    }}
-                                />
-                                <Icon color="action" className="mr-16">search</Icon>
-								<Button variant="contained"  color="secondary" style={{'marginRight':'2px'}} className={classes.button}>
-											PRINT
-      								</Button>
+								<div className="row">
+									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
+										<Button variant="outlined" color="primary" className={classes.button} onClick={this.getPositionById}>
+											Edit
+										</Button>
+									</div>
+									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
+										<Button variant="outlined" color="inherit" className={classes.button} onClick={this.deleteposition}>
+											Delete
+										</Button>
+									</div>
+								</div>
+								<table id="position_Table" className="nowrap header_custom" style={{ "width": "100%" }}>
+										<thead>
+											<tr>
+												<th>Unit</th>
+												<th>Job</th>
+												<th>Grade</th>
+												<th>Code</th>
+												<th>Title</th>
+												<th>Action</th>
+
+											</tr>
+										</thead>
+
+									</table>						
                             </Paper>
-                        </MuiThemeProvider>
-									<Table className={classes.table}>
-										<TableHead>
-											<TableRow>
-												<CustomTableCell align="center"  >Unit</CustomTableCell>
-												<CustomTableCell align="center" >Job</CustomTableCell>
-												<CustomTableCell align="center">Code</CustomTableCell>
-												<CustomTableCell align="center">Title</CustomTableCell>
-												<CustomTableCell align="center">Action</CustomTableCell>
-
-											</TableRow>
-										</TableHead>
-										<TableBody>
-										{this.state.Positions.map(row => (
-												<TableRow className={classes.row} key={row.Id}>
-
-													<CustomTableCell align="center">{row.UnitId=="" || row.UnitId==null || row.UnitId == undefined ?'N/A':row.UnitId}</CustomTableCell>
-													<CustomTableCell align="center" component="th" scope="row">
-														{row.JobId=="" || row.JobId==null || row.JobId == undefined ?'N/A':row.JobId}
-													</CustomTableCell>
-													<CustomTableCell align="center">{row.CompanyId=="" || row.CompanyId==null || row.CompanyId == undefined ?'N/A':row.CompanyId}</CustomTableCell>
-													<CustomTableCell align="center">{row.Title=="" || row.Title==null || row.Title == undefined ?'N/A':row.Title}</CustomTableCell>	
-													<CustomTableCell align="center" component="th" scope="row">
-														<IconButton className={classes.button} onClick={()=>this.deletePosition(row.Id)}  aria-label="Delete">
-															<DeleteIcon />
-														</IconButton>
-														<IconButton className={classes.button} onClick={()=>this.getPositionById(row.Id)} aria-label="Edit">
-															<EditIcon />
-														</IconButton>
-													</CustomTableCell>
-												</TableRow>
-											))}
-										</TableBody>
-									</Table>
-								</Paper>
 							</TabContainer>
 							<TabContainer dir={theme.direction}>
 								<form className={classes.container} noValidate autoComplete="off">
@@ -361,8 +395,9 @@ class Position extends Component {
 												))} 
 										</Select>
 									</FormControl>
+									{this.validator.message('unitId', this.state.unitId, 'required')}
 									</Grid>
-									<Grid item xs={12} sm={5}  >
+									<Grid item xs={12} sm={5} >
 									<TextField id="jobId" fullWidth label="Job" name="jobId" value={this.state.jobId} onChange={this.handleChange} />
 									{this.validator.message('jobId', this.state.Job, 'required')}
 									</Grid>
@@ -382,7 +417,7 @@ class Position extends Component {
 								<div className="row">
 									<div style={{ float: "right", "marginRight": "8px" }}>
 
-										<Button variant="outlined" color="secondary" className={classes.button}>
+										<Button variant="outlined" color="secondary" className={classes.button}onClick={this.insertUpdateRecord}>
 										{this.state.Action}
       								</Button>
 									</div>

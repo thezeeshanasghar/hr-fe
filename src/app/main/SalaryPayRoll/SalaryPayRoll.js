@@ -121,7 +121,7 @@ class SalaryPayRoll extends Component {
 				// console.log(this.state.company,this.state.employee,this.state.dateFrom,this.state.dateTo);
 				var obj = {
 					CompanyId: this.state.companyId,
-					EmployeesIds: this.state.employeeIds,
+					EmployeesIds: this.state.employeeIds.toString(),
 					PayMonth: this.state.Date,
 					SalaryType: this.state.type
 				};
@@ -146,7 +146,7 @@ class SalaryPayRoll extends Component {
 						this.getExchangeRate();
 						this.setState({
 							companyId: "",
-							employeeIds: "",
+							employeeIds: [],
 							Date: "",
 							type: "",
 							Id:0
@@ -157,7 +157,7 @@ class SalaryPayRoll extends Component {
 						toastr.error('Operation unsuccessfull');
 						this.setState({
 							companyId: "",
-							employeeIds: "",
+							employeeIds: [],
 							Date: "",
 							type: "",
 							Id:0

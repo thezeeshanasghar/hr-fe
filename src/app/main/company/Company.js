@@ -283,7 +283,7 @@ class Company extends Component {
 	  }
 	render() {
 		const { classes, theme } = this.props;
-
+		// if (this.state.loading == true)
 		return (
 			<FusePageSimple
 			
