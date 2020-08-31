@@ -22,6 +22,7 @@ import Grid from '@material-ui/core/Grid';
 import axios from "axios";
 import SimpleReactValidator from 'simple-react-validator';
 import defaultUrl from "../../../app/services/constant/constant";
+import CircularIndeterminate from '../loader'
 const styles = theme => ({
 	container: {
 		display: 'flex',
@@ -82,7 +83,8 @@ class Company extends Component {
 		CountryCode: '',
 		Companies: [],
 		Id: 0,
-		Action: 'Insert Record'
+		Action: 'Insert Record',
+		loading: false
 
 	};
 	constructor(props) {
@@ -104,6 +106,7 @@ class Company extends Component {
 		this.setState({ [e.target.name]: e.target.value });
 	};
 	  getCompanyDetail=()=>{
+		  this.setState({loading: true});
 		axios({
 			method: "get",
 			url: defaultUrl+"company",
@@ -114,10 +117,11 @@ class Company extends Component {
 		  })
 			.then((response) => {
 				console.log(response);
-				this.setState({Companies:response.data});
+				this.setState({Companies:response.data, loading:false});
 			})
 			.catch((error) => {
 				console.log(error);
+				this.setState({loading: false});
 			})
 	  }
 	insertUpdateRecord=()=>{
@@ -235,7 +239,7 @@ class Company extends Component {
 	  }
 	render() {
 		const { classes, theme } = this.props;
-
+		// if (this.state.loading == true)
 		return (
 			<FusePageSimple
 			
@@ -300,6 +304,8 @@ class Company extends Component {
 											</TableRow>
 										</TableHead>
 										<TableBody>
+										 {/* <CircularIndeterminate></CircularIndeterminate>; */}
+
 										{this.state.Companies.map(row => (
 												<TableRow className={classes.row} key={row.Id}>
 

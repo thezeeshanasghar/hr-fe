@@ -1,6 +1,6 @@
-import mock from './../mock';
+//import mock from './../mock';
 
-const projectDashboardAppDB = {
+const DashboardDB = {
     widgets : {
         'widget1'      : {
             'ranges'      : {
@@ -1997,12 +1997,23 @@ const projectDashboardAppDB = {
     ]
 };
 
-mock.onGet('/api/project-dashboard-app/widgets').reply((config) =>
-{
-    return [200, projectDashboardAppDB.widgets];
-});
+export default DashboardDB;
 
-mock.onGet('/api/project-dashboard-app/projects').reply((config) =>
-{
-    return [200, projectDashboardAppDB.projects];
-});
+// mock.onGet('/api/project-dashboard-app/widgets').reply((config) =>
+// {
+//     return [200, DashboardDB.widgets];
+// });
+
+// mock.onGet('/api/project-dashboard-app/projects').reply((config) =>
+// {
+//     return [200, DashboardDB.projects];
+// });
+
+// export default GetProjects=()=>
+// {
+//     return  DashboardDB.projects;
+// }
+// export default GetWidgets=()=>
+// {
+//     return  DashboardDB.widgets;
+// }
