@@ -29,6 +29,11 @@ import MenuItem from '@material-ui/core/MenuItem';
 import SimpleReactValidator from 'simple-react-validator';
 import defaultUrl from "../../../app/services/constant/constant";
 
+
+import $ from 'jquery';
+import DataTable from "datatables.net";
+import * as responsive from "datatables.net-responsive";
+
 const styles = theme => ({
 	container: {
 		display: 'flex',
@@ -97,7 +102,8 @@ class CountryLaws extends Component {
 		description:'',
 		Id:0,
 		Action:"Insert Record",
-		CountryLaws:[]
+		CountryLaws:[],
+		table:null
 	};
 	constructor(props) {
 		super(props);
@@ -105,6 +111,7 @@ class CountryLaws extends Component {
 
 	}
 	componentDidMount() {
+		localStorage.removeItem("ids");
 		this.getCountryLaw();
 		this.getCountry();
 		this.getCurrency();
@@ -273,17 +280,22 @@ class CountryLaws extends Component {
 				})
 		}
 	}
-	getCountryLawById = (id) => {
+	getCountryLawById = () => {
+		var ids=localStorage.getItem("ids");
+		if(ids===null)
+		{
+		alert("No Record Selected");
+		return false;
+		}
 		axios({
 			method: "get",
-			url: defaultUrl+"countrylaw/" + id,
+			url: defaultUrl+"countrylaw/" + ids,
 			headers: {
 				// 'Authorization': `bearer ${token}`,
 				"Content-Type": "application/json;charset=utf-8",
 			},
 		})
 			.then((response) => {
-			
 				this.setState({
 					description:response.data[0].Detail,
 					code:response.data[0].CountryCode,
@@ -305,27 +317,65 @@ class CountryLaws extends Component {
 			})
 	}
 	getCountryLaw = () => {
-		
-		axios({
-			method: "get",
-			url: defaultUrl+"countrylaw",
-			headers: {
-				// 'Authorization': `bearer ${token}`,
-				"Content-Type": "application/json;charset=utf-8",
-			},
-		})
-			.then((response) => {
-				console.log(response);
-				this.setState({ CountryLaws: response.data });
-			})
-			.catch((error) => {
-				console.log(error);
-			})
+		localStorage.removeItem("ids");
+		if (!$.fn.dataTable.isDataTable('#CountryLaw_Table')) {
+			this.state.table = $('#CountryLaw_Table').DataTable({
+				ajax: defaultUrl + "countrylaw",
+				"columns": [
+					{ "data": "Detail" },
+					{ "data": "CountryCode" },
+					{ "data": "Currency" },
+					{ "data": "StartDate"},
+					{ "data": "EndDate"},
+					{ "data": "AdultAge"},
+					{ "data": "CalculationMode"},
+					{ "data": "MaxSalary"},
+					{ "data": "MinSalary"},
+					{ "data": "Percentage"},
+					{ "data": "Type"},
+					{ "data": "Action",
+					sortable: false,
+					"render": function ( data, type, full, meta ) {
+					   
+						return `<input type="checkbox" name="radio"  value=`+full.Id+`
+						onclick=" const checkboxes = document.querySelectorAll('input[name=radio]:checked');
+									let values = [];
+									checkboxes.forEach((checkbox) => {
+										values.push(checkbox.value);
+									});
+									localStorage.setItem('ids',values);	"
+						/>`;
+					}
+				 }
+
+				],
+				rowReorder: {
+					selector: 'td:nth-child(2)'
+				},
+				responsive: true,
+				dom: 'Bfrtip',
+				buttons: [
+
+				],
+				columnDefs: [{
+					"defaultContent": "-",
+					"targets": "_all"
+				  }]
+			});
+		} else {
+			this.state.table.ajax.reload();
+		}
 	}
-	deleteCountryLaw=(id)=>{
+	deleteCountryLaw=()=>{
+		let ids = localStorage.getItem("ids");
+		if(ids=== null || localStorage.getItem("ids").split(",").length>1)
+		{
+			alert("kindly Select one record");
+			return false;
+		}
 		axios({
 			method: "delete",
-			url: defaultUrl+"countrylaw/"+id,
+			url: defaultUrl+"countrylaw/"+ids,
 			headers: {
 			  // 'Authorization': `bearer ${token}`,
 			  "Content-Type": "application/json;charset=utf-8",
@@ -338,7 +388,7 @@ class CountryLaws extends Component {
 			.catch((error) => {
 				console.log(error);
 			})
-	  }
+	}
 	render() {
 		const { classes, theme } = this.props;
 		
@@ -375,75 +425,36 @@ class CountryLaws extends Component {
 						>
 							<TabContainer dir={theme.direction}>
 								<Paper className={classes.root}>
-								<MuiThemeProvider theme={this.props.theme}>
-                            <Paper className={"flex items-center h-44 w-full"} elevation={1}>
-                                <Input
-                                    placeholder="Search..."
-                                    className="pl-16"
-                                    disableUnderline
-                                    fullWidth
-                                    inputProps={{
-                                        'aria-label': 'Search'
-                                    }}
-                                />
-                                <Icon color="action" className="mr-16">search</Icon>
-								<Button variant="contained"  color="secondary" style={{'marginRight':'2px'}} className={classes.button}>
-											PRINT
-      								</Button>
-                            </Paper>
-                        </MuiThemeProvider>
-									<Table className={classes.table}>
-										<TableHead>
-											<TableRow>
-												<CustomTableCell align="center" >Country Code</CustomTableCell>
-												<CustomTableCell align="center">Description</CustomTableCell>
-												<CustomTableCell align="center">Currency</CustomTableCell>
-												<CustomTableCell align="center">Adult Age</CustomTableCell>
-												<CustomTableCell align="center">Calculation Mode</CustomTableCell>
-												<CustomTableCell align="center">Min Salary</CustomTableCell>
-												<CustomTableCell align="center">Percentage</CustomTableCell>
-												<CustomTableCell align="center">Type</CustomTableCell>
-												<CustomTableCell align="center">Action</CustomTableCell>
-											</TableRow>
-										</TableHead>
-										<TableBody>
-											{this.state.CountryLaws.map(row => (
-												<TableRow className={classes.row} key={row.id}>
-
-													<CustomTableCell align="center">{row.CountryCode}</CustomTableCell>
-													<CustomTableCell align="center" component="th" scope="row">
-														{row.Detail}
-													</CustomTableCell>
-													<CustomTableCell align="center" component="th" scope="row">
-														{row.Currency}
-													</CustomTableCell>
-													<CustomTableCell align="center" component="th" scope="row">
-														{row.AdultAge}
-													</CustomTableCell>
-													<CustomTableCell align="center" component="th" scope="row">
-														{row.CalculationMode}
-													</CustomTableCell>
-													<CustomTableCell align="center" component="th" scope="row">
-														{row.MinSalary}
-													</CustomTableCell>
-													<CustomTableCell align="center" component="th" scope="row">
-														{row.Percentage}
-													</CustomTableCell>
-													<CustomTableCell align="center" component="th" scope="row">
-														{row.Type}
-													</CustomTableCell>
-													<CustomTableCell align="center" component="th" scope="row">
-														<IconButton className={classes.button} onClick={()=>this.deleteCountryLaw(row.Id)} aria-label="Delete">
-															<DeleteIcon />
-														</IconButton>
-														<IconButton className={classes.button} onClick={()=>this.getCountryLawById(row.Id)} aria-label="Edit">
-															<EditIcon />
-														</IconButton>
-													</CustomTableCell>
-												</TableRow>
-											))}
-										</TableBody>
-									</Table>
+								<div className="row">
+									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
+										<Button variant="outlined" color="primary" className={classes.button} onClick={this.getCountryLawById}>
+											Edit
+										</Button>
+									</div>
+									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
+										<Button variant="outlined" color="inherit" className={classes.button} onClick={this.deleteCountryLaw}>
+											Delete
+										</Button>
+									</div>
+								</div>
+								<table id="CountryLaw_Table" className="nowrap header_custom" style={{ "width": "100%" }}>
+										<thead>
+											<tr>
+												<th>Detail</th>
+												<th>CountryCode</th>
+												<th>Currency</th>
+												<th>StartDate</th>
+												<th>EndDate</th>
+												<th>AdultAge</th>
+												<th>CalculationMode</th>
+												<th>MaxSalary</th>
+												<th>MinSalary</th>
+												<th>Percentage</th>
+												<th>Type</th>
+												<th>Action</th>
+											</tr>
+										</thead>
+									</table>
 								</Paper>
 							</TabContainer>
 							<TabContainer dir={theme.direction}>

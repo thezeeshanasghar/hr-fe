@@ -32,6 +32,11 @@ import Grid from '@material-ui/core/Grid';
 import moment from 'moment';
 import defaultUrl from "../../../app/services/constant/constant";
 
+
+import $ from 'jquery';
+import DataTable from "datatables.net";
+import * as responsive from "datatables.net-responsive";
+
 const styles = theme => ({
 
 	container: {
@@ -100,6 +105,7 @@ class CurrencyExchange extends Component {
 
 	}
 	componentDidMount() {
+		localStorage.removeItem("ids");
 		this.getCurrency();
 		this.getExchangeRate();
 	}
@@ -168,7 +174,6 @@ class CurrencyExchange extends Component {
 		
 	}
 	getCurrency = () => {
-		console.log("23423432")
 		axios({
 			method: "get",
 			url: defaultUrl+"lookups/"+Lookups.Currency,
@@ -186,28 +191,60 @@ class CurrencyExchange extends Component {
 			})
 	}
 	getExchangeRate = () => {
-		
-		axios({
-			method: "get",
-			url: defaultUrl+"Currency",
-			headers: {
-				// 'Authorization': `bearer ${token}`,
-				"Content-Type": "application/json;charset=utf-8",
-			},
-		})
-			.then((response) => {
-				console.log(response);
-				this.setState({ ExchangeRate: response.data });
-			})
-			.catch((error) => {
-				console.log(error);
-			})
+		localStorage.removeItem("ids");
+		if (!$.fn.dataTable.isDataTable('#Currency_Table')) {
+			this.state.table = $('#Currency_Table').DataTable({
+				ajax: defaultUrl + "Currency",
+				"columns": [
+					{ "data": "CurrencyName" },
+					{ "data": "ToCurrencyName" },
+					{ "data": "Rate" },
+					{ "data": "EffectiveDate"},
+					{ "data": "Action",
+					sortable: false,
+					"render": function ( data, type, full, meta ) {
+					   
+						return `<input type="checkbox" name="radio"  value=`+full.Id+`
+						onclick=" const checkboxes = document.querySelectorAll('input[name=radio]:checked');
+									let values = [];
+									checkboxes.forEach((checkbox) => {
+										values.push(checkbox.value);
+									});
+									localStorage.setItem('ids',values);	"
+						/>`;
+					}
+				 }
+
+				],
+				rowReorder: {
+					selector: 'td:nth-child(2)'
+				},
+				responsive: true,
+				dom: 'Bfrtip',
+				buttons: [
+
+				],
+				columnDefs: [{
+					"defaultContent": "-",
+					"targets": "_all"
+				  }]
+			});
+		} else {
+			this.state.table.ajax.reload();
+		}
 	}
 
-	getExchangeById=(id)=>{
+	getExchangeById=()=>{
+		
+		var ids=localStorage.getItem("ids");
+		if(ids===null)
+		{
+		alert("No Record Selected");
+		return false;
+		}
 		axios({
 			method: "get",
-			url:  defaultUrl+"Currency/"+id,
+			url:  defaultUrl+"Currency/"+ids,
 			headers: {
 				// 'Authorization': `bearer ${token}`,
 				"Content-Type": "application/json;charset=utf-8",
@@ -217,7 +254,7 @@ class CurrencyExchange extends Component {
 				console.log(response);
 				this.setState({
 				currency:response.data[0].Currency,
-				toCurrency:response.data[0].Currency,
+				toCurrency:response.data[0].ToCurrency,
 				rate:response.data[0].Rate,
 				effectiveDate:moment(response.data[0].EffectiveDate).format('YYYY-MM-DD'),
 				Action:"Update Record",
@@ -229,10 +266,16 @@ class CurrencyExchange extends Component {
 				console.log(error);
 			})
 	}
-	deleteExchange=(id)=>{
+	deleteExchange=()=>{
+		let ids = localStorage.getItem("ids");
+		if(ids=== null || localStorage.getItem("ids").split(",").length>1)
+		{
+			alert("kindly Select one record");
+			return false;
+		}
 		axios({
 			method: "delete",
-			url:  defaultUrl+"Currency/"+id,
+			url:  defaultUrl+"Currency/"+ids,
 			headers: {
 			  // 'Authorization': `bearer ${token}`,
 			  "Content-Type": "application/json;charset=utf-8",
@@ -301,55 +344,29 @@ class CurrencyExchange extends Component {
 						>
 							<TabContainer dir={theme.direction}>
 								<Paper className={classes.root}>
-								<MuiThemeProvider theme={this.props.theme}>
-                            <Paper className={"flex items-center h-44 w-full"} elevation={1}>
-                                <Input
-                                    placeholder="Search..."
-                                    className="pl-16"
-                                    disableUnderline
-                                    fullWidth
-                                    inputProps={{
-                                        'aria-label': 'Search'
-                                    }}
-                                />
-                                <Icon color="action" className="mr-16">search</Icon>
-								<Button variant="contained"  color="secondary" style={{'marginRight':'2px'}} className={classes.button}>
-											PRINT
-      								</Button>
-                            </Paper>
-                        </MuiThemeProvider>
-									<Table className={classes.table}>
-										<TableHead>
-											<TableRow>
-												<CustomTableCell align="center" >Currency</CustomTableCell>
-												<CustomTableCell align="center" >Rate</CustomTableCell>
-												<CustomTableCell align="center">To Currency</CustomTableCell>
-												<CustomTableCell align="center">Effective Date</CustomTableCell>
-												<CustomTableCell align="center">Action</CustomTableCell>
-											</TableRow>
-										</TableHead>
-										<TableBody>
-											{this.state.ExchangeRate.map(row => (
-												<TableRow className={classes.row} key={row.Id}>
-
-													<CustomTableCell align="center">{row.CurrencyName }</CustomTableCell>
-													<CustomTableCell align="center">{row.Rate}</CustomTableCell>
-											<CustomTableCell align="center">{row.ToCurrencyName}</CustomTableCell>
-													<CustomTableCell align="center" component="th" scope="row">
-														{moment(row.EffectiveDate).format('YYYY-MM-DD')}
-													</CustomTableCell>
-													<CustomTableCell align="center" component="th" scope="row">
-														<IconButton className={classes.button} onClick={()=>this.deleteExchange(row.Id)} aria-label="Delete">
-															<DeleteIcon />
-														</IconButton>
-														<IconButton className={classes.button} onClick={()=>this.getExchangeById(row.Id)} aria-label="Edit">
-															<EditIcon />
-														</IconButton>
-													</CustomTableCell>
-												</TableRow>
-											))}
-										</TableBody>
-									</Table>
+								<div className="row">
+									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
+										<Button variant="outlined" color="primary" className={classes.button} onClick={this.getExchangeById}>
+											Edit
+										</Button>
+									</div>
+									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
+										<Button variant="outlined" color="inherit" className={classes.button} onClick={this.deleteExchange}>
+											Delete
+										</Button>
+									</div>
+								</div>
+								<table id="Currency_Table" className="nowrap header_custom" style={{ "width": "100%" }}>
+										<thead>
+											<tr>
+												<th>CurrencyName</th>
+												<th>ToCurrencyName</th>
+												<th>Rate</th>
+												<th>EffectiveDate</th>
+												<th>Action</th>
+											</tr>
+										</thead>
+									</table>
 								</Paper>
 							</TabContainer>
 							<TabContainer dir={theme.direction}>
