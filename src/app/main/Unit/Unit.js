@@ -228,7 +228,7 @@ class Unit extends Component {
 		var ids=localStorage.getItem("ids");
 		if(ids===null)
 		{
-			alert("No Record Selected");
+		alert("No Record Selected");
 		return false;
 		}
 		
@@ -265,7 +265,7 @@ class Unit extends Component {
 		})
 			.then((response) => {
 				console.log(response);
-				this.setState({ Action: 'Update Record', value: 1, code: response.data[0].Code, description: response.data[0].Description, Id: response.data[0].Id });
+				this.setState({ Action: 'Update Record', value: 1, code: response.data[0].Code, description: response.data[0].Description, Id: response.data[0].Id,companyId:response.data[0].CompanyId });
 			})
 			.catch((error) => {
 				console.log(error);

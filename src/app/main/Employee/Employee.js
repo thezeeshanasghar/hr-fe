@@ -29,6 +29,12 @@ import axios from "axios";
 import { Lookups } from '../../services/constant/enum'
 import defaultUrl from "../../../app/services/constant/constant";
 import moment from 'moment';
+
+
+import $ from 'jquery';
+import DataTable from "datatables.net";
+import * as responsive from "datatables.net-responsive";
+
 const styles = theme => ({
 	container: {
 		display: 'flex',
@@ -156,6 +162,7 @@ class Employee extends Component {
 		this.validator = new SimpleReactValidator();
 	}
 	componentDidMount() {
+		localStorage.removeItem("ids");
 		this.getGender();
 		this.getCountry();
 		this.getMaritalStatus();
@@ -389,7 +396,7 @@ class Employee extends Component {
 		})
 			.then((response) => {
 				console.log(response);
-				this.setState({ Companies: response.data });
+				this.setState({ Companies: response.data.data });
 			})
 			.catch((error) => {
 				console.log(error);
@@ -508,7 +515,7 @@ class Employee extends Component {
 		})
 			.then((response) => {
 				console.log(response);
-				this.setState({ bankList: response.data });
+				this.setState({ bankList: response.data.data });
 			})
 			.catch((error) => {
 				console.log(error);
@@ -575,7 +582,7 @@ class Employee extends Component {
 		})
 			.then((response) => {
 				console.log(response);
-				this.setState({ lawsList: response.data });
+				this.setState({ lawsList: response.data.data });
 			})
 			.catch((error) => {
 				console.log(error);
@@ -730,7 +737,8 @@ class Employee extends Component {
 					PayRoll: [],
 					selectedLaws: [],
 					Id: 0,
-					Action: 'Insert Record'
+					Action: 'Insert Record',
+					table:null
 				})
 			})
 
@@ -790,25 +798,75 @@ class Employee extends Component {
 		this.setState({ value: val });
 	}
 	getEmployeeList = () => {
-		axios({
-			method: "get",
-			url: defaultUrl + "/employee/",
-			headers: {
-				// 'Authorization': `bearer ${token}`,
-				"Content-Type": "application/json;charset=utf-8",
-			},
-		})
-			.then((response) => {
-				this.setState({ employeeList: response.data });
-			})
-			.catch((error) => {
-				console.log(error);
-			})
+		localStorage.removeItem("ids");
+		if (!$.fn.dataTable.isDataTable('#employee_Table')) {
+			this.state.table = $('#employee_Table').DataTable({
+				ajax: defaultUrl + "employee",
+				"columns": [
+					{ "data": "EmployeeCode" },
+					{ "data": "Title" },
+					{ "data": "FirstName" },
+					{ "data": "LastName" },
+					{ "data": "Gender"},
+					{ "data": "Email" },
+					{ "data": "Cnic"},
+					{ "data": "DOB"},
+					{ "data": "InsuranceId"},
+					{ "data": "HireDate"},
+					{ "data": "HiringReason"},
+					{ "data": "ServiceStartDate"},
+					{ "data": "ProbationEndDate"},
+					{ "data": "PartTimePercentage"},
+					{ "data": "ContractEndDate"},
+					{ "data": "Address"},
+					{ "data": "Contact"},
+					{ "data": "MaritalStatus"},
+					{ "data": "Country"},
+					{ "data": "CurrentEmployeeStatus"},
+					{ "data": "PartTimeSituation"},
+					{ "data": "Action",
+					sortable: false,
+					"render": function ( data, type, full, meta ) {
+					   
+						return `<input type="checkbox" name="radio"  value=`+full.Id+`
+						onclick=" const checkboxes = document.querySelectorAll('input[name=radio]:checked');
+									let values = [];
+									checkboxes.forEach((checkbox) => {
+										values.push(checkbox.value);
+									});
+									localStorage.setItem('ids',values);	"
+						/>`;
+					}
+				 }
+
+				],
+				rowReorder: {
+					selector: 'td:nth-child(2)'
+				},
+				responsive: true,
+				dom: 'Bfrtip',
+				buttons: [
+
+				],
+				columnDefs: [{
+					"defaultContent": "-",
+					"targets": "_all"
+				  }]
+			});
+		} else {
+			this.state.table.ajax.reload();
+		}
 	}
-	deleteEmployee = (id) => {
+	deleteEmployee = () => {
+		let ids = localStorage.getItem("ids");
+		if(ids=== null || localStorage.getItem("ids").split(",").length>1)
+		{
+			alert("kindly Select one record");
+			return false;
+		}
 		axios({
 			method: "delete",
-			url: defaultUrl + "/employee/" + id,
+			url: defaultUrl + "/employee/" + ids,
 			headers: {
 				// 'Authorization': `bearer ${token}`,
 				"Content-Type": "application/json;charset=utf-8",
@@ -821,10 +879,16 @@ class Employee extends Component {
 				console.log(error);
 			})
 	}
-	getEmployeeById = (id) => {
+	getEmployeeById = () => {
+		var ids=localStorage.getItem("ids");
+		if(ids===null)
+		{
+		alert("No Record Selected");
+		return false;
+		}
 		axios({
 			method: "get",
-			url: defaultUrl + "/employee/" + id,
+			url: defaultUrl + "/employee/" + ids,
 			headers: {
 				// 'Authorization': `bearer ${token}`,
 				"Content-Type": "application/json;charset=utf-8",
@@ -974,83 +1038,47 @@ class Employee extends Component {
 						>
 							<TabContainer dir={theme.direction}>
 								<Paper className={classes.root}>
-									<MuiThemeProvider theme={this.props.theme}>
-										<Paper className={"flex items-center h-44 w-full"} elevation={1}>
-
-
-											<Input
-
-												placeholder="Search..."
-												className="pl-16"
-												disableUnderline
-												fullWidth
-												inputProps={{
-													'aria-label': 'Search'
-												}}
-											/>
-											<Icon color="action" className="mr-16">search</Icon>
-											<Button variant="contained" color="secondary" style={{ 'marginRight': '2px' }} className={classes.button}>
-												PRINT
-      								</Button>
-										</Paper>
-									</MuiThemeProvider>
-									<Table className={classes.table}>
-										<TableHead>
-											<TableRow>
-												{/* <CustomTableCell align="center" >Employee Code</CustomTableCell> */}
-												<CustomTableCell align="center" >CNIC</CustomTableCell>
-												<CustomTableCell align="center" >First Name</CustomTableCell>
-												{/* <CustomTableCell align="center" >Middle Name</CustomTableCell> */}
-												{/* <CustomTableCell align="center">Family Name</CustomTableCell> */}
-												{/* <CustomTableCell align="center">Gender</CustomTableCell> */}
-												{/* <CustomTableCell align="center">Marital Status</CustomTableCell> */}
-												{/* <CustomTableCell align="center">DOB</CustomTableCell> */}
-												{/* <CustomTableCell align="center">Country Of Birth</CustomTableCell> */}
-												{/* <CustomTableCell align="center">Email</CustomTableCell> */}
-												{/* <CustomTableCell align="center">Base Country</CustomTableCell> */}
-												{/* <CustomTableCell align="center">Contract Type</CustomTableCell> */}
-												{/* <CustomTableCell align="center">Current Employee Status</CustomTableCell> */}
-												<CustomTableCell align="center">Email</CustomTableCell>
-												{/* <CustomTableCell align="center">Hiring Reason</CustomTableCell> */}
-												{/* <CustomTableCell align="center">Service Start Date</CustomTableCell> */}
-												{/* <CustomTableCell align="center">Probation End Date</CustomTableCell> */}
-												{/* <CustomTableCell align="center">Part Time Situation</CustomTableCell>
-												<CustomTableCell align="center">Part Time percentage</CustomTableCell>
-												<CustomTableCell align="center">Contract End Date</CustomTableCell> */}
-												{/* <CustomTableCell align="center">Unit</CustomTableCell> */}
-												{/* <CustomTableCell align="center">Job</CustomTableCell> */}
-												{/* <CustomTableCell align="center">Position</CustomTableCell> */}
-												{/* <CustomTableCell align="center">Grade</CustomTableCell> */}
-												{/* <CustomTableCell align="center">Currency</CustomTableCell>
-												<CustomTableCell align="center">Salary Status</CustomTableCell>
-												<CustomTableCell align="center">paymethod</CustomTableCell>
-												<CustomTableCell align="center">Taxation</CustomTableCell>
-												<CustomTableCell align="center">Social Security</CustomTableCell> */}
-												<CustomTableCell align="center">Action</CustomTableCell>
-
-											</TableRow>
-										</TableHead>
-										<TableBody>
-											{this.state.employeeList.map(row => (
-												<TableRow className={classes.row} key={row.Id}>
-
-													<CustomTableCell align="center">{row.Cnic}</CustomTableCell>
-													<CustomTableCell align="center" component="th" scope="row">{row.FirstName}</CustomTableCell>
-													<CustomTableCell align="center" component="th" scope="row">{row.Email}</CustomTableCell>
-													{/* <CustomTableCell align="center" component="th" scope="row">{row.Unit}</CustomTableCell> */}
-													{/* <CustomTableCell align="center" component="th" scope="row">{row.position}</CustomTableCell> */}
-													<CustomTableCell align="center" component="th" scope="row">
-														<IconButton className={classes.button} aria-label="Delete" onClick={() => this.deleteEmployee(row.Id)} >
-															<DeleteIcon />
-														</IconButton>
-														<IconButton className={classes.button} aria-label="Edit" onClick={() => this.getEmployeeDetailsForEdit(row.Id)} >
-															<EditIcon />
-														</IconButton>
-													</CustomTableCell>
-												</TableRow>
-											))}
-										</TableBody>
-									</Table>
+								<div className="row">
+									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
+										<Button variant="outlined" color="primary" className={classes.button} onClick={this.getEmployeeById}>
+											Edit
+										</Button>
+									</div>
+									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
+										<Button variant="outlined" color="inherit" className={classes.button} onClick={this.deleteEmployee}>
+											Delete
+										</Button>
+									</div>
+								</div>
+								<table id="employee_Table" className="nowrap header_custom" style={{ "width": "100%" }}>
+										<thead>
+											<tr>
+												<th>EmployeeCode</th>
+												<th>Title</th>
+												<th>FirstName</th>
+												<th>LastName</th>
+												<th>Gender</th>
+												<th>Email</th>
+												<th>Cnic</th>
+												<th>DOB</th>
+												<th>InsuranceId</th>
+												<th>HireDate</th>
+												<th>HiringReason</th>
+												<th>ServiceStartDate</th>
+												<th>ProbationEndDate</th>
+												<th>PartTimePercentage</th>
+												<th>ContractEndDate</th>
+												<th>Address</th>
+												<th>Contact</th>
+												<th>MaritalStatus</th>
+												<th>Country</th>
+												<th>CurrentEmployeeStatus</th>
+												<th>PartTimeSituation</th>
+												<th>Action</th>
+											</tr>
+										</thead>
+									</table>
+								
 								</Paper>
 							</TabContainer>
 							<TabContainer dir={theme.direction}>

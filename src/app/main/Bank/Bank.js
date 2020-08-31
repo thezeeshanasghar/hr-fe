@@ -23,6 +23,11 @@ import SimpleReactValidator from 'simple-react-validator';
 import axios from "axios";
 import toastr from 'toastr'
 import defaultUrl from "../../../app/services/constant/constant";
+
+import $ from 'jquery';
+import DataTable from "datatables.net";
+import * as responsive from "datatables.net-responsive";
+
 const styles = theme => ({
 	container: {
 		display: 'flex',
@@ -67,7 +72,8 @@ class Bank extends Component {
 		bankAddress:'',
 		Banks:[],
 		Id:0,
-		Action:'Insert Record'
+		Action:'Insert Record',
+		table:null,
 	};
 	constructor(props) {
 		super(props);
@@ -75,6 +81,7 @@ class Bank extends Component {
 	
 	  }
 	  componentDidMount(){
+		localStorage.removeItem("ids");
 		  this.getBankDetail();
 	  }
 	handleTab = (event, value) => {
@@ -85,21 +92,46 @@ class Bank extends Component {
         this.setState({ [e.target.name]: e.target.value });
 	  };
 	  getBankDetail=()=>{
-		axios({
-			method: "get",
-			url: defaultUrl+"Bank",
-			headers: {
-			  // 'Authorization': `bearer ${token}`,
-			  "Content-Type": "application/json;charset=utf-8",
-			},
-		  })
-			.then((response) => {
-				console.log(response);
-				this.setState({Banks:response.data});
-			})
-			.catch((error) => {
-				console.log(error);
-			})
+		localStorage.removeItem("ids");
+		if (!$.fn.dataTable.isDataTable('#Bank_Table')) {
+			this.state.table = $('#Bank_Table').DataTable({
+				ajax: defaultUrl + "Bank",
+				"columns": [
+					{ "data": "BankName" },
+					{ "data": "BranchCode" },
+					{ "data": "Address" },
+					{ "data": "Action",
+					sortable: false,
+					"render": function ( data, type, full, meta ) {
+					   
+						return `<input type="checkbox" name="radio"  value=`+full.Id+`
+						onclick=" const checkboxes = document.querySelectorAll('input[name=radio]:checked');
+									let values = [];
+									checkboxes.forEach((checkbox) => {
+										values.push(checkbox.value);
+									});
+									localStorage.setItem('ids',values);	"
+						/>`;
+					}
+				 }
+
+				],
+				rowReorder: {
+					selector: 'td:nth-child(2)'
+				},
+				responsive: true,
+				dom: 'Bfrtip',
+				buttons: [
+
+				],
+				columnDefs: [{
+					"defaultContent": "-",
+					"targets": "_all"
+				  }]
+			});
+		} else {
+			this.state.table.ajax.reload();
+		}
 	  }
 	  insertUpdateRecord=()=>{
 		if (!this.validator.fieldValid('bankName')
@@ -163,10 +195,17 @@ class Bank extends Component {
 				})
 			})
 	  }
-	  deleteBank=(id)=>{
+	  deleteBank=()=>{
+		var ids=localStorage.getItem("ids");
+		if(ids===null)
+		{
+		alert("No Record Selected");
+		return false;
+		}
+		
 		axios({
 			method: "delete",
-			url: defaultUrl+"Bank/"+id,
+			url: defaultUrl+"Bank/"+ids,
 			headers: {
 			  // 'Authorization': `bearer ${token}`,
 			  "Content-Type": "application/json;charset=utf-8",
@@ -180,10 +219,16 @@ class Bank extends Component {
 				console.log(error);
 			})
 	  }
-	  getBankById=(id)=>{
+	  getBankById=()=>{
+		let ids = localStorage.getItem("ids")
+		if(ids=== null || localStorage.getItem("ids").split(",").length>1)
+		{
+			alert("kindly Select one record");
+			return false;
+		}
 		axios({
 			method: "get",
-			url: defaultUrl+"Bank/"+id,
+			url: defaultUrl+"Bank/"+ids,
 			headers: {
 			  // 'Authorization': `bearer ${token}`,
 			  "Content-Type": "application/json;charset=utf-8",
@@ -235,52 +280,30 @@ class Bank extends Component {
 						>
 							<TabContainer dir={theme.direction}>
 								<Paper className={classes.root}>
-								<MuiThemeProvider theme={this.props.theme}>
-                            <Paper className={"flex items-center h-44 w-full"} elevation={1}>
-                                <Input
-                                    placeholder="Search..."
-                                    className="pl-16"
-                                    disableUnderline
-                                    fullWidth
-                                    inputProps={{
-                                        'aria-label': 'Search'
-                                    }}
-                                />
-                                <Icon color="action" className="mr-16">search</Icon>
-								<Button variant="contained"  color="secondary" style={{'marginRight':'2px'}} className={classes.button}>
-											PRINT
-      								</Button>
-                            </Paper>
-                        </MuiThemeProvider>
-									<Table className={classes.table}>
-										<TableHead>
-											<TableRow>
-												<CustomTableCell align="center" >Bank Name</CustomTableCell>
-												<CustomTableCell align="center">Address</CustomTableCell>
-												<CustomTableCell align="center">Action</CustomTableCell>
-											</TableRow>
-										</TableHead>
-										<TableBody>
-											{this.state.Banks.map(row => (
-												<TableRow className={classes.row} key={row.Id}>
+								<div className="row">
+									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
+										<Button variant="outlined" color="primary" className={classes.button} onClick={this.getBankById}>
+											Edit
+										</Button>
+									</div>
+									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
+										<Button variant="outlined" color="inherit" className={classes.button} onClick={this.deleteBank}>
+											Delete
+										</Button>
+									</div>
+								</div>
+									<table id="Bank_Table" className="nowrap header_custom" style={{ "width": "100%" }}>
+										<thead>
+											<tr>
+												<th>BankName</th>
+												<th>BranchCode</th>
+												<th>Address</th>
+												<th>Action</th>
+											</tr>
+										</thead>
 
-													<CustomTableCell align="center">{row.BankName=="" || row.BankName==null || row.BankName == undefined ?'N/A':row.BankName}</CustomTableCell>
-													<CustomTableCell align="center" component="th" scope="row">
-														{row.Address=="" || row.Address==null || row.Address == undefined ?'N/A':row.Address}
-													</CustomTableCell>
-													<CustomTableCell align="center" component="th" scope="row">
-														<IconButton className={classes.button} onClick={()=>this.deleteBank(row.Id)}  aria-label="Delete">
-															<DeleteIcon />
-														</IconButton>
-														<IconButton className={classes.button} onClick={()=>this.getBankById(row.Id)} aria-label="Edit">
-															<EditIcon />
-														</IconButton>
-													</CustomTableCell>
-												</TableRow>
-											))}
-										</TableBody>
-									</Table>
-								</Paper>
+									</table>
+                              </Paper>
 							</TabContainer>
 							<TabContainer dir={theme.direction}>
 								<form className={classes.container} noValidate autoComplete="off">

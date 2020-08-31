@@ -22,7 +22,12 @@ import Grid from '@material-ui/core/Grid';
 import axios from "axios";
 import SimpleReactValidator from 'simple-react-validator';
 import defaultUrl from "../../../app/services/constant/constant";
-import CircularIndeterminate from '../loader'
+
+
+import $ from 'jquery';
+import DataTable from "datatables.net";
+import * as responsive from "datatables.net-responsive";
+
 const styles = theme => ({
 	container: {
 		display: 'flex',
@@ -84,7 +89,7 @@ class Company extends Component {
 		Companies: [],
 		Id: 0,
 		Action: 'Insert Record',
-		loading: false
+		table:null
 
 	};
 	constructor(props) {
@@ -94,6 +99,7 @@ class Company extends Component {
 	  }
 
 	  componentDidMount(){
+		localStorage.removeItem("ids");
 		this.getCompanyDetail();
 	}
 
@@ -106,23 +112,49 @@ class Company extends Component {
 		this.setState({ [e.target.name]: e.target.value });
 	};
 	  getCompanyDetail=()=>{
-		  this.setState({loading: true});
-		axios({
-			method: "get",
-			url: defaultUrl+"company",
-			headers: {
-			  // 'Authorization': `bearer ${token}`,
-			  "Content-Type": "application/json;charset=utf-8",
-			},
-		  })
-			.then((response) => {
-				console.log(response);
-				this.setState({Companies:response.data, loading:false});
-			})
-			.catch((error) => {
-				console.log(error);
-				this.setState({loading: false});
-			})
+		localStorage.removeItem("ids");
+		if (!$.fn.dataTable.isDataTable('#Company_Table')) {
+			this.state.table = $('#Company_Table').DataTable({
+				ajax: defaultUrl + "company",
+				"columns": [
+					{ "data": "Code" },
+					{ "data": "CompanyName" },
+					{ "data": "Address" },
+					{ "data": "Contact"},
+					{ "data": "Email"},
+					{ "data": "CountryCode"},
+					{ "data": "Action",
+					sortable: false,
+					"render": function ( data, type, full, meta ) {
+					   
+						return `<input type="checkbox" name="radio"  value=`+full.Id+`
+						onclick=" const checkboxes = document.querySelectorAll('input[name=radio]:checked');
+									let values = [];
+									checkboxes.forEach((checkbox) => {
+										values.push(checkbox.value);
+									});
+									localStorage.setItem('ids',values);	"
+						/>`;
+					}
+				 }
+
+				],
+				rowReorder: {
+					selector: 'td:nth-child(2)'
+				},
+				responsive: true,
+				dom: 'Bfrtip',
+				buttons: [
+
+				],
+				columnDefs: [{
+					"defaultContent": "-",
+					"targets": "_all"
+				  }]
+			});
+		} else {
+			this.state.table.ajax.reload();
+		}
 	  }
 	insertUpdateRecord=()=>{
 		if (!this.validator.fieldValid('Name')
@@ -201,17 +233,22 @@ class Company extends Component {
 			});
 	  }
 
-	  deleteCompany=(id)=>{
+	  deleteCompany=()=>{
+		var ids=localStorage.getItem("ids");
+		if(ids===null)
+		{
+		alert("No Record Selected");
+		return false;
+		}
 		axios({
 			method: "delete",
-			url:  defaultUrl+"company/"+id,
+			url:  defaultUrl+"company/"+ ids,
 			headers: {
 			  // 'Authorization': `bearer ${token}`,
 			  "Content-Type": "application/json;charset=utf-8",
 			},
 		  })
 			.then((response) => {
-				
 				this.getCompanyDetail();
 			})
 			.catch((error) => {
@@ -219,10 +256,17 @@ class Company extends Component {
 			})
 	  }
 
-	  getCompanyById=(id)=>{
+	  getCompanyById=()=>{
+		let ids = localStorage.getItem("ids");
+		if(ids=== null || localStorage.getItem("ids").split(",").length>1)
+		{
+			alert("kindly Select one record");
+			return false;
+		}
+
 		axios({
 			method: "get",
-			url: defaultUrl+"company/"+id,
+			url: defaultUrl+"company/"+ids,
 			headers: {
 			  // 'Authorization': `bearer ${token}`,
 			  "Content-Type": "application/json;charset=utf-8",
@@ -274,66 +318,32 @@ class Company extends Component {
 						>
 							<TabContainer dir={theme.direction}>
 								<Paper className={classes.root}>
-								<MuiThemeProvider theme={this.props.theme}>
-                            <Paper className={"flex items-center h-44 w-full"} elevation={1}>
-                                <Input
-                                    placeholder="Search..."
-                                    className="pl-16"
-                                    disableUnderline
-                                    fullWidth
-                                    inputProps={{
-                                        'aria-label': 'Search'
-                                    }}
-                                />
-                                <Icon color="action" className="mr-16">search</Icon>
-								<Button variant="contained"  color="secondary" style={{'marginRight':'2px'}} className={classes.button}>
-											PRINT
-      								</Button>
-                            </Paper>
-                        </MuiThemeProvider>
-									<Table className={classes.table}>
-										<TableHead>
-											<TableRow>
-												<CustomTableCell align="center" >Name</CustomTableCell>
-                                                <CustomTableCell align="center" >Code</CustomTableCell>
-                                                <CustomTableCell align="center" >Contact</CustomTableCell>
-                                                <CustomTableCell align="center" >Email</CustomTableCell>
-												<CustomTableCell align="center">Address</CustomTableCell>
-												<CustomTableCell align="center">Country</CustomTableCell>
-                                                <CustomTableCell align="center">Action</CustomTableCell>
-											</TableRow>
-										</TableHead>
-										<TableBody>
-										 {/* <CircularIndeterminate></CircularIndeterminate>; */}
+								<div className="row">
+									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
+										<Button variant="outlined" color="primary" className={classes.button} onClick={this.getCompanyById}>
+											Edit
+										</Button>
+									</div>
+									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
+										<Button variant="outlined" color="inherit" className={classes.button} onClick={this.deleteCompany}>
+											Delete
+										</Button>
+									</div>
+								</div>
+								<table id="Company_Table" className="nowrap header_custom" style={{ "width": "100%" }}>
+										<thead>
+											<tr>
+												<th>Code</th>
+												<th>CompanyName</th>
+												<th>Address</th>
+												<th>Contact</th>
+												<th>Email</th>
+												<th>CountryCode</th>
+												<th>Action</th>
+											</tr>
+										</thead>
 
-										{this.state.Companies.map(row => (
-												<TableRow className={classes.row} key={row.Id}>
-
-													<CustomTableCell align="center">{row.CompanyName=="" || row.CompanyName==null || row.CompanyName == undefined ?'N/A':row.CompanyName}</CustomTableCell>
-													<CustomTableCell align="center" component="th" scope="row">
-														{row.Code=="" || row.Code==null || row.Code == undefined ?'N/A':row.Code}
-													</CustomTableCell>
-													<CustomTableCell align="center">{row.Contact=="" || row.Contact==null || row.Contact == undefined ?'N/A':row.Contact}</CustomTableCell>
-													<CustomTableCell align="center">{row.Email=="" || row.Email==null || row.Email == undefined ?'N/A':row.Email}</CustomTableCell>
-													<CustomTableCell align="center" component="th" scope="row">
-														{row.Address=="" || row.Address==null || row.Address == undefined ?'N/A':row.Address}
-													</CustomTableCell>
-													
-													<CustomTableCell align="center" component="th" scope="row">
-														{row.Country=="" || row.Country==null || row.Country == undefined ?'N/A':row.Country}
-													</CustomTableCell>
-													<CustomTableCell align="center" component="th" scope="row">
-														<IconButton className={classes.button} onClick={()=>this.deleteCompany(row.Id)}  aria-label="Delete">
-															<DeleteIcon />
-														</IconButton>
-														<IconButton className={classes.button} onClick={()=>this.getCompanyById(row.Id)} aria-label="Edit">
-															<EditIcon />
-														</IconButton>
-													</CustomTableCell>
-												</TableRow>
-											))}
-										</TableBody>
-									</Table>
+									</table>
 								</Paper>
 							</TabContainer>
 							<TabContainer dir={theme.direction}>
