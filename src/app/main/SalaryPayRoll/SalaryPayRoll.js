@@ -191,7 +191,7 @@ class SalaryPayRoll extends Component {
 		  })
 			.then((response) => {
 				console.log(response);
-				this.setState({companyList:response.data});
+				this.setState({companyList:response.data.data});
 			})
 			.catch((error) => {
 				console.log(error);
