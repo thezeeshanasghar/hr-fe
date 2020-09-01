@@ -33,6 +33,9 @@ import moment from 'moment';
 import defaultUrl from "../../services/constant/constant";
 import Checkbox from '@material-ui/core/Checkbox';
 
+import $ from 'jquery';
+import DataTable from "datatables.net";
+import * as responsive from "datatables.net-responsive";
 const styles = theme => ({
 
 	container: {
@@ -93,7 +96,8 @@ class SalaryPayRoll extends Component {
 		companyList:[],
 		type:"",
 		employeeList:[],
-		employeeIds:[]
+		employeeIds:[],
+		table:null
 	};
 	constructor(props) {
 		super(props);
@@ -103,9 +107,53 @@ class SalaryPayRoll extends Component {
 	
 	componentDidMount() {
 		this.getCompanyDetail();
-		//this.getEmployeeDetail();
+		this.getSalaryPayRoll();
 	}
-	
+	getSalaryPayRoll=()=>{
+		localStorage.removeItem("ids");
+		if (!$.fn.dataTable.isDataTable('#PayRoll_Table')) {
+			this.state.table = $('#PayRoll_Table').DataTable({
+				ajax: defaultUrl + "payslip",
+				"columns": [
+					{ "data": "FirstName" },
+					{ "data": "payables" },
+					{ "data": "taxdeduction" },
+					{ "data": "leavededuct" },
+					{ "data": "paid" },
+					{ "data": "PayRollType" },
+				// 	{ "data": "Action",
+				// 	sortable: false,
+				// 	"render": function ( data, type, full, meta ) {
+					   
+				// 		return `<input type="checkbox" name="radio"  value=`+full.Id+`
+				// 		onclick=" const checkboxes = document.querySelectorAll('input[name=radio]:checked');
+				// 					let values = [];
+				// 					checkboxes.forEach((checkbox) => {
+				// 						values.push(checkbox.value);
+				// 					});
+				// 					localStorage.setItem('ids',values);	"
+				// 		/>`;
+				// 	}
+				//  }
+
+				],
+				rowReorder: {
+					selector: 'td:nth-child(2)'
+				},
+				responsive: true,
+				dom: 'Bfrtip',
+				buttons: [
+
+				],
+				columnDefs: [{
+					"defaultContent": "-",
+					"targets": "_all"
+				  }]
+			});
+		} else {
+			this.state.table.ajax.reload();
+		}
+	  }
 	InsertSalaryPayRoll=()=>{
 			if (!this.validator.allValid()) {
 				this.validator.showMessages();
@@ -251,35 +299,20 @@ class SalaryPayRoll extends Component {
 						>
 							<TabContainer dir={theme.direction}>
 								<Paper className={classes.root}>
-								<MuiThemeProvider theme={this.props.theme}>
-                            <Paper className={"flex items-center h-44 w-full"} elevation={1}>
-                                <Input
-                                    placeholder="Search..."
-                                    className="pl-16"
-                                    disableUnderline
-                                    fullWidth
-                                    inputProps={{
-                                        'aria-label': 'Search'
-                                    }}
-                                />
-                                <Icon color="action" className="mr-16">search</Icon>
-								<Button variant="contained"  color="secondary" style={{'marginRight':'2px'}} className={classes.button}>
-											PRINT
-      								</Button>
-                            </Paper>
-                        </MuiThemeProvider>
-									<Table className={classes.table}>
-										<TableHead>
-											<TableRow>
-												<CustomTableCell align="center" >Employee</CustomTableCell>
-												<CustomTableCell align="center" >Company</CustomTableCell>
-												<CustomTableCell align="center">Date</CustomTableCell>
-											</TableRow>
-										</TableHead>
-										<TableBody>
-											
-										</TableBody>
-									</Table>
+								<table id="PayRoll_Table" className="nowrap header_custom" style={{ "width": "100%" }}>
+										<thead>
+											<tr>
+												<th>Name</th>
+												<th>Payables</th>
+												<th>taxdedutions</th>
+												<th>leavededuct</th>
+												<th>paid</th>
+												<th>PayRollType</th>
+												{/* <th>Action</th> */}
+											</tr>
+										</thead>
+
+									</table>
 								</Paper>
 							</TabContainer>
 							<TabContainer dir={theme.direction}>
