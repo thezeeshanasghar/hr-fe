@@ -187,6 +187,27 @@ const navigationConfig = [
         'url': '/payelementglaccount'
     }
         ]
+    },    {
+
+        'id': 'Reports',
+        'title': 'Reports',
+        'type': 'collapse',
+        'icon': 'money',
+        'badge': {
+            'title': 5,
+            'bg': '#525e8a',
+            'fg': '#FFFFFF'
+        },
+        'children': [
+           
+    {
+        'id': 'EmployeeReports',
+        'title': 'Employee Reports',
+        'type': 'item',
+        'icon': 'whatshot',
+        'url': '/employeereports'
+    },
+        ]
     },
    
 ];
