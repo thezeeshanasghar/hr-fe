@@ -207,6 +207,13 @@ const navigationConfig = [
         'icon': 'whatshot',
         'url': '/employeereports'
     },
+    {
+        'id': 'TaxationReports',
+        'title': 'Taxation Reports',
+        'type': 'item',
+        'icon': 'whatshot',
+        'url': '/taxationreports'
+    },
         ]
     },
    
