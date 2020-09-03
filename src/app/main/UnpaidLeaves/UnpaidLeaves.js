@@ -30,6 +30,9 @@ import toastr from 'toastr';
 import moment from 'moment';
 import defaultUrl from "../../../app/services/constant/constant";
 
+import $ from 'jquery';
+import DataTable from "datatables.net";
+import * as responsive from "datatables.net-responsive";
 const styles = theme => ({
 	container: {
 		display: 'flex',
@@ -81,7 +84,8 @@ class UnpaidLeaves extends Component {
 		Employees: [],
 		leaves: [],
 		Action:"Insert Record",
-		Id:0
+		Id:0,
+		table:null
 
 	};
 	constructor(props) {
@@ -103,7 +107,7 @@ class UnpaidLeaves extends Component {
 		})
 			.then((response) => {
 				console.log(response);
-				this.setState({ Companies: response.data });
+				this.setState({ Companies: response.data.data });
 			})
 			.catch((error) => {
 				console.log(error);
@@ -112,7 +116,7 @@ class UnpaidLeaves extends Component {
 	getEmployees = (companyId) => {
 		axios({
 			method: "get",
-			url: defaultUrl+"ByCompany/" + companyId,
+			url: defaultUrl+"Employee/ByCompany/" + companyId,
 			headers: {
 				// 'Authorization': `bearer ${token}`,
 				"Content-Type": "application/json;charset=utf-8",
@@ -183,7 +187,9 @@ class UnpaidLeaves extends Component {
 						company: "",
 						employee: "",
 						dateFrom: "",
-						dateTo: ""
+						dateTo: "",
+						Action:"Insert Record",
+						Id:0
 					});
 				})
 				.catch((error) => {
@@ -193,7 +199,9 @@ class UnpaidLeaves extends Component {
 						company: "",
 						employee: "",
 						dateFrom: "",
-						dateTo: ""
+						dateTo: "",
+						Action:"Insert Record",
+						Id:0
 					})
 				})
 
@@ -201,26 +209,58 @@ class UnpaidLeaves extends Component {
 		}
 	}
 	getUnPaidLeaves = () => {
-		axios({
-			method: "get",
-			url: defaultUrl+"Unpaidleaves",
-			headers: {
-				// 'Authorization': `bearer ${token}`,
-				"Content-Type": "application/json;charset=utf-8",
-			},
-		})
-			.then((response) => {
-				console.log(response);
-				this.setState({ leaves: response.data });
-			})
-			.catch((error) => {
-				console.log(error);
-			})
+		localStorage.removeItem("ids");
+		if (!$.fn.dataTable.isDataTable('#Unpaid_Table')) {
+			this.state.table = $('#Unpaid_Table').DataTable({
+				ajax: defaultUrl + "unpaidleaves",
+				"columns": [
+					{ "data": "FirstName" },
+					{ "data": "CompanyName" },
+					{ "data": "LeaveStartDate" },
+					{ "data": "LeaveStartDate" },
+					{ "data": "Action",
+					sortable: false,
+					"render": function ( data, type, full, meta ) {
+					   
+						return `<input type="checkbox" name="radio"  value=`+full.Id+`
+						onclick=" const checkboxes = document.querySelectorAll('input[name=radio]:checked');
+									let values = [];
+									checkboxes.forEach((checkbox) => {
+										values.push(checkbox.value);
+									});
+									localStorage.setItem('ids',values);	"
+						/>`;
+					}
+				 }
+
+				],
+				rowReorder: {
+					selector: 'td:nth-child(2)'
+				},
+				responsive: true,
+				dom: 'Bfrtip',
+				buttons: [
+
+				],
+				columnDefs: [{
+					"defaultContent": "-",
+					"targets": "_all"
+				  }]
+			});
+		} else {
+			this.state.table.ajax.reload();
+		}
 	}
-	getLeavesById = (id) => {
+	getLeavesById = () => {
+		let ids = localStorage.getItem("ids")
+		if(ids=== null || localStorage.getItem("ids").split(",").length>1)
+		{
+			alert("kindly Select one record");
+			return false;
+		}
 		axios({
 			method: "get",
-			url: defaultUrl+"Unpaidleaves/" + id,
+			url: defaultUrl+"Unpaidleaves/" + ids,
 			headers: {
 				// 'Authorization': `bearer ${token}`,
 				"Content-Type": "application/json;charset=utf-8",
@@ -244,10 +284,17 @@ class UnpaidLeaves extends Component {
 				console.log(error);
 			})
 	}
-	deleteLeaves=(id)=>{
+	deleteLeaves=()=>{
+		var ids=localStorage.getItem("ids");
+		if(ids===null)
+		{
+		alert("No Record Selected");
+		return false;
+		}
+		
 		axios({
 			method: "delete",
-			url: defaultUrl+"Unpaidleaves/"+id,
+			url: defaultUrl+"Unpaidleaves/"+ids,
 			headers: {
 			  // 'Authorization': `bearer ${token}`,
 			  "Content-Type": "application/json;charset=utf-8",
@@ -297,54 +344,30 @@ class UnpaidLeaves extends Component {
 						>
 							<TabContainer dir={theme.direction}>
 								<Paper className={classes.root}>
-									<MuiThemeProvider theme={this.props.theme}>
-										<Paper className={"flex items-center h-44 w-full"} elevation={1}>
-											<Input
-												placeholder="Search..."
-												className="pl-16"
-												disableUnderline
-												fullWidth
-												inputProps={{
-													'aria-label': 'Search'
-												}}
-											/>
-											<Icon color="action" className="mr-16">search</Icon>
-											<Button variant="contained" color="secondary" style={{ 'marginRight': '2px' }} className={classes.button}>
-												PRINT
-      								</Button>
-										</Paper>
-									</MuiThemeProvider>
-									<Table className={classes.table}>
-										<TableHead>
-											<TableRow>
-												<CustomTableCell align="center"  >Employee</CustomTableCell>
-												<CustomTableCell align="center"  >Company</CustomTableCell>
-												<CustomTableCell align="center" >Date From</CustomTableCell>
-												<CustomTableCell align="center">Date To</CustomTableCell>
-												<CustomTableCell align="center">Action</CustomTableCell>
+								<div className="row">
+									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
+										<Button variant="outlined" color="primary" className={classes.button} onClick={this.getLeavesById}>
+											Edit
+										</Button>
+									</div>
+									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
+										<Button variant="outlined" color="inherit" className={classes.button} onClick={this.deleteLeaves}>
+											Delete
+										</Button>
+									</div>
+								</div>
+									<table id="Unpaid_Table" className="nowrap header_custom" style={{ "width": "100%" }}>
+										<thead>
+											<tr>
+												<th>First Name</th>
+												<th>Company Name</th>
+												<th>Leave Start Date</th>
+												<th>Leave Start Date</th>
+												<th>Action</th>
+											</tr>
+										</thead>
 
-											</TableRow>
-										</TableHead>
-										<TableBody>
-											{this.state.leaves.map(row => (
-												<TableRow className={classes.row} key={row.Id}>
-
-													<CustomTableCell align="center"  >{row.FirstName}</CustomTableCell>
-													<CustomTableCell align="center"  >{row.CompanyName}</CustomTableCell>
-													<CustomTableCell align="center">{moment(row.LeaveStartDate).format('YYYY-MM-DD')}</CustomTableCell>
-													<CustomTableCell align="center">{moment(row.LeaveEndDate).format('YYYY-MM-DD')}</CustomTableCell>
-													<CustomTableCell align="center" component="th" scope="row">
-														<IconButton className={classes.button} onClick={()=> this.deleteLeaves(row.Id)} aria-label="Delete">
-															<DeleteIcon />
-														</IconButton>
-														<IconButton className={classes.button} onClick={() => this.getLeavesById(row.Id)} aria-label="Edit">
-															<EditIcon />
-														</IconButton>
-													</CustomTableCell>
-												</TableRow>
-											))}
-										</TableBody>
-									</Table>
+									</table>
 								</Paper>
 							</TabContainer>
 							<TabContainer dir={theme.direction}>

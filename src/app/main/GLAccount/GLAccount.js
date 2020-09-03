@@ -22,6 +22,10 @@ import Grid from '@material-ui/core/Grid';
 import axios from "axios";
 import SimpleReactValidator from 'simple-react-validator';
 import defaultUrl from '../../../app/services/constant/constant.js'
+
+import $ from 'jquery';
+import DataTable from "datatables.net";
+import * as responsive from "datatables.net-responsive";
 const styles = theme => ({
 	container: {
 		display: 'flex',
@@ -74,7 +78,8 @@ class GLAccount extends Component {
 		companyId: '',
 		GlAccounts: [],
 		Id: 0,
-		Action: 'Insert Record'
+		Action: 'Insert Record',
+		table:null
 	};
 
 	constructor(props) {
@@ -95,21 +100,46 @@ class GLAccount extends Component {
 	};
 	
 	getGlAccountDetail=()=>{
-		axios({
-			method: "get",
-			url: defaultUrl + "glaccount",
-			headers: {
-			  // 'Authorization': `bearer ${token}`,
-			  "Content-Type": "application/json;charset=utf-8",
-			},
-		  })
-			.then((response) => {
-				console.log(response);
-				this.setState({GlAccounts:response.data});
-			})
-			.catch((error) => {
-				console.log(error);
-			})
+		localStorage.removeItem("ids");
+		if (!$.fn.dataTable.isDataTable('#glaccount_Table')) {
+			this.state.table = $('#glaccount_Table').DataTable({
+				ajax: defaultUrl + "glaccount",
+				"columns": [
+					{ "data": "Account" },
+					{ "data": "Description" },
+					{ "data": "CompanyId" },
+					{ "data": "Action",
+					sortable: false,
+					"render": function ( data, type, full, meta ) {
+					   
+						return `<input type="checkbox" name="radio"  value=`+full.Id+`
+						onclick=" const checkboxes = document.querySelectorAll('input[name=radio]:checked');
+									let values = [];
+									checkboxes.forEach((checkbox) => {
+										values.push(checkbox.value);
+									});
+									localStorage.setItem('ids',values);	"
+						/>`;
+					}
+				 }
+
+				],
+				rowReorder: {
+					selector: 'td:nth-child(2)'
+				},
+				responsive: true,
+				dom: 'Bfrtip',
+				buttons: [
+
+				],
+				columnDefs: [{
+					"defaultContent": "-",
+					"targets": "_all"
+				  }]
+			});
+		} else {
+			this.state.table.ajax.reload();
+		}
 	  }
 	  
 	  insertUpdateRecord=()=>{
@@ -175,10 +205,16 @@ class GLAccount extends Component {
 			});
 	  }
 
-	  deleteGlAccount=(id)=>{
+	  deleteGlAccount=()=>{
+		var ids=localStorage.getItem("ids");
+		if(ids===null)
+		{
+		alert("No Record Selected");
+		return false;
+		}
 		axios({
 			method: "delete",
-			url: defaultUrl+"glaccount/"+id,
+			url: defaultUrl+"glaccount/"+ids,
 			headers: {
 			  // 'Authorization': `bearer ${token}`,
 			  "Content-Type": "application/json;charset=utf-8",
@@ -193,10 +229,16 @@ class GLAccount extends Component {
 			})
 	  }
 
-	  getGlAccountById=(id)=>{
+	  getGlAccountById=()=>{
+		let ids = localStorage.getItem("ids")
+		if(ids=== null || localStorage.getItem("ids").split(",").length>1)
+		{
+			alert("kindly Select one record");
+			return false;	
+		}
 		axios({
 			method: "get",
-			url: defaultUrl+"glaccount/"+id,
+			url: defaultUrl+"glaccount/"+ids,
 			headers: {
 			  // 'Authorization': `bearer ${token}`,
 			  "Content-Type": "application/json;charset=utf-8",
@@ -246,55 +288,30 @@ class GLAccount extends Component {
 						>
 							<TabContainer dir={theme.direction}>
 								<Paper className={classes.root}>
-								<MuiThemeProvider theme={this.props.theme}>
-                            <Paper className={"flex items-center h-44 w-full"} elevation={1}>
-                                <Input
-                                    placeholder="Search..."
-                                    className="pl-16"
-                                    disableUnderline
-                                    fullWidth
-                                    inputProps={{
-                                        'aria-label': 'Search'
-                                    }}
-                                />
-                                <Icon color="action" className="mr-16">search</Icon>
-								<Button variant="contained"  color="secondary" style={{'marginRight':'2px'}} className={classes.button}>
-											PRINT
-      								</Button>
-                            </Paper>
-                        </MuiThemeProvider>
-									<Table className={classes.table}>
-										<TableHead>
-											<TableRow>
-												<CustomTableCell align="center" >Account</CustomTableCell>
-												<CustomTableCell align="center" >Description</CustomTableCell>
-												<CustomTableCell align="center" >Company</CustomTableCell>
-                                                <CustomTableCell align="center">Action</CustomTableCell>
-											</TableRow>
-										</TableHead>
-										<TableBody>
-										{this.state.GlAccounts.map(row => (
-												<TableRow className={classes.row} key={row.Id}>
+								<div className="row">
+									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
+										<Button variant="outlined" color="primary" className={classes.button} onClick={this.getGlAccountById}>
+											Edit
+										</Button>
+									</div>
+									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
+										<Button variant="outlined" color="inherit" className={classes.button} onClick={this.deleteGlAccount}>
+											Delete
+										</Button>
+									</div>
+								</div>
+									<table id="glaccount_Table" className="nowrap header_custom" style={{ "width": "100%" }}>
+										<thead>
+											<tr>
+												<th>Account</th>
+												<th>Description</th>
+												<th>Company</th>
+												<th>Action</th>
+											</tr>
+										</thead>
 
-													<CustomTableCell align="center">{row.Account=="" || row.Account==null || row.Account == undefined ?'N/A':row.Account}</CustomTableCell>
-													<CustomTableCell align="center" component="th" scope="row">
-														{row.Description=="" || row.Description==null || row.Description == undefined ?'N/A':row.Description}
-													</CustomTableCell>
-													<CustomTableCell align="center">{row.CompanyId=="" || row.CompanyId==null || row.CompanyId == undefined ?'N/A':row.CompanyId}</CustomTableCell>
-													
-													<CustomTableCell align="center" component="th" scope="row">
-														<IconButton className={classes.button} onClick={()=>this.deleteGlAccount(row.Id)}  aria-label="Delete">
-															<DeleteIcon />
-														</IconButton>
-														<IconButton className={classes.button} onClick={()=>this.getGlAccountById(row.Id)} aria-label="Edit">
-															<EditIcon />
-														</IconButton>
-													</CustomTableCell>
-												</TableRow>
-											))}
-										</TableBody>
-									</Table>
-								</Paper>
+									</table>
+							</Paper>
 							</TabContainer>
 							<TabContainer dir={theme.direction}>
 								<form className={classes.container} noValidate autoComplete="off">

@@ -74,13 +74,6 @@ const navigationConfig = [
                 'type': 'item',
                 'icon': 'whatshot',
                 'url': '/job'
-            },
-            {
-                'id': 'SocialSecurity-component',
-                'title': 'Social Security and Texation',
-                'type': 'item',
-                'icon': 'whatshot',
-                'url': '/socialsecurityelement'
             }
 
         ]
@@ -146,14 +139,6 @@ const navigationConfig = [
             'fg': '#FFFFFF'
         },
         'children': [
-           
-    {
-        'id': 'elementgroup-component',
-        'title': 'Element Group',
-        'type': 'item',
-        'icon': 'whatshot',
-        'url': '/elementgroup'
-    },
     {
         'id': 'costcenter-component',
         'title': 'Cost Center',

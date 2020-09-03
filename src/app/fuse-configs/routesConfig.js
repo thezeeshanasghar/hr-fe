@@ -7,7 +7,6 @@ import {CostCenterConfig} from 'app/main/CostCenter/CostCenterConfig';
 import {CountryLawsConfig} from 'app/main/CountryLaws/CountryLawsConfig';
 import {CurrencyExchangeConfig} from 'app/main/CurrencyExchange/CurrencyExchangeConfig';
 import {CompanyConfig} from 'app/main/company/CompanyConfig';
-import {ElementGroupConfig} from 'app/main/element_group/ElementGroupConfig';
 import {EmployeeBankAccountConfig} from 'app/main/EmployeeBankAccount/EmployeeBankAccountConfig';
 import {EmployeeConfig} from 'app/main/Employee/EmployeeConfig';
 import {GLAccountConfig} from 'app/main/GLAccount/GLAccountConfig';
@@ -16,7 +15,6 @@ import {PayElementConfig} from 'app/main/PayElement/PayElementConfig';
 import {JobsConfig} from 'app/main/Jobs/JobsConfig';
 import {PositionConfig} from 'app/main/Position/PositionConfig';
 import {PayElementGlAccountConfig} from 'app/main/PayElementGlAccount/PayElementGlAccountConfig';
-import {SocialSecurityElementConfig} from 'app/main/SocialSecurityElement/SocialSecurityElementConfig';
 import {UnitConfig} from 'app/main/Unit/UnitConfig';
 import {UnpaidLeavesConfig} from 'app/main/UnpaidLeaves/UnpaidLeavesConfig';
 import {UserProtectionConfig} from 'app/main/UserProtection/UserProtectionConfig';
@@ -31,7 +29,6 @@ const routeConfigs = [
     CountryLawsConfig,
     CurrencyExchangeConfig,
     CompanyConfig,
-    ElementGroupConfig,
     EmployeeBankAccountConfig,
     EmployeeConfig,
     GLAccountConfig,
@@ -41,7 +38,6 @@ const routeConfigs = [
     PositionConfig,
     PayElementGlAccountConfig,
     UnitConfig,
-    SocialSecurityElementConfig,
     UnpaidLeavesConfig,
     UserProtectionConfig,
     LoginConfig,
