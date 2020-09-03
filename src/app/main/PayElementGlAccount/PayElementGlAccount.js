@@ -31,6 +31,10 @@ import Grid from '@material-ui/core/Grid';
 import moment from 'moment';
 import defaultUrl from "../../../app/services/constant/constant";
 
+import $ from 'jquery';
+import DataTable from "datatables.net";
+import * as responsive from "datatables.net-responsive";
+
 const styles = theme => ({
 	container: {
 		display: 'flex',
@@ -94,7 +98,9 @@ class PayElementGlAccount extends Component {
 		costcenterList:[],
 		payelementglAccountList:[],
 		Id:0,
-		Action:"Insert Record"
+		Action:"Insert Record",
+		table:null
+
 	};
 	constructor(props) {
 		super(props);
@@ -119,7 +125,7 @@ class PayElementGlAccount extends Component {
 		})
 			.then((response) => {
 				console.log(response);
-				this.setState({ costcenterList: response.data });
+				this.setState({ costcenterList: response.data.data });
 			})
 			.catch((error) => {
 				console.log(error);
@@ -154,7 +160,7 @@ class PayElementGlAccount extends Component {
 		})
 			.then((response) => {
 				console.log(response);
-				this.setState({ payElements: response.data });
+				this.setState({ payElements: response.data.data });
 			})
 			.catch((error) => {
 				console.log(error);
@@ -171,7 +177,7 @@ class PayElementGlAccount extends Component {
 		})
 			.then((response) => {
 				console.log(response);
-				this.setState({ glaccountList: response.data });
+				this.setState({ glaccountList: response.data.data });
 			})
 			.catch((error) => {
 				console.log(error);
@@ -245,26 +251,60 @@ class PayElementGlAccount extends Component {
 		}
 	}
 	getpayelementglAccountList = () => {
-		axios({
-			method: "get",
-			url: defaultUrl+"PayElementGLAccount",
-			headers: {
-				// 'Authorization': `bearer ${token}`,
-				"Content-Type": "application/json;charset=utf-8",
-			},
-		})
-			.then((response) => {
-				console.log(response);
-				this.setState({ payelementglAccountList: response.data });
-			})
-			.catch((error) => {
-				console.log(error);
-			})
+		localStorage.removeItem("ids");
+		if (!$.fn.dataTable.isDataTable('#PayElementGLAccount_Table')) {
+			this.state.table = $('#PayElementGLAccount_Table').DataTable({
+				ajax: defaultUrl + "PayElementGLAccount",
+				"columns": [
+					{ "data": "PayElementId" },
+					{ "data": "GLAccountId" },
+					{ "data": "CostCenterPosting" },
+					{ "data": "CostCenterId" },
+					{ "data": "PostingPerEmployee" },
+					{ "data": "Action",
+					sortable: false,
+					"render": function ( data, type, full, meta ) {
+					   
+						return `<input type="checkbox" name="radio"  value=`+full.Id+`
+						onclick=" const checkboxes = document.querySelectorAll('input[name=radio]:checked');
+									let values = [];
+									checkboxes.forEach((checkbox) => {
+										values.push(checkbox.value);
+									});
+									localStorage.setItem('ids',values);	"
+						/>`;
+					}
+				 }
+				],
+				rowReorder: {
+					selector: 'td:nth-child(2)'
+				},
+				responsive: true,
+				dom: 'Bfrtip',
+				buttons: [
+
+				],
+				columnDefs: [{
+					"defaultContent": "-",
+					"targets": "_all"
+				  }]
+			});
+		} else {
+			this.state.table.ajax.reload();
+		}
+	
 	}
-	getPayElementById = (id) => {
+	getpayelementglAccountListById = () => {
+		
+		let ids = localStorage.getItem("ids")
+		if(ids=== null || localStorage.getItem("ids").split(",").length>1)
+		{
+			alert("kindly Select one record");
+			return false;	
+		}
 		axios({
 			method: "get",
-			url: defaultUrl+"PayElementGLAccount/" + id,
+			url: defaultUrl+"PayElementGLAccount/" + ids,
 			headers: {
 				// 'Authorization': `bearer ${token}`,
 				"Content-Type": "application/json;charset=utf-8",
@@ -288,10 +328,16 @@ class PayElementGlAccount extends Component {
 				console.log(error);
 			})
 	}
-	deletePayElement =(id)=>{
+	deletegetpayelementglAccountList =()=>{
+		var ids=localStorage.getItem("ids");
+		if(ids===null)
+		{
+		alert("No Record Selected");
+		return false;
+		}
 		axios({
 			method: "delete",
-			url: defaultUrl+"PayElementGLAccount/"+id,
+			url: defaultUrl+"PayElementGLAccount/"+ids,
 			headers: {
 			  // 'Authorization': `bearer ${token}`,
 			  "Content-Type": "application/json;charset=utf-8",
@@ -349,60 +395,32 @@ class PayElementGlAccount extends Component {
 						>
 							<TabContainer dir={theme.direction}>
 								<Paper className={classes.root}>
-								<MuiThemeProvider theme={this.props.theme}>
-                            <Paper className={"flex items-center h-44 w-full"} elevation={1}>
-                                <Input
-                                    placeholder="Search..."
-                                    className="pl-16"
-                                    disableUnderline
-                                    fullWidth
-                                    inputProps={{
-                                        'aria-label': 'Search'
-                                    }}
-                                />
-                                <Icon color="action" className="mr-16">search</Icon>
-								<Button variant="contained"  color="secondary" style={{'marginRight':'2px'}} className={classes.button}>
-											PRINT
-      								</Button>
-                            </Paper>
-                        </MuiThemeProvider>
-									<Table className={classes.table}>
-										<TableHead>
-											<TableRow>
-												{/* <CustomTableCell align="center"  >PayElement</CustomTableCell> */}
-												{/* <CustomTableCell align="center" >GlAccount</CustomTableCell> */}
-												<CustomTableCell align="center">CostCenterPosting</CustomTableCell>
-												{/* <CustomTableCell align="center">CostCenter</CustomTableCell> */}
-												{/* <CustomTableCell align="center">Periodicity</CustomTableCell> */}
-												<CustomTableCell align="center">PostingPerEmployee</CustomTableCell>
+								<div className="row">
+									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
+										<Button variant="outlined" color="primary" className={classes.button} onClick={this.getpayelementglAccountListById}>
+											Edit
+										</Button>
+									</div>
+									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
+										<Button variant="outlined" color="inherit" className={classes.button} onClick={this.deletegetpayelementglAccountList}>
+											Delete
+										</Button>
+									</div>
+								</div>
+									<table id="PayElementGLAccount_Table" className="nowrap header_custom" style={{ "width": "100%" }}>
+										<thead>
+											<tr>
+												<th>Pay Element</th>
+												<th>GLAccount</th>
+												<th>CostCenter Posting</th>
+												<th>CostCenter</th>
+												<th>Posting Per Employee</th>
+												<th>Action</th>
+											</tr>
+										</thead>
 
-												<CustomTableCell align="center">Action</CustomTableCell>
-
-											</TableRow>
-										</TableHead>
-										<TableBody>
-											{this.state.payelementglAccountList.map(row => (
-												<TableRow className={classes.row} key={row.id}>
-
-													{/* <CustomTableCell align="center"  >{row.PayElement}</CustomTableCell> */}
-													{/* <CustomTableCell align="center">{row.GlAccount}</CustomTableCell> */}
-													<CustomTableCell align="center">{row.CostCenterPosting}</CustomTableCell>
-													{/* <CustomTableCell align="center">{row.CostCenter}</CustomTableCell> */}
-													{/* <CustomTableCell align="center">{row.Periodicity}</CustomTableCell> */}
-													<CustomTableCell align="center">{row.PostingPerEmployee}</CustomTableCell>
-													<CustomTableCell align="center" component="th" scope="row">
-														<IconButton className={classes.button} onClick={()=>this.deletePayElement(row.Id)}  aria-label="Delete">
-															<DeleteIcon />
-														</IconButton>
-														<IconButton className={classes.button} onClick={()=>this.getPayElementById(row.Id)}  aria-label="Edit">
-															<EditIcon />
-														</IconButton>
-													</CustomTableCell>
-												</TableRow>
-											))}
-										</TableBody>
-									</Table>
-								</Paper>
+									</table>
+							</Paper>
 							</TabContainer>
 							<TabContainer dir={theme.direction}>
 								<form className={classes.container} noValidate autoComplete="off">

@@ -28,6 +28,9 @@ import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import defaultUrl from "../../../app/services/constant/constant";
 
+import $ from 'jquery';
+import DataTable from "datatables.net";
+import * as responsive from "datatables.net-responsive";
 const styles = theme => ({
 	container: {
 		display: 'flex',
@@ -86,7 +89,8 @@ class CostCenter extends Component {
 		code:"",
 		description:"",
 		Action:"Insert Record",
-		Id:0
+		Id:0,
+		table:null
 	};
 	constructor(props) {
 		super(props);
@@ -94,6 +98,7 @@ class CostCenter extends Component {
 
 	}
 	componentDidMount() {
+		
 		this.getCompanies();
 		this.getCostCenter();
 	}
@@ -108,7 +113,7 @@ class CostCenter extends Component {
 		})
 			.then((response) => {
 				console.log(response);
-				this.setState({ Companies: response.data });
+				this.setState({ Companies: response.data.data });
 			})
 			.catch((error) => {
 				console.log(error);
@@ -175,26 +180,57 @@ class CostCenter extends Component {
 		}
 	}
 	getCostCenter = () => {
-		axios({
-			method: "get",
-			url: defaultUrl+"CostCenter",
-			headers: {
-				// 'Authorization': `bearer ${token}`,
-				"Content-Type": "application/json;charset=utf-8",
-			},
-		})
-			.then((response) => {
-				console.log(response);
-				this.setState({ costcenter: response.data });
-			})
-			.catch((error) => {
-				console.log(error);
-			})
+			localStorage.removeItem("ids");
+		if (!$.fn.dataTable.isDataTable('#CostCenter_Table')) {
+			this.state.table = $('#CostCenter_Table').DataTable({
+				ajax: defaultUrl + "CostCenter",
+				"columns": [
+					{ "data": "Code" },
+					{ "data": "Description" },
+					{ "data": "CompanyId" },
+					{ "data": "Action",
+					sortable: false,
+					"render": function ( data, type, full, meta ) {
+					   
+						return `<input type="checkbox" name="radio"  value=`+full.Id+`
+						onclick=" const checkboxes = document.querySelectorAll('input[name=radio]:checked');
+									let values = [];
+									checkboxes.forEach((checkbox) => {
+										values.push(checkbox.value);
+									});
+									localStorage.setItem('ids',values);	"
+						/>`;
+					}
+				 }
+
+				],
+				rowReorder: {
+					selector: 'td:nth-child(2)'
+				},
+				responsive: true,
+				dom: 'Bfrtip',
+				buttons: [
+
+				],
+				columnDefs: [{
+					"defaultContent": "-",
+					"targets": "_all"
+				  }]
+			});
+		} else {
+			this.state.table.ajax.reload();
+		}
 	}
-	getCostCenterById = (id) => {
+	getCostCenterById = () => {
+		let ids = localStorage.getItem("ids")
+		if(ids=== null || localStorage.getItem("ids").split(",").length>1)
+		{
+			alert("kindly Select one record");
+			return false;	
+		}
 		axios({
 			method: "get",
-			url: defaultUrl+"CostCenter/" + id,
+			url: defaultUrl+"CostCenter/" + ids,
 			headers: {
 				// 'Authorization': `bearer ${token}`,
 				"Content-Type": "application/json;charset=utf-8",
@@ -216,10 +252,17 @@ class CostCenter extends Component {
 				console.log(error);
 			})
 	}
-	deleteCostCenter=(id)=>{
+	deleteCostCenter=()=>{
+		var ids=localStorage.getItem("ids");
+		if(ids===null)
+		{
+		alert("No Record Selected");
+		return false;
+		}
+		
 		axios({
 			method: "delete",
-			url: defaultUrl+"CostCenter/"+id,
+			url: defaultUrl+"CostCenter/"+ids,
 			headers: {
 			  // 'Authorization': `bearer ${token}`,
 			  "Content-Type": "application/json;charset=utf-8",
@@ -278,51 +321,29 @@ class CostCenter extends Component {
 						>
 							<TabContainer dir={theme.direction}>
 								<Paper className={classes.root}>
-								<MuiThemeProvider theme={this.props.theme}>
-                            <Paper className={"flex items-center h-44 w-full"} elevation={1}>
-                                <Input
-                                    placeholder="Search..."
-                                    className="pl-16"
-                                    disableUnderline
-                                    fullWidth
-                                    inputProps={{
-                                        'aria-label': 'Search'
-                                    }}
-                                />
-                                <Icon color="action" className="mr-16">search</Icon>
-								<Button variant="contained"  color="secondary" style={{'marginRight':'2px'}} className={classes.button}>
-											PRINT
-      								</Button>
-                            </Paper>
-                        </MuiThemeProvider>
-									<Table className={classes.table}>
-										<TableHead>
-											<TableRow>
-												<CustomTableCell align="center" >Code</CustomTableCell>
-												<CustomTableCell align="center">Description</CustomTableCell>
-												<CustomTableCell align="center">Action</CustomTableCell>
-											</TableRow>
-										</TableHead>
-										<TableBody>
-											{this.state.costcenter.map(row => (
-												<TableRow className={classes.row} key={row.Id}>
+								<div className="row">
+									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
+										<Button variant="outlined" color="primary" className={classes.button} onClick={this.getCostCenterById}>
+											Edit
+										</Button>
+									</div>
+									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
+										<Button variant="outlined" color="inherit" className={classes.button} onClick={this.deleteCostCenter}>
+											Delete
+										</Button>
+									</div>
+								</div>
+									<table id="CostCenter_Table" className="nowrap header_custom" style={{ "width": "100%" }}>
+										<thead>
+											<tr>
+												<th>Code</th>
+												<th>Description</th>
+												<th>Company</th>
+												<th>Action</th>
+											</tr>
+										</thead>
 
-													<CustomTableCell align="center">{row.Code}</CustomTableCell>
-													<CustomTableCell align="center" component="th" scope="row">
-														{row.Description}
-													</CustomTableCell>
-													<CustomTableCell align="center" component="th" scope="row">
-														<IconButton className={classes.button} onClick={()=>this.deleteCostCenter(row.Id)} aria-label="Delete">
-															<DeleteIcon />
-														</IconButton>
-														<IconButton className={classes.button} onClick={()=>this.getCostCenterById(row.Id)} aria-label="Edit">
-															<EditIcon />
-														</IconButton>
-													</CustomTableCell>
-												</TableRow>
-											))}
-										</TableBody>
-									</Table>
+									</table>
 								</Paper>
 							</TabContainer>
 							<TabContainer dir={theme.direction}>

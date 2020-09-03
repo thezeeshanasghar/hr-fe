@@ -30,6 +30,9 @@ import { Lookups } from '../../services/constant/enum'
 import Grid from '@material-ui/core/Grid';
 import moment from 'moment';
 import defaultUrl from "../../../app/services/constant/constant";
+import $ from 'jquery';
+import DataTable from "datatables.net";
+import * as responsive from "datatables.net-responsive";
 const styles = theme => ({
 	container: {
 		display: 'flex',
@@ -100,7 +103,8 @@ class PayElement extends Component {
 		currencyList:[],
 		payElements:[],
 		Id:0,
-		Action:"Insert Record"
+		Action:"Insert Record",
+		table:null
 	};
 	constructor(props) {
 		super(props);
@@ -213,7 +217,7 @@ class PayElement extends Component {
 		})
 			.then((response) => {
 				console.log(response);
-				this.setState({ companies: response.data });
+				this.setState({ companies: response.data.data });
 			})
 			.catch((error) => {
 				console.log(error);
@@ -302,26 +306,63 @@ class PayElement extends Component {
 		}
 	}
 	getPayElement = () => {
-		axios({
-			method: "get",
-			url: defaultUrl+"payelement",
-			headers: {
-				// 'Authorization': `bearer ${token}`,
-				"Content-Type": "application/json;charset=utf-8",
-			},
-		})
-			.then((response) => {
-				console.log(response);
-				this.setState({ payElements: response.data });
-			})
-			.catch((error) => {
-				console.log(error);
-			})
+		localStorage.removeItem("ids");
+		if (!$.fn.dataTable.isDataTable('#payelement_Table')) {
+			this.state.table = $('#payelement_Table').DataTable({
+				ajax: defaultUrl + "payelement",
+				"columns": [
+					{ "data": "Code" },
+					{ "data": "Description" },
+					{ "data": "GroupId" },
+					{ "data": "Periodicity" },
+					{ "data": "CurrencyCode" },
+					{ "data": "lumpsum" },
+					{ "data": "noofDays" },
+					{ "data": "ofMonth" },
+					{ "data": "CompanyId" },
+					{ "data": "Increment" },
+					{ "data": "Action",
+					sortable: false,
+					"render": function ( data, type, full, meta ) {
+					   
+						return `<input type="checkbox" name="radio"  value=`+full.Id+`
+						onclick=" const checkboxes = document.querySelectorAll('input[name=radio]:checked');
+									let values = [];
+									checkboxes.forEach((checkbox) => {
+										values.push(checkbox.value);
+									});
+									localStorage.setItem('ids',values);	"
+						/>`;
+					}
+				 }
+				],
+				rowReorder: {
+					selector: 'td:nth-child(2)'
+				},
+				responsive: true,
+				dom: 'Bfrtip',
+				buttons: [
+
+				],
+				columnDefs: [{
+					"defaultContent": "-",
+					"targets": "_all"
+				  }]
+			});
+		} else {
+			this.state.table.ajax.reload();
+		}
 	}
-	getPayElementById = (id) => {
+	getPayElementById = () => {
+		let ids = localStorage.getItem("ids")
+		if(ids=== null || localStorage.getItem("ids").split(",").length>1)
+		{
+			alert("kindly Select one record");
+			return false;	
+		}
 		axios({
 			method: "get",
-			url: defaultUrl+"payelement/" + id,
+			url: defaultUrl+"payelement/" + ids,
 			headers: {
 				// 'Authorization': `bearer ${token}`,
 				"Content-Type": "application/json;charset=utf-8",
@@ -350,10 +391,16 @@ class PayElement extends Component {
 				console.log(error);
 			})
 	}
-	deletePayElement =(id)=>{
+	deletePayElement =()=>{
+		var ids=localStorage.getItem("ids");
+		if(ids===null)
+		{
+		alert("No Record Selected");
+		return false;
+		}
 		axios({
 			method: "delete",
-			url: defaultUrl+"payelement/"+id,
+			url: defaultUrl+"payelement/"+ids,
 			headers: {
 			  // 'Authorization': `bearer ${token}`,
 			  "Content-Type": "application/json;charset=utf-8",
@@ -411,64 +458,36 @@ class PayElement extends Component {
 						>
 							<TabContainer dir={theme.direction}>
 								<Paper className={classes.root}>
-								<MuiThemeProvider theme={this.props.theme}>
-                            <Paper className={"flex items-center h-44 w-full"} elevation={1}>
-                                <Input
-                                    placeholder="Search..."
-                                    className="pl-16"
-                                    disableUnderline
-                                    fullWidth
-                                    inputProps={{
-                                        'aria-label': 'Search'
-                                    }}
-                                />
-                                <Icon color="action" className="mr-16">search</Icon>
-								<Button variant="contained"  color="secondary" style={{'marginRight':'2px'}} className={classes.button}>
-											PRINT
-      								</Button>
-                            </Paper>
-                        </MuiThemeProvider>
-									<Table className={classes.table}>
-										<TableHead>
-											<TableRow>
-												<CustomTableCell align="center"  >Code</CustomTableCell>
-												<CustomTableCell align="center" >Description</CustomTableCell>
-												{/* <CustomTableCell align="center">Group</CustomTableCell>
-												<CustomTableCell align="center">Increment</CustomTableCell>
-												<CustomTableCell align="center">Periodicity</CustomTableCell>
-												<CustomTableCell align="center">Currency</CustomTableCell> */}
-												{/* <CustomTableCell align="center">Lumpsum</CustomTableCell> */}
-												{/* <CustomTableCell align="center">NoofDays</CustomTableCell> */}
-												{/* <CustomTableCell align="center">ofMonth</CustomTableCell> */}
-												<CustomTableCell align="center">Action</CustomTableCell>
+								<div className="row">
+									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
+										<Button variant="outlined" color="primary" className={classes.button} onClick={this.getPayElementById}>
+											Edit
+										</Button>
+									</div>
+									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
+										<Button variant="outlined" color="inherit" className={classes.button} onClick={this.deletePayElement}>
+											Delete
+										</Button>
+									</div>
+								</div>
+									<table id="payelement_Table" className="nowrap header_custom" style={{ "width": "100%" }}>
+										<thead>
+											<tr>
+												<th>Code</th>
+												<th>Description</th>
+												<th>Group</th>
+												<th>Periodicity</th>
+												<th>CurrencyCode</th>
+												<th>lumpsum</th>
+												<th>noofDays</th>
+												<th>ofMonth</th>
+												<th>Company</th>
+												<th>Increment</th>
+												<th>Action</th>
+											</tr>
+										</thead>
 
-											</TableRow>
-										</TableHead>
-										<TableBody>
-											{this.state.payElements.map(row => (
-												<TableRow className={classes.row} key={row.Id}>
-
-													<CustomTableCell align="center"  >{row.Code}</CustomTableCell>
-													<CustomTableCell align="center">{row.Description}</CustomTableCell>
-													{/* <CustomTableCell align="center">{row.Group}</CustomTableCell>
-													<CustomTableCell align="center">{row.Increment}</CustomTableCell>
-													<CustomTableCell align="center">{row.Periodicity}</CustomTableCell>
-													<CustomTableCell align="center">{row.Currency}</CustomTableCell> */}
-													{/* <CustomTableCell align="center">{row.Lumpsum}</CustomTableCell> */}
-													{/* <CustomTableCell align="center">{row.NoofDays}</CustomTableCell> */}
-													{/* <CustomTableCell align="center">{row.ofMonth}</CustomTableCell> */}
-													<CustomTableCell align="center" component="th" scope="row">
-														<IconButton className={classes.button} onClick={()=>this.deletePayElement(row.Id)} aria-label="Delete">
-															<DeleteIcon />
-														</IconButton>
-														<IconButton className={classes.button} onClick={()=>this.getPayElementById(row.Id)}  aria-label="Edit">
-															<EditIcon />
-														</IconButton>
-													</CustomTableCell>
-												</TableRow>
-											))}
-										</TableBody>
-									</Table>
+									</table>
 								</Paper>
 							</TabContainer>
 							<TabContainer dir={theme.direction}>
@@ -534,8 +553,9 @@ class PayElement extends Component {
 											<MenuItem value="">
 												<em>None</em>
 											</MenuItem>
-													<MenuItem value="true">true</MenuItem>
-													<MenuItem value="false">false</MenuItem>			
+											{this.state.PeriodicityList.map(row => (
+													<MenuItem value={row.Id}>{row.Name}</MenuItem>
+												))} 
 										</Select>
 									</FormControl>
 									{this.validator.message('increment', this.state.increment, 'required')}
