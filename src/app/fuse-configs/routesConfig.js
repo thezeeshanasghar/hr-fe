@@ -21,6 +21,7 @@ import {UserProtectionConfig} from 'app/main/UserProtection/UserProtectionConfig
 import {LoginConfig} from 'app/main/Login/LoginConfig'
 import {SalaryPayRollConfig} from 'app/main/SalaryPayRoll/SalaryPayRollConfig.js'
 import {EmployeeReportsConfig} from 'app/main/EmployeeReports/EmployeeReportsConfig'
+import {TaxationReportsConfig} from 'app/main/TaxationReports/TaxationReportsConfig'
 const routeConfigs = [
     DashboardConfig,
     BankConfig,
@@ -41,7 +42,8 @@ const routeConfigs = [
     UserProtectionConfig,
     LoginConfig,
     SalaryPayRollConfig,
-    EmployeeReportsConfig
+    EmployeeReportsConfig,
+    TaxationReportsConfig
 ];
 
  const routes = [
