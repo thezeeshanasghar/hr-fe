@@ -20,7 +20,9 @@ class UserMenu extends Component {
     userMenuClose = () => {
         this.setState({userMenu: null});
     };
-
+    componentDidMount(){
+        document.getElementById("fuse-splash-screen").style.display="none";
+    }
     render()
     {
         const { redirect } = this.state;

@@ -167,7 +167,7 @@ class GLAccount extends Component {
 			CompanyId: 2
 		  };
 		  axios.interceptors.request.use(function(config) {
-			// document.getElementsByClassName("loader-wrapper")[0].style.display="block"
+			document.getElementById("fuse-splash-screen").style.display="block";
 			return config;
 		  }, function(error) {
 			console.log('Error');
@@ -189,8 +189,11 @@ class GLAccount extends Component {
 				account: "",
 				description: '',
 				Action:'Insert Record',
-				Id:0
+				Id:0,
+				value:0
 			  });
+			  document.getElementById("fuse-splash-screen").style.display="none";
+
 			})
 			.catch((error) => {
 			 console.log(error);
@@ -198,11 +201,12 @@ class GLAccount extends Component {
 				account: "",
 				description: '',
 				Action:'Insert Record',
-				Id:0
+				Id:0,
+				value:0
 				})
-			}).finally(()=>{
-			//   document.getElementsByClassName("loader-wrapper")[0].style.display="none";
-			});
+				document.getElementById("fuse-splash-screen").style.display="none";
+
+			})
 	  }
 
 	  deleteGlAccount=()=>{
@@ -212,6 +216,8 @@ class GLAccount extends Component {
 		alert("No Record Selected");
 		return false;
 		}
+		document.getElementById("fuse-splash-screen").style.display="block";
+
 		axios({
 			method: "delete",
 			url: defaultUrl+"glaccount/"+ids,
@@ -223,9 +229,13 @@ class GLAccount extends Component {
 			.then((response) => {
 				
 				this.getGlAccountDetail();
+				document.getElementById("fuse-splash-screen").style.display="none";
+
 			})
 			.catch((error) => {
 				console.log(error);
+				document.getElementById("fuse-splash-screen").style.display="none";
+
 			})
 	  }
 
@@ -236,6 +246,8 @@ class GLAccount extends Component {
 			alert("kindly Select one record");
 			return false;	
 		}
+		document.getElementById("fuse-splash-screen").style.display="block";
+
 		axios({
 			method: "get",
 			url: defaultUrl+"glaccount/"+ids,
@@ -247,9 +259,12 @@ class GLAccount extends Component {
 			.then((response) => {
 				console.log(response);
 				this.setState({Action:'Update Record',value:1,account:response.data[0].Account,description:response.data[0].Description,companyId:response.data[0].CompanyId, Id:response.data[0].Id });
+				document.getElementById("fuse-splash-screen").style.display="none";
+
 			})
 			.catch((error) => {
 				console.log(error);
+				document.getElementById("fuse-splash-screen").style.display="none";
 			})
 	  }
 	render() {

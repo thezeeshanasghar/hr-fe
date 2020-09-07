@@ -275,7 +275,7 @@ class Grades extends Component {
 		  })
 			.then((response) => {
 				console.log(response);
-				this.setState({Companies:response.data});
+				this.setState({Companies:response.data.data});
 			})
 			.catch((error) => {
 				console.log(error);

@@ -205,7 +205,7 @@ class PayElementGlAccount extends Component {
 
 			};
 			axios.interceptors.request.use(function (config) {
-				// document.getElementsByClassName("loader-wrapper")[0].style.display="block"
+				document.getElementById("fuse-splash-screen").style.display="block";
 				return config;
 			}, function (error) {
 				console.log('Error');
@@ -232,6 +232,8 @@ class PayElementGlAccount extends Component {
 						Id: 0,
 						Action:'Insert Record'
 					});
+					document.getElementById("fuse-splash-screen").style.display="none";
+
 				})
 				.catch((error) => {
 					console.log(error);
@@ -245,6 +247,8 @@ class PayElementGlAccount extends Component {
 						Id: 0,
 						Action:'Insert Record'
 					})
+					document.getElementById("fuse-splash-screen").style.display="none";
+
 				})
 
 
@@ -302,6 +306,8 @@ class PayElementGlAccount extends Component {
 			alert("kindly Select one record");
 			return false;	
 		}
+		document.getElementById("fuse-splash-screen").style.display="block";
+
 		axios({
 			method: "get",
 			url: defaultUrl+"PayElementGLAccount/" + ids,
@@ -322,10 +328,13 @@ class PayElementGlAccount extends Component {
 					Id : response.data[0].Id,
 					Action : "Update Record"
 				});
+				document.getElementById("fuse-splash-screen").style.display="none";
 
 			})
 			.catch((error) => {
 				console.log(error);
+				document.getElementById("fuse-splash-screen").style.display="none";
+
 			})
 	}
 	deletegetpayelementglAccountList =()=>{
@@ -335,6 +344,8 @@ class PayElementGlAccount extends Component {
 		alert("No Record Selected");
 		return false;
 		}
+		document.getElementById("fuse-splash-screen").style.display="block";
+
 		axios({
 			method: "delete",
 			url: defaultUrl+"PayElementGLAccount/"+ids,
@@ -346,9 +357,13 @@ class PayElementGlAccount extends Component {
 			.then((response) => {
 				
 				this.getpayelementglAccountList();
+				document.getElementById("fuse-splash-screen").style.display="none";
+
 			})
 			.catch((error) => {
 				console.log(error);
+				document.getElementById("fuse-splash-screen").style.display="none";
+
 			})
 	  }
 	handleTabChange = (event, value) => {

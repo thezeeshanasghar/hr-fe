@@ -78,6 +78,7 @@ class Bank extends Component {
 	constructor(props) {
 		super(props);
 		this.validator = new SimpleReactValidator();
+		
 	
 	  }
 	  componentDidMount(){
@@ -157,7 +158,7 @@ class Bank extends Component {
 			Address: this.state.bankAddress
 		  };
 		  axios.interceptors.request.use(function(config) {
-			// document.getElementsByClassName("loader-wrapper")[0].style.display="block"
+			document.getElementById("fuse-splash-screen").style.display="block"
 			return config;
 		  }, function(error) {
 			console.log('Error');
@@ -180,10 +181,13 @@ class Bank extends Component {
 				bankCode: "",
 				bankAddress: "",
 				Action:'Insert Record',
-				Id:0
+				Id:0,
+				value:0
 			  });
+			  document.getElementById("fuse-splash-screen").style.display="none"
 			})
 			.catch((error) => {
+				document.getElementById("fuse-splash-screen").style.display="none"
 				console.log(error);
 				toastr.error('Operation unsuccessfull');
 			  this.setState({
@@ -191,7 +195,8 @@ class Bank extends Component {
 				bankCode: "",
 				bankAddress: "",
 				Action:'Insert Record',
-				Id:0
+				Id:0,
+				value:0
 				})
 			})
 	  }
@@ -202,7 +207,7 @@ class Bank extends Component {
 		alert("No Record Selected");
 		return false;
 		}
-		
+		document.getElementById("fuse-splash-screen").style.display="block"
 		axios({
 			method: "delete",
 			url: defaultUrl+"Bank/"+ids,
@@ -214,9 +219,11 @@ class Bank extends Component {
 			.then((response) => {
 				
 				this.getBankDetail();
+				document.getElementById("fuse-splash-screen").style.display="none"
 			})
 			.catch((error) => {
 				console.log(error);
+				document.getElementById("fuse-splash-screen").style.display="none"
 			})
 	  }
 	  getBankById=()=>{
@@ -226,6 +233,7 @@ class Bank extends Component {
 			alert("kindly Select one record");
 			return false;
 		}
+		document.getElementById("fuse-splash-screen").style.display="block"
 		axios({
 			method: "get",
 			url: defaultUrl+"Bank/"+ids,
@@ -238,13 +246,16 @@ class Bank extends Component {
 				console.log(response);
 				this.setState({Action:'Update Record',value:1,bankName:response.data[0].BankName,bankCode:response.data[0].BranchCode,bankAddress:response.data[0].Address,
 					Id:response.data[0].Id});
+					document.getElementById("fuse-splash-screen").style.display="none"
 			})
 			.catch((error) => {
+				document.getElementById("fuse-splash-screen").style.display="none"
 				console.log(error);
 			})
 	  }
 	
 	render() {
+		
 		const { classes, theme } = this.props;
 
 		return (

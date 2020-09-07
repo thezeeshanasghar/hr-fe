@@ -183,7 +183,7 @@ class Unit extends Component {
 			CompanyId: this.state.companyId
 		};
 		axios.interceptors.request.use(function (config) {
-			// document.getElementsByClassName("loader-wrapper")[0].style.display="block"
+			document.getElementById("fuse-splash-screen").style.display="block";
 			return config;
 		}, function (error) {
 			console.log('Error');
@@ -208,8 +208,11 @@ class Unit extends Component {
 					description: '',
 					companyId: 0,
 					Action: 'Insert Record',
-					Id: 0
+					Id: 0,
+					value:0
 				});
+				document.getElementById("fuse-splash-screen").style.display="none";
+
 			})
 			.catch((error) => {
 				console.log(error);
@@ -217,11 +220,12 @@ class Unit extends Component {
 					code: "",
 					description: '',
 					Action: 'Insert Record',
-					Id: 0
+					Id: 0,
+					value:0
 				})
-			}).finally(() => {
-				//   document.getElementsByClassName("loader-wrapper")[0].style.display="none";
-			});
+				document.getElementById("fuse-splash-screen").style.display="none";
+
+			})
 	}
 
 	deleteUnit = () => {
@@ -231,7 +235,8 @@ class Unit extends Component {
 		alert("No Record Selected");
 		return false;
 		}
-		
+		document.getElementById("fuse-splash-screen").style.display="block";
+
 		axios({
 			method: "delete",
 			url: defaultUrl + "unit/"+ids,
@@ -243,9 +248,13 @@ class Unit extends Component {
 			.then((response) => {
 				localStorage.removeItem("ids");
 				this.getUnitDetail();
+				document.getElementById("fuse-splash-screen").style.display="none";
+
 			})
 			.catch((error) => {
 				console.log(error);
+				document.getElementById("fuse-splash-screen").style.display="none";
+
 			})
 	}
 	getUnitById = () => {
@@ -255,6 +264,8 @@ class Unit extends Component {
 			alert("kindly Select one record");
 			return false;
 		}
+		document.getElementById("fuse-splash-screen").style.display="block";
+
 		axios({
 			method: "get",
 			url: defaultUrl + "unit/" + ids,
@@ -266,9 +277,13 @@ class Unit extends Component {
 			.then((response) => {
 				console.log(response);
 				this.setState({ Action: 'Update Record', value: 1, code: response.data[0].Code, description: response.data[0].Description, Id: response.data[0].Id,companyId:response.data[0].CompanyId });
+				document.getElementById("fuse-splash-screen").style.display="none";
+
 			})
 			.catch((error) => {
 				console.log(error);
+				document.getElementById("fuse-splash-screen").style.display="none";
+
 			})
 	}
 	getCompanyDetail = () => {

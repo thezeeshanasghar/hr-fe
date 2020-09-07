@@ -219,7 +219,7 @@ class Position extends Component {
 		    Action: 'Insert Record'
 		  };
 		  axios.interceptors.request.use(function(config) {
-			// document.getElementsByClassName("loader-wrapper")[0].style.display="block"
+			document.getElementById("fuse-splash-screen").style.display="block";
 			return config;
 		  }, function(error) {
 			console.log('Error');
@@ -245,8 +245,11 @@ class Position extends Component {
 		        code: '',
 		        title: '',
 		        Id: 0,
-		        Action: 'Insert Record'
+				Action: 'Insert Record',
+				value:0
 			  });
+			  document.getElementById("fuse-splash-screen").style.display="none";
+
 			})
 			.catch((error) => {
 				console.log(error);
@@ -256,11 +259,11 @@ class Position extends Component {
 		        code: '',
 		        title: '',
 		        Id: 0,
-		        Action: 'Insert Record'
+				Action: 'Insert Record',
+				value:0
 				})
-			}).finally(()=>{
-			//   document.getElementsByClassName("loader-wrapper")[0].style.display="none";
-			});
+				document.getElementById("fuse-splash-screen").style.display="none";
+			})
 	  }
 	  deleteposition=(id)=>{
 		var ids=localStorage.getItem("ids");
@@ -269,6 +272,8 @@ class Position extends Component {
 			alert("No Record Selected");
 		return false;
 		}
+		document.getElementById("fuse-splash-screen").style.display="block";
+
 		axios({
 			method: "delete",
 			url: defaultUrl+"position/"+id,
@@ -280,9 +285,13 @@ class Position extends Component {
 			.then((response) => {
 				localStorage.removeItem("ids");
 				this.getPositionDetail();
+				document.getElementById("fuse-splash-screen").style.display="none";
+
 			})
 			.catch((error) => {
 				console.log(error);
+				document.getElementById("fuse-splash-screen").style.display="none";
+
 			})
 	  }
 
@@ -293,6 +302,8 @@ class Position extends Component {
 			alert("kindly Select one record");
 			return false;
 		}
+		document.getElementById("fuse-splash-screen").style.display="block";
+
 		axios({
 			method: "get",
 			url: defaultUrl+"position/"+ids,
@@ -304,9 +315,11 @@ class Position extends Component {
 			.then((response) => {
 				console.log(response);
 				this.setState({Action:'Update Record',value:1,jobId:response.data[0].JobId,code:response.data[0].Code, title:response.data[0].Title, Id:response.data[0].Id , unitId:response.data[0].UnitId });
+				document.getElementById("fuse-splash-screen").style.display="none";
 			})
 			.catch((error) => {
 				console.log(error);
+				document.getElementById("fuse-splash-screen").style.display="none";
 			})
 	  }
 	render() {

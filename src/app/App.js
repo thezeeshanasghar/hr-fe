@@ -11,7 +11,7 @@ import {Auth} from './auth';
 import store from './store';
 import AppContext from './AppContext';
 import routes from './fuse-configs/routesConfig';
-
+import FuseSplashScreen from '../../src/@fuse/components/FuseSplashScreen/FuseSplashScreen';
 const jss = create({
     ...jssPreset(),
     plugins: [...jssPreset().plugins, jssExtend()]
@@ -21,7 +21,7 @@ jss.options.insertionPoint = document.getElementById('jss-insertion-point');
 const generateClassName = createGenerateClassName();
 
 const App = () => {
-
+    
     return (
         <AppContext.Provider
             value={{
@@ -34,6 +34,7 @@ const App = () => {
                         <Router history={history}>
                             <FuseAuthorization>
                                 <FuseTheme>
+                                    <FuseSplashScreen></FuseSplashScreen>
                                     <FuseLayout/>
                                 </FuseTheme>
                             </FuseAuthorization>
@@ -43,6 +44,7 @@ const App = () => {
             </JssProvider>
         </AppContext.Provider>
     );
+    // <script> document.getElementById("fuse-splash-screen").style.display="none" </script>
 };
 
 export default App;

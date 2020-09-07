@@ -634,6 +634,7 @@ class Employee extends Component {
 			ApplicableLaws: this.getLawsDetail(),
 		};
 		axios.interceptors.request.use(function (config) {
+			document.getElementById("fuse-splash-screen").style.display="block";
 			return config;
 		}, function (error) {
 			console.log('Error');
@@ -691,8 +692,10 @@ class Employee extends Component {
 					PayRoll: [],
 					selectedLaws: [],
 					Id: 0,
-					Action: 'Insert Record'
+					Action: 'Insert Record',
+					value:0
 				});
+				document.getElementById("fuse-splash-screen").style.display="none";
 			})
 			.catch((error) => {
 				console.log(error);
@@ -738,8 +741,10 @@ class Employee extends Component {
 					selectedLaws: [],
 					Id: 0,
 					Action: 'Insert Record',
-					table:null
+					table:null,
+					value:0
 				})
+				document.getElementById("fuse-splash-screen").style.display="none";
 			})
 
 	}
@@ -864,6 +869,8 @@ class Employee extends Component {
 			alert("kindly Select one record");
 			return false;
 		}
+		document.getElementById("fuse-splash-screen").style.display="block";
+
 		axios({
 			method: "delete",
 			url: defaultUrl + "/employee/" + ids,
@@ -874,9 +881,13 @@ class Employee extends Component {
 		})
 			.then((response) => {
 				this.getEmployeeList();
+				document.getElementById("fuse-splash-screen").style.display="none";
+
 			})
 			.catch((error) => {
 				console.log(error);
+				document.getElementById("fuse-splash-screen").style.display="none";
+
 			})
 	}
 	getEmployeeById = () => {
@@ -886,6 +897,8 @@ class Employee extends Component {
 		alert("No Record Selected");
 		return false;
 		}
+		document.getElementById("fuse-splash-screen").style.display="block";
+
 		axios({
 			method: "get",
 			url: defaultUrl + "/employee/" + ids,
@@ -928,9 +941,13 @@ class Employee extends Component {
 					Action: "Update Record",
 					Id: response.data[0].Id
 				})
+				document.getElementById("fuse-splash-screen").style.display="none";
+
 			})
 			.catch((error) => {
 				console.log(error);
+				document.getElementById("fuse-splash-screen").style.display="none";
+
 			})
 	}
 	getEmployeeBankById = (EmployeeId) => {

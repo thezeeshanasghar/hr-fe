@@ -129,7 +129,7 @@ class CurrencyExchange extends Component {
 					EffectiveDate: this.state.effectiveDate
 				};
 				axios.interceptors.request.use(function (config) {
-					// document.getElementsByClassName("loader-wrapper")[0].style.display="block"
+					document.getElementById("fuse-splash-screen").style.display="block";
 					return config;
 				}, function (error) {
 					console.log('Error');
@@ -153,8 +153,10 @@ class CurrencyExchange extends Component {
 							rate: "",
 							effectiveDate: "",
 							Action:"Insert Record",
-							Id:0
+							Id:0,
+							value:0
 						});
+						document.getElementById("fuse-splash-screen").style.display="none";
 					})
 					.catch((error) => {
 						console.log(error);
@@ -165,8 +167,10 @@ class CurrencyExchange extends Component {
 							rate: "",
 							effectiveDate: "",
 							Action:"Insert Record",
-							Id:0
+							Id:0,
+							value:0
 						})
+						document.getElementById("fuse-splash-screen").style.display="none";
 					})
 	
 	
@@ -242,6 +246,7 @@ class CurrencyExchange extends Component {
 		alert("No Record Selected");
 		return false;
 		}
+		document.getElementById("fuse-splash-screen").style.display="block";
 		axios({
 			method: "get",
 			url:  defaultUrl+"Currency/"+ids,
@@ -261,8 +266,10 @@ class CurrencyExchange extends Component {
 				Id:response.data[0].Id,
 				value:1
 				});
+				document.getElementById("fuse-splash-screen").style.display="none";
 			})
 			.catch((error) => {
+				document.getElementById("fuse-splash-screen").style.display="none";
 				console.log(error);
 			})
 	}
@@ -273,6 +280,7 @@ class CurrencyExchange extends Component {
 			alert("kindly Select one record");
 			return false;
 		}
+		document.getElementById("fuse-splash-screen").style.display="block";
 		axios({
 			method: "delete",
 			url:  defaultUrl+"Currency/"+ids,
@@ -284,8 +292,10 @@ class CurrencyExchange extends Component {
 			.then((response) => {
 				
 				this.getExchangeRate();
+				document.getElementById("fuse-splash-screen").style.display="none";
 			})
 			.catch((error) => {
+				document.getElementById("fuse-splash-screen").style.display="none";
 				console.log(error);
 			})
 	  }

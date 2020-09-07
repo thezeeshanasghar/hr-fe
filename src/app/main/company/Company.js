@@ -185,7 +185,7 @@ class Company extends Component {
 			Adress: this.state.Address
 		  };
 		  axios.interceptors.request.use(function(config) {
-			// document.getElementsByClassName("loader-wrapper")[0].style.display="block"
+			document.getElementById("fuse-splash-screen").style.display="block";
 			return config;
 		  }, function(error) {
 			console.log('Error');
@@ -214,6 +214,7 @@ class Company extends Component {
 				Id:0,
 				value:0
 			  });
+			  document.getElementById("fuse-splash-screen").style.display="none"
 			})
 			.catch((error) => {
 				console.log(error);
@@ -228,8 +229,7 @@ class Company extends Component {
 				Id:0,
 				value:0
 				})
-			}).finally(()=>{
-			//   document.getElementsByClassName("loader-wrapper")[0].style.display="none";
+				document.getElementById("fuse-splash-screen").style.display="none"
 			});
 	  }
 
@@ -240,6 +240,7 @@ class Company extends Component {
 		alert("No Record Selected");
 		return false;
 		}
+		document.getElementById("fuse-splash-screen").style.display="block"
 		axios({
 			method: "delete",
 			url:  defaultUrl+"company/"+ ids,
@@ -250,9 +251,11 @@ class Company extends Component {
 		  })
 			.then((response) => {
 				this.getCompanyDetail();
+				document.getElementById("fuse-splash-screen").style.display="none"
 			})
 			.catch((error) => {
 				console.log(error);
+				document.getElementById("fuse-splash-screen").style.display="none"
 			})
 	  }
 
@@ -263,6 +266,7 @@ class Company extends Component {
 			alert("kindly Select one record");
 			return false;
 		}
+		document.getElementById("fuse-splash-screen").style.display="block"
 
 		axios({
 			method: "get",
@@ -276,6 +280,7 @@ class Company extends Component {
 				console.log(response);
 				this.setState({Action:'Update Record',value:1,Name:response.data[0].CompanyName,Code:response.data[0].Code,Address:response.data[0].Address,
 				Id:response.data[0].Id, Contact:response.data[0].Contact , Email:response.data[0].Email , CountryCode:response.data[0].CountryCode });
+				document.getElementById("fuse-splash-screen").style.display="none"
 			})
 			.catch((error) => {
 				console.log(error);

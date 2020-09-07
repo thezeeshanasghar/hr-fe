@@ -249,7 +249,7 @@ class PayElement extends Component {
 				CompanyId:this.state.company
 			};
 			axios.interceptors.request.use(function (config) {
-				// document.getElementsByClassName("loader-wrapper")[0].style.display="block"
+				document.getElementById("fuse-splash-screen").style.display="block";
 				return config;
 			}, function (error) {
 				console.log('Error');
@@ -280,8 +280,11 @@ class PayElement extends Component {
 						month:"",
 						company:"",
 						Id: 0,
-						Action:'Insert Record'
+						Action:'Insert Record',
+						value:0
 					});
+					document.getElementById("fuse-splash-screen").style.display="none";
+
 				})
 				.catch((error) => {
 					console.log(error);
@@ -298,8 +301,11 @@ class PayElement extends Component {
 						month:"",
 						company:"",
 						Id: 0,
-						Action:'Insert Record'
+						Action:'Insert Record',
+						value:0
 					})
+					document.getElementById("fuse-splash-screen").style.display="none";
+
 				})
 
 
@@ -360,6 +366,8 @@ class PayElement extends Component {
 			alert("kindly Select one record");
 			return false;	
 		}
+		document.getElementById("fuse-splash-screen").style.display="block";
+
 		axios({
 			method: "get",
 			url: defaultUrl+"payelement/" + ids,
@@ -385,10 +393,13 @@ class PayElement extends Component {
 					Id : response.data[0].Id,
 					Action : "Update Record"
 				});
+				document.getElementById("fuse-splash-screen").style.display="none";
 
 			})
 			.catch((error) => {
 				console.log(error);
+				document.getElementById("fuse-splash-screen").style.display="none";
+
 			})
 	}
 	deletePayElement =()=>{
@@ -398,6 +409,8 @@ class PayElement extends Component {
 		alert("No Record Selected");
 		return false;
 		}
+		document.getElementById("fuse-splash-screen").style.display="block";
+
 		axios({
 			method: "delete",
 			url: defaultUrl+"payelement/"+ids,
@@ -409,8 +422,12 @@ class PayElement extends Component {
 			.then((response) => {
 				
 				this.getPayElement();
+				document.getElementById("fuse-splash-screen").style.display="none";
+
 			})
 			.catch((error) => {
+				document.getElementById("fuse-splash-screen").style.display="none";
+
 				console.log(error);
 			})
 	  }

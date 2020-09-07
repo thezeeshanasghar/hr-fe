@@ -227,6 +227,7 @@ class CountryLaws extends Component {
 				Percentage: this.state.percentage,
 				Type: this.state.type
 			};
+			document.getElementById("fuse-splash-screen").style.display="block";
 			axios.interceptors.request.use(function (config) {
 				// document.getElementsByClassName("loader-wrapper")[0].style.display="block"
 				return config;
@@ -260,6 +261,7 @@ class CountryLaws extends Component {
 						Id:0,
 						value:0
 					});
+					document.getElementById("fuse-splash-screen").style.display="none";
 				})
 				.catch((error) => {
 					console.log(error);
@@ -277,6 +279,7 @@ class CountryLaws extends Component {
 						Action:"Insert Record",
 						Id:0
 					})
+					document.getElementById("fuse-splash-screen").style.display="none";
 				})
 		}
 	}
@@ -287,6 +290,7 @@ class CountryLaws extends Component {
 		alert("No Record Selected");
 		return false;
 		}
+		document.getElementById("fuse-splash-screen").style.display="block";
 		axios({
 			method: "get",
 			url: defaultUrl+"countrylaw/" + ids,
@@ -310,10 +314,11 @@ class CountryLaws extends Component {
 					Id:response.data[0].Id,
 					Action :"Update Record"
 				});
-
+				document.getElementById("fuse-splash-screen").style.display="none";
 			})
 			.catch((error) => {
 				console.log(error);
+				document.getElementById("fuse-splash-screen").style.display="none";
 			})
 	}
 	getCountryLaw = () => {
@@ -373,6 +378,7 @@ class CountryLaws extends Component {
 			alert("kindly Select one record");
 			return false;
 		}
+		document.getElementById("fuse-splash-screen").style.display="block";
 		axios({
 			method: "delete",
 			url: defaultUrl+"countrylaw/"+ids,
@@ -384,9 +390,11 @@ class CountryLaws extends Component {
 			.then((response) => {
 				
 				this.getCountryLaw();
+				document.getElementById("fuse-splash-screen").style.display="none";
 			})
 			.catch((error) => {
 				console.log(error);
+				document.getElementById("fuse-splash-screen").style.display="none";
 			})
 	}
 	render() {
