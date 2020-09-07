@@ -98,13 +98,6 @@ const navigationConfig = [
                 'url': '/employee'
             },
             {
-                'id': 'employeebankaccount-component',
-                'title': 'Employee Bank Account',
-                'type': 'item',
-                'icon': 'whatshot',
-                'url': '/employeebankaccount'
-            },
-            {
                 'id': 'UnpaidLeaves-component',
                 'title': 'UnpaidLeaves',
                 'type': 'item',
