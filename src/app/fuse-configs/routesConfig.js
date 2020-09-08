@@ -7,7 +7,6 @@ import {CostCenterConfig} from 'app/main/CostCenter/CostCenterConfig';
 import {CountryLawsConfig} from 'app/main/CountryLaws/CountryLawsConfig';
 import {CurrencyExchangeConfig} from 'app/main/CurrencyExchange/CurrencyExchangeConfig';
 import {CompanyConfig} from 'app/main/company/CompanyConfig';
-import {EmployeeBankAccountConfig} from 'app/main/EmployeeBankAccount/EmployeeBankAccountConfig';
 import {EmployeeConfig} from 'app/main/Employee/EmployeeConfig';
 import {GLAccountConfig} from 'app/main/GLAccount/GLAccountConfig';
 import {GradesConfig} from 'app/main/Grades/GradesConfig';
@@ -30,7 +29,6 @@ const routeConfigs = [
     CountryLawsConfig,
     CurrencyExchangeConfig,
     CompanyConfig,
-    EmployeeBankAccountConfig,
     EmployeeConfig,
     GLAccountConfig,
     GradesConfig,
