@@ -193,11 +193,18 @@ const navigationConfig = [
         'url': '/employeereports'
     },
     {
-        'id': 'TaxationReports',
-        'title': 'Taxation Reports',
+        'id': 'EmployeeVarianceReport',
+        'title': 'Variance Reports',
         'type': 'item',
         'icon': 'whatshot',
-        'url': '/taxationreports'
+        'url': '/EmployeeVarianceReport'
+    },
+    {
+        'id': 'PayrollReports',
+        'title': 'Payroll Reports',
+        'type': 'item',
+        'icon': 'whatshot',
+        'url': '/payrollreports'
     },
         ]
     },
