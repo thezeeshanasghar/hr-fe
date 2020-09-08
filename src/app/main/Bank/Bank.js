@@ -28,6 +28,11 @@ import $ from 'jquery';
 import DataTable from "datatables.net";
 import * as responsive from "datatables.net-responsive";
 
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import Messages from '../toaster';
+import { Message } from 'semantic-ui-react';
+
 const styles = theme => ({
 	container: {
 		display: 'flex',
@@ -92,6 +97,27 @@ class Bank extends Component {
         
         this.setState({ [e.target.name]: e.target.value });
 	  };
+	  
+	   success = () => toast.success('Operation Succesful', {
+		position: "bottom-right",
+		autoClose: 5000,
+		hideProgressBar: true,
+		closeOnClick: true,
+		pauseOnHover: true,
+		draggable: true,
+		progress: undefined,
+		}); 
+
+	  error = () => 	toast.error('An error Occured!', {
+			position: "bottom-right",
+			autoClose: 5000,
+			hideProgressBar: true,
+			closeOnClick: true,
+			pauseOnHover: true,
+			draggable: true,
+			progress: undefined,
+			});
+	  
 	  getBankDetail=()=>{
 		localStorage.removeItem("ids");
 		if (!$.fn.dataTable.isDataTable('#Bank_Table')) {
@@ -158,7 +184,7 @@ class Bank extends Component {
 			Address: this.state.bankAddress
 		  };
 		  axios.interceptors.request.use(function(config) {
-			document.getElementById("fuse-splash-screen").style.display="block"
+			document.getElementById("fuse-splash-screen").style.display="none"
 			return config;
 		  }, function(error) {
 			console.log('Error');
@@ -174,7 +200,6 @@ class Bank extends Component {
 			},
 		  })
 			.then((response) => {
-			toastr.success('Operation successfull');	
 			this.getBankDetail();
 			this.setState({
 				bankName: "",
@@ -184,12 +209,13 @@ class Bank extends Component {
 				Id:0,
 				value:0
 			  });
-			  document.getElementById("fuse-splash-screen").style.display="none"
+			  document.getElementById("fuse-splash-screen").style.display="none";
+			  Messages.success();
 			})
-			.catch((error) => {
-				document.getElementById("fuse-splash-screen").style.display="none"
-				console.log(error);
-				toastr.error('Operation unsuccessfull');
+			.catch((message) => {
+				 document.getElementById("fuse-splash-screen").style.display="none"
+				console.log(message);
+				// error();
 			  this.setState({
 				bankName: "",
 				bankCode: "",
@@ -204,7 +230,7 @@ class Bank extends Component {
 		var ids=localStorage.getItem("ids");
 		if(ids===null)
 		{
-		alert("No Record Selected");
+			Messages.warning("No Record Selected");
 		return false;
 		}
 		document.getElementById("fuse-splash-screen").style.display="block"
@@ -230,7 +256,7 @@ class Bank extends Component {
 		let ids = localStorage.getItem("ids")
 		if(ids=== null || localStorage.getItem("ids").split(",").length>1)
 		{
-			alert("kindly Select one record");
+			Messages.warning("kindly Select one record");
 			return false;
 		}
 		document.getElementById("fuse-splash-screen").style.display="block"
@@ -272,6 +298,9 @@ class Bank extends Component {
 				content={
 
 					<div className={classes.root}>
+						  <div>
+        <ToastContainer />
+      </div>
 						<AppBar position="static" color="default">
 							<Tabs
 								value={this.state.value}

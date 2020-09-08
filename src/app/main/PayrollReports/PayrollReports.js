@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
-import { FusePageSimple, DemoContent } from '../EmployeeVarianceReport/node_modules/@fuse';
+import { FusePageSimple, DemoContent } from '@fuse';
 import AppBar from '@material-ui/core/AppBar';
 import Typography from '@material-ui/core/Typography';
 import Table from '@material-ui/core/Table';
