@@ -34,6 +34,8 @@ import defaultUrl from "../../../app/services/constant/constant";
 import $ from 'jquery';
 import DataTable from "datatables.net";
 import * as responsive from "datatables.net-responsive";
+import Messages from '../toaster';
+import { ToastContainer, toast } from 'react-toastify';
 
 const styles = theme => ({
 	container: {
@@ -221,7 +223,7 @@ class PayElementGlAccount extends Component {
 				},
 			})
 				.then((response) => {
-					toastr.success('Operation successfull');
+				//	toastr.success('Operation successfull');
 				this.getpayelementglAccountList();
 					this.setState({
 						PayElement:"",
@@ -233,6 +235,7 @@ class PayElementGlAccount extends Component {
 						Action:'Insert Record'
 					});
 					document.getElementById("fuse-splash-screen").style.display="none";
+					Messages.success();
 
 				})
 				.catch((error) => {
@@ -248,6 +251,7 @@ class PayElementGlAccount extends Component {
 						Action:'Insert Record'
 					})
 					document.getElementById("fuse-splash-screen").style.display="none";
+					Messages.error();
 
 				})
 
@@ -341,7 +345,7 @@ class PayElementGlAccount extends Component {
 		var ids=localStorage.getItem("ids");
 		if(ids===null)
 		{
-		alert("No Record Selected");
+		Messages.warning("No Record Selected");
 		return false;
 		}
 		document.getElementById("fuse-splash-screen").style.display="block";
@@ -358,11 +362,13 @@ class PayElementGlAccount extends Component {
 				
 				this.getpayelementglAccountList();
 				document.getElementById("fuse-splash-screen").style.display="none";
+				Messages.success();
 
 			})
 			.catch((error) => {
 				console.log(error);
 				document.getElementById("fuse-splash-screen").style.display="none";
+				Messages.success();
 
 			})
 	  }
@@ -391,6 +397,9 @@ class PayElementGlAccount extends Component {
 				content={
 
 					<div className={classes.root}>
+						<div>
+        <ToastContainer />
+      </div>
 						<AppBar position="static" color="default">
 							<Tabs
 								value={this.state.value}

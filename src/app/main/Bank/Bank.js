@@ -31,7 +31,7 @@ import * as responsive from "datatables.net-responsive";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Messages from '../toaster';
-import { Message } from 'semantic-ui-react';
+//import { Message } from 'semantic-ui-react';
 
 const styles = theme => ({
 	container: {
@@ -245,11 +245,14 @@ class Bank extends Component {
 			.then((response) => {
 				
 				this.getBankDetail();
-				document.getElementById("fuse-splash-screen").style.display="none"
+				document.getElementById("fuse-splash-screen").style.display="none";
+				Messages.success();
+
 			})
 			.catch((error) => {
 				console.log(error);
-				document.getElementById("fuse-splash-screen").style.display="none"
+				document.getElementById("fuse-splash-screen").style.display="none";
+				Messages.error();
 			})
 	  }
 	  getBankById=()=>{

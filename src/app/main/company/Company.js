@@ -22,6 +22,8 @@ import Grid from '@material-ui/core/Grid';
 import axios from "axios";
 import SimpleReactValidator from 'simple-react-validator';
 import defaultUrl from "../../../app/services/constant/constant";
+import Messages from '../toaster';
+import { ToastContainer, toast } from 'react-toastify';
 
 
 import $ from 'jquery';
@@ -214,7 +216,8 @@ class Company extends Component {
 				Id:0,
 				value:0
 			  });
-			  document.getElementById("fuse-splash-screen").style.display="none"
+			  document.getElementById("fuse-splash-screen").style.display="none";
+			  Messages.success();
 			})
 			.catch((error) => {
 				console.log(error);
@@ -229,7 +232,8 @@ class Company extends Component {
 				Id:0,
 				value:0
 				})
-				document.getElementById("fuse-splash-screen").style.display="none"
+				document.getElementById("fuse-splash-screen").style.display="none";
+				Messages.error();
 			});
 	  }
 
@@ -237,7 +241,7 @@ class Company extends Component {
 		var ids=localStorage.getItem("ids");
 		if(ids===null)
 		{
-		alert("No Record Selected");
+			Messages.warning("No Record Selected");
 		return false;
 		}
 		document.getElementById("fuse-splash-screen").style.display="block"
@@ -251,11 +255,13 @@ class Company extends Component {
 		  })
 			.then((response) => {
 				this.getCompanyDetail();
-				document.getElementById("fuse-splash-screen").style.display="none"
+				document.getElementById("fuse-splash-screen").style.display="none";
+				Messages.success();
 			})
 			.catch((error) => {
 				console.log(error);
-				document.getElementById("fuse-splash-screen").style.display="none"
+				document.getElementById("fuse-splash-screen").style.display="none";
+				Messages.error();
 			})
 	  }
 
@@ -263,7 +269,7 @@ class Company extends Component {
 		let ids = localStorage.getItem("ids");
 		if(ids=== null || localStorage.getItem("ids").split(",").length>1)
 		{
-			alert("kindly Select one record");
+			Messages.warning("kindly Select one record");
 			return false;
 		}
 		document.getElementById("fuse-splash-screen").style.display="block"
@@ -304,6 +310,9 @@ class Company extends Component {
 				content={
 
 					<div className={classes.root}>
+						<div>
+							<ToastContainer />
+						</div>
 						<AppBar position="static" color="default">
 							<Tabs
 								value={this.state.value}

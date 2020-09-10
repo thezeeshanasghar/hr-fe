@@ -31,6 +31,8 @@ import {Lookups} from '../../services/constant/enum'
 import Grid from '@material-ui/core/Grid';
 import moment from 'moment';
 import defaultUrl from "../../../app/services/constant/constant";
+import Messages from '../toaster';
+import { ToastContainer, toast } from 'react-toastify';
 
 
 import $ from 'jquery';
@@ -157,6 +159,7 @@ class CurrencyExchange extends Component {
 							value:0
 						});
 						document.getElementById("fuse-splash-screen").style.display="none";
+						Messages.success();
 					})
 					.catch((error) => {
 						console.log(error);
@@ -171,6 +174,7 @@ class CurrencyExchange extends Component {
 							value:0
 						})
 						document.getElementById("fuse-splash-screen").style.display="none";
+						Messages.error();
 					})
 	
 	
@@ -243,7 +247,7 @@ class CurrencyExchange extends Component {
 		var ids=localStorage.getItem("ids");
 		if(ids===null)
 		{
-		alert("No Record Selected");
+		Messages.warning("No Record Selected");
 		return false;
 		}
 		document.getElementById("fuse-splash-screen").style.display="block";
@@ -277,7 +281,7 @@ class CurrencyExchange extends Component {
 		let ids = localStorage.getItem("ids");
 		if(ids=== null || localStorage.getItem("ids").split(",").length>1)
 		{
-			alert("kindly Select one record");
+			Messages.warning("kindly Select one record");
 			return false;
 		}
 		document.getElementById("fuse-splash-screen").style.display="block";
@@ -293,10 +297,12 @@ class CurrencyExchange extends Component {
 				
 				this.getExchangeRate();
 				document.getElementById("fuse-splash-screen").style.display="none";
+				Messages.success();
 			})
 			.catch((error) => {
 				document.getElementById("fuse-splash-screen").style.display="none";
 				console.log(error);
+				Messages.error();
 			})
 	  }
 
@@ -335,6 +341,9 @@ class CurrencyExchange extends Component {
 				content={
 
 					<div className={classes.root}>
+						<div>
+        <ToastContainer />
+      </div>
 						<AppBar position="static" color="default">
 							<Tabs
 								value={this.state.value}

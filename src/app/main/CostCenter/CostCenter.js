@@ -17,7 +17,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
-import { Icon, Input, MuiThemeProvider} from '@material-ui/core';
+import { Icon, Input, MuiThemeProvider } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
 import SimpleReactValidator from 'simple-react-validator';
 import axios from "axios";
@@ -27,6 +27,8 @@ import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import defaultUrl from "../../../app/services/constant/constant";
+import Messages from '../toaster';
+import { ToastContainer, toast } from 'react-toastify';
 
 import $ from 'jquery';
 import DataTable from "datatables.net";
@@ -39,7 +41,7 @@ const styles = theme => ({
 	textField: {
 		marginLeft: theme.spacing.unit,
 		marginRight: theme.spacing.unit,
-		
+
 	},
 	dense: {
 		marginTop: 16,
@@ -85,12 +87,12 @@ class CostCenter extends Component {
 		value: 0,
 		company: "",
 		Companies: [],
-		costcenter:[],
-		code:"",
-		description:"",
-		Action:"Insert Record",
-		Id:0,
-		table:null
+		costcenter: [],
+		code: "",
+		description: "",
+		Action: "Insert Record",
+		Id: 0,
+		table: null
 	};
 	constructor(props) {
 		super(props);
@@ -98,14 +100,14 @@ class CostCenter extends Component {
 
 	}
 	componentDidMount() {
-		
+
 		this.getCompanies();
 		this.getCostCenter();
 	}
 	getCompanies = () => {
 		axios({
 			method: "get",
-			url: defaultUrl+"Company",
+			url: defaultUrl + "Company",
 			headers: {
 				// 'Authorization': `bearer ${token}`,
 				"Content-Type": "application/json;charset=utf-8",
@@ -125,11 +127,10 @@ class CostCenter extends Component {
 			this.forceUpdate();
 		} else {
 			var method = "post";
-			var url = defaultUrl+"CostCenter";
-			if(this.state.Action !="Insert Record")
-			{
-				 method = "put";
-				 url = defaultUrl+"CostCenter/"+this.state.Id;
+			var url = defaultUrl + "CostCenter";
+			if (this.state.Action != "Insert Record") {
+				method = "put";
+				url = defaultUrl + "CostCenter/" + this.state.Id;
 			}
 			// console.log(this.state.company,this.state.employee,this.state.dateFrom,this.state.dateTo);
 			var obj = {
@@ -138,7 +139,7 @@ class CostCenter extends Component {
 				Description: this.state.description
 			};
 			axios.interceptors.request.use(function (config) {
-				document.getElementById("fuse-splash-screen").style.display="block";
+				document.getElementById("fuse-splash-screen").style.display = "block";
 				return config;
 			}, function (error) {
 				console.log('Error');
@@ -160,11 +161,12 @@ class CostCenter extends Component {
 						company: "",
 						code: "",
 						description: "",
-						Action:"Insert Record",
-						Id:0,
-						value:0
+						Action: "Insert Record",
+						Id: 0,
+						value: 0
 					});
-					document.getElementById("fuse-splash-screen").style.display="none";
+					document.getElementById("fuse-splash-screen").style.display = "none";
+					Messages.success();
 				})
 				.catch((error) => {
 					console.log(error);
@@ -173,18 +175,19 @@ class CostCenter extends Component {
 						company: "",
 						code: "",
 						description: "",
-						Action:"Insert Record",
-						Id:0,
-						value:0
+						Action: "Insert Record",
+						Id: 0,
+						value: 0
 					})
-					document.getElementById("fuse-splash-screen").style.display="none";
+					document.getElementById("fuse-splash-screen").style.display = "none";
+					Messages.error();
 				})
 
 
 		}
 	}
 	getCostCenter = () => {
-			localStorage.removeItem("ids");
+		localStorage.removeItem("ids");
 		if (!$.fn.dataTable.isDataTable('#CostCenter_Table')) {
 			this.state.table = $('#CostCenter_Table').DataTable({
 				ajax: defaultUrl + "CostCenter",
@@ -192,11 +195,12 @@ class CostCenter extends Component {
 					{ "data": "Code" },
 					{ "data": "Description" },
 					{ "data": "CompanyId" },
-					{ "data": "Action",
-					sortable: false,
-					"render": function ( data, type, full, meta ) {
-					   
-						return `<input type="checkbox" name="radio"  value=`+full.Id+`
+					{
+						"data": "Action",
+						sortable: false,
+						"render": function (data, type, full, meta) {
+
+							return `<input type="checkbox" name="radio"  value=` + full.Id + `
 						onclick=" const checkboxes = document.querySelectorAll('input[name=radio]:checked');
 									let values = [];
 									checkboxes.forEach((checkbox) => {
@@ -204,8 +208,8 @@ class CostCenter extends Component {
 									});
 									localStorage.setItem('ids',values);	"
 						/>`;
+						}
 					}
-				 }
 
 				],
 				rowReorder: {
@@ -219,7 +223,7 @@ class CostCenter extends Component {
 				columnDefs: [{
 					"defaultContent": "-",
 					"targets": "_all"
-				  }]
+				}]
 			});
 		} else {
 			this.state.table.ajax.reload();
@@ -227,15 +231,14 @@ class CostCenter extends Component {
 	}
 	getCostCenterById = () => {
 		let ids = localStorage.getItem("ids")
-		if(ids=== null || localStorage.getItem("ids").split(",").length>1)
-		{
-			alert("kindly Select one record");
-			return false;	
+		if (ids === null || localStorage.getItem("ids").split(",").length > 1) {
+			Messages.warning("kindly Select one record");
+			return false;
 		}
-		document.getElementById("fuse-splash-screen").style.display="block";
+		document.getElementById("fuse-splash-screen").style.display = "block";
 		axios({
 			method: "get",
-			url: defaultUrl+"CostCenter/" + ids,
+			url: defaultUrl + "CostCenter/" + ids,
 			headers: {
 				// 'Authorization': `bearer ${token}`,
 				"Content-Type": "application/json;charset=utf-8",
@@ -248,42 +251,43 @@ class CostCenter extends Component {
 					company: response.data[0].CompanyId,
 					description: response.data[0].Description,
 					value: 1,
-					Id:response.data[0].Id,
-					Action :"Update Record"
+					Id: response.data[0].Id,
+					Action: "Update Record"
 				});
-				document.getElementById("fuse-splash-screen").style.display="none";
+				document.getElementById("fuse-splash-screen").style.display = "none";
 			})
 			.catch((error) => {
-				document.getElementById("fuse-splash-screen").style.display="none";
+				document.getElementById("fuse-splash-screen").style.display = "none";
 				console.log(error);
 			})
 	}
-	deleteCostCenter=()=>{
-		var ids=localStorage.getItem("ids");
-		if(ids===null)
-		{
-		alert("No Record Selected");
-		return false;
+	deleteCostCenter = () => {
+		var ids = localStorage.getItem("ids");
+		if (ids === null) {
+			Messages.warning("No Record Selected");
+			return false;
 		}
-		document.getElementById("fuse-splash-screen").style.display="block";
+		document.getElementById("fuse-splash-screen").style.display = "block";
 		axios({
 			method: "delete",
-			url: defaultUrl+"CostCenter/"+ids,
+			url: defaultUrl + "CostCenter/" + ids,
 			headers: {
-			  // 'Authorization': `bearer ${token}`,
-			  "Content-Type": "application/json;charset=utf-8",
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
 			},
-		  })
+		})
 			.then((response) => {
-				
+
 				this.getCostCenter();
-				document.getElementById("fuse-splash-screen").style.display="none";
+				document.getElementById("fuse-splash-screen").style.display = "none";
+				Messages.success();
 			})
 			.catch((error) => {
 				console.log(error);
-				document.getElementById("fuse-splash-screen").style.display="none";
+				document.getElementById("fuse-splash-screen").style.display = "none";
+				Messages.error();
 			})
-	  }
+	}
 	handleTabChange = (event, value) => {
 		this.setState({ value });
 		this.setState({ [event.target.name]: event.target.value });
@@ -291,7 +295,7 @@ class CostCenter extends Component {
 	};
 	handleChange = (e) => {
 		this.setState({ [e.target.name]: e.target.value });
-	
+
 	};
 	render() {
 		const { classes, theme } = this.props;
@@ -310,6 +314,9 @@ class CostCenter extends Component {
 				content={
 
 					<div className={classes.root}>
+						<div>
+							<ToastContainer />
+						</div>
 						<AppBar position="static" color="default">
 							<Tabs
 								value={this.state.value}
@@ -329,18 +336,18 @@ class CostCenter extends Component {
 						>
 							<TabContainer dir={theme.direction}>
 								<Paper className={classes.root}>
-								<div className="row">
-									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
-										<Button variant="outlined" color="primary" className={classes.button} onClick={this.getCostCenterById}>
-											Edit
+									<div className="row">
+										<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
+											<Button variant="outlined" color="primary" className={classes.button} onClick={this.getCostCenterById}>
+												Edit
 										</Button>
-									</div>
-									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
-										<Button variant="outlined" color="inherit" className={classes.button} onClick={this.deleteCostCenter}>
-											Delete
+										</div>
+										<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
+											<Button variant="outlined" color="inherit" className={classes.button} onClick={this.deleteCostCenter}>
+												Delete
 										</Button>
+										</div>
 									</div>
-								</div>
 									<table id="CostCenter_Table" className="nowrap header_custom" style={{ "width": "100%" }}>
 										<thead>
 											<tr>
@@ -356,20 +363,20 @@ class CostCenter extends Component {
 							</TabContainer>
 							<TabContainer dir={theme.direction}>
 								<form className={classes.container} noValidate autoComplete="off">
-								
-								<Grid item xs={12} sm={5} style={{ marginRight: '5px' }}>
-										<TextField id="code" fullWidth label="Code" name="code"  value={this.state.code}  onChange={this.handleChange}
-						
+
+									<Grid item xs={12} sm={5} style={{ marginRight: '5px' }}>
+										<TextField id="code" fullWidth label="Code" name="code" value={this.state.code} onChange={this.handleChange}
+
 										/>
 										{this.validator.message('code', this.state.code, 'required')}
 									</Grid>
-									
+
 									<Grid item xs={12} sm={5} >
-										<TextField id="description" fullWidth label="description"  name="description"  value={this.state.description}  onChange={this.handleChange}
+										<TextField id="description" fullWidth label="description" name="description" value={this.state.description} onChange={this.handleChange}
 										/>
 										{this.validator.message('description', this.state.description, 'required')}
 									</Grid>
-												<Grid item xs={12} sm={5} style={{ marginRight: '5px' }}   >
+									<Grid item xs={12} sm={5} style={{ marginRight: '5px' }}   >
 										<FormControl className={classes.formControl}>
 											<InputLabel htmlFor="company">Company</InputLabel>
 											<Select
@@ -392,13 +399,13 @@ class CostCenter extends Component {
 									</Grid>
 								</form>
 								<div className="row">
-								<Grid item xs={12} sm={10} style={{ marginRight: '5px' }}   >
-									<div style={{float: "right","marginRight":"8px"}}>
-									
-									<Button variant="outlined" color="secondary" onClick={this.insertUpdateCostCenter} className={classes.button }>
+									<Grid item xs={12} sm={10} style={{ marginRight: '5px' }}   >
+										<div style={{ float: "right", "marginRight": "8px" }}>
+
+											<Button variant="outlined" color="secondary" onClick={this.insertUpdateCostCenter} className={classes.button}>
 												{this.state.Action}
-      								</Button>
-									</div>
+											</Button>
+										</div>
 									</Grid>
 								</div>
 							</TabContainer>

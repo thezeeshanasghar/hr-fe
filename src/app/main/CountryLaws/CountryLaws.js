@@ -17,8 +17,8 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
-import { Icon, Input, MuiThemeProvider} from '@material-ui/core';
-import {Lookups} from '../../services/constant/enum'
+import { Icon, Input, MuiThemeProvider } from '@material-ui/core';
+import { Lookups } from '../../services/constant/enum'
 import axios from "axios";
 import toastr from 'toastr';
 import Grid from '@material-ui/core/Grid';
@@ -28,8 +28,8 @@ import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import SimpleReactValidator from 'simple-react-validator';
 import defaultUrl from "../../../app/services/constant/constant";
-
-
+import Messages from '../toaster';
+import { ToastContainer, toast } from 'react-toastify';
 import $ from 'jquery';
 import DataTable from "datatables.net";
 import * as responsive from "datatables.net-responsive";
@@ -42,7 +42,7 @@ const styles = theme => ({
 	textField: {
 		marginLeft: theme.spacing.unit,
 		marginRight: theme.spacing.unit,
-		
+
 	},
 	dense: {
 		marginTop: 16,
@@ -86,24 +86,24 @@ const rows = [
 class CountryLaws extends Component {
 	state = {
 		value: 0,
-		code:'',
-		countryCode:[],
-		CurrencyList:[],
-		Currency:'',
-		mode:'',
+		code: '',
+		countryCode: [],
+		CurrencyList: [],
+		Currency: '',
+		mode: '',
 		adultAge: '',
-		minSalary:'',
-		maxSalary:'',
-		percentage:'',
-		type:'',
-		typeList:[],
-		modeList:[],
-		adultAge:'',
-		description:'',
-		Id:0,
-		Action:"Insert Record",
-		CountryLaws:[],
-		table:null
+		minSalary: '',
+		maxSalary: '',
+		percentage: '',
+		type: '',
+		typeList: [],
+		modeList: [],
+		adultAge: '',
+		description: '',
+		Id: 0,
+		Action: "Insert Record",
+		CountryLaws: [],
+		table: null
 	};
 	constructor(props) {
 		super(props);
@@ -117,7 +117,7 @@ class CountryLaws extends Component {
 		this.getCurrency();
 		this.getMode();
 		this.getType();
-		
+
 	}
 	handleTabChange = (event, value) => {
 		this.setState({ value });
@@ -135,7 +135,7 @@ class CountryLaws extends Component {
 
 		axios({
 			method: "get",
-			url: defaultUrl+"lookups/"+Lookups.Country,
+			url: defaultUrl + "lookups/" + Lookups.Country,
 			headers: {
 				// 'Authorization': `bearer ${token}`,
 				"Content-Type": "application/json;charset=utf-8",
@@ -152,7 +152,7 @@ class CountryLaws extends Component {
 	getCurrency = () => {
 		axios({
 			method: "get",
-			url: defaultUrl+"lookups/"+Lookups.Currency,
+			url: defaultUrl + "lookups/" + Lookups.Currency,
 			headers: {
 				// 'Authorization': `bearer ${token}`,
 				"Content-Type": "application/json;charset=utf-8",
@@ -169,7 +169,7 @@ class CountryLaws extends Component {
 	getMode = () => {
 		axios({
 			method: "get",
-			url: defaultUrl+"lookups/"+Lookups.mode,
+			url: defaultUrl + "lookups/" + Lookups.mode,
 			headers: {
 				// 'Authorization': `bearer ${token}`,
 				"Content-Type": "application/json;charset=utf-8",
@@ -187,7 +187,7 @@ class CountryLaws extends Component {
 	getType = () => {
 		axios({
 			method: "get",
-			url: defaultUrl+"lookups/"+Lookups.lawtypes,
+			url: defaultUrl + "lookups/" + Lookups.lawtypes,
 			headers: {
 				// 'Authorization': `bearer ${token}`,
 				"Content-Type": "application/json;charset=utf-8",
@@ -195,25 +195,24 @@ class CountryLaws extends Component {
 		})
 			.then((response) => {
 				console.log(response);
-				this.setState({typeList: response.data });
+				this.setState({ typeList: response.data });
 			})
 			.catch((error) => {
 				console.log(error);
 			})
 	}
 
-	InsertUpdateCountryLaw=()=>{
+	InsertUpdateCountryLaw = () => {
 		if (!this.validator.allValid()) {
 			this.validator.showMessages();
 			this.forceUpdate();
 		} else {
 
 			var method = "post";
-			var url = defaultUrl+"countrylaw";
-			if(this.state.Action !="Insert Record")
-			{
-				 method = "put";
-				 url = defaultUrl+"countrylaw/"+this.state.Id;
+			var url = defaultUrl + "countrylaw";
+			if (this.state.Action != "Insert Record") {
+				method = "put";
+				url = defaultUrl + "countrylaw/" + this.state.Id;
 			}
 
 			var obj = {
@@ -227,7 +226,7 @@ class CountryLaws extends Component {
 				Percentage: this.state.percentage,
 				Type: this.state.type
 			};
-			document.getElementById("fuse-splash-screen").style.display="block";
+			document.getElementById("fuse-splash-screen").style.display = "block";
 			axios.interceptors.request.use(function (config) {
 				// document.getElementsByClassName("loader-wrapper")[0].style.display="block"
 				return config;
@@ -248,52 +247,53 @@ class CountryLaws extends Component {
 					toastr.success('Operation successfull');
 					this.getCountryLaw();
 					this.setState({
-						description:"",
-						code:"",
-						Currency:"",
-						adultAge:"",
-						mode:"",
-						maxSalary:"",
+						description: "",
+						code: "",
+						Currency: "",
+						adultAge: "",
+						mode: "",
+						maxSalary: "",
 						minSalary: "",
-						percentage:"",
-						type:"",
-						Action:"Insert Record",
-						Id:0,
-						value:0
+						percentage: "",
+						type: "",
+						Action: "Insert Record",
+						Id: 0,
+						value: 0
 					});
-					document.getElementById("fuse-splash-screen").style.display="none";
+					document.getElementById("fuse-splash-screen").style.display = "none";
+					Messages.success();
 				})
 				.catch((error) => {
 					console.log(error);
 					toastr.error('Operation unsuccessfull');
 					this.setState({
-						description:"",
-						code:"",
-						Currency:"",
-						adultAge:"",
-						mode:"",
-						maxSalary:"",
+						description: "",
+						code: "",
+						Currency: "",
+						adultAge: "",
+						mode: "",
+						maxSalary: "",
 						minSalary: "",
-						percentage:"",
-						type:"",
-						Action:"Insert Record",
-						Id:0
+						percentage: "",
+						type: "",
+						Action: "Insert Record",
+						Id: 0
 					})
-					document.getElementById("fuse-splash-screen").style.display="none";
+					document.getElementById("fuse-splash-screen").style.display = "none";
+					Messages.error();
 				})
 		}
 	}
 	getCountryLawById = () => {
-		var ids=localStorage.getItem("ids");
-		if(ids===null)
-		{
-		alert("No Record Selected");
-		return false;
+		var ids = localStorage.getItem("ids");
+		if (ids === null) {
+			Messages.warning("No Record Selected");
+			return false;
 		}
-		document.getElementById("fuse-splash-screen").style.display="block";
+		document.getElementById("fuse-splash-screen").style.display = "block";
 		axios({
 			method: "get",
-			url: defaultUrl+"countrylaw/" + ids,
+			url: defaultUrl + "countrylaw/" + ids,
 			headers: {
 				// 'Authorization': `bearer ${token}`,
 				"Content-Type": "application/json;charset=utf-8",
@@ -301,24 +301,24 @@ class CountryLaws extends Component {
 		})
 			.then((response) => {
 				this.setState({
-					description:response.data[0].Detail,
-					code:response.data[0].CountryCode,
-					Currency:response.data[0].Currency,
-					adultAge:response.data[0].AdultAge,
-					mode:response.data[0].CalculationMode,
-					maxSalary:response.data[0].MaxSalary,
-					minSalary:response.data[0].MinSalary,
-					percentage:response.data[0].Percentage,
-					type:response.data[0].Type,
+					description: response.data[0].Detail,
+					code: response.data[0].CountryCode,
+					Currency: response.data[0].Currency,
+					adultAge: response.data[0].AdultAge,
+					mode: response.data[0].CalculationMode,
+					maxSalary: response.data[0].MaxSalary,
+					minSalary: response.data[0].MinSalary,
+					percentage: response.data[0].Percentage,
+					type: response.data[0].Type,
 					value: 1,
-					Id:response.data[0].Id,
-					Action :"Update Record"
+					Id: response.data[0].Id,
+					Action: "Update Record"
 				});
-				document.getElementById("fuse-splash-screen").style.display="none";
+				document.getElementById("fuse-splash-screen").style.display = "none";
 			})
 			.catch((error) => {
 				console.log(error);
-				document.getElementById("fuse-splash-screen").style.display="none";
+				document.getElementById("fuse-splash-screen").style.display = "none";
 			})
 	}
 	getCountryLaw = () => {
@@ -330,19 +330,20 @@ class CountryLaws extends Component {
 					{ "data": "Detail" },
 					{ "data": "CountryCode" },
 					{ "data": "Currency" },
-					{ "data": "StartDate"},
-					{ "data": "EndDate"},
-					{ "data": "AdultAge"},
-					{ "data": "CalculationMode"},
-					{ "data": "MaxSalary"},
-					{ "data": "MinSalary"},
-					{ "data": "Percentage"},
-					{ "data": "Type"},
-					{ "data": "Action",
-					sortable: false,
-					"render": function ( data, type, full, meta ) {
-					   
-						return `<input type="checkbox" name="radio"  value=`+full.Id+`
+					{ "data": "StartDate" },
+					{ "data": "EndDate" },
+					{ "data": "AdultAge" },
+					{ "data": "CalculationMode" },
+					{ "data": "MaxSalary" },
+					{ "data": "MinSalary" },
+					{ "data": "Percentage" },
+					{ "data": "Type" },
+					{
+						"data": "Action",
+						sortable: false,
+						"render": function (data, type, full, meta) {
+
+							return `<input type="checkbox" name="radio"  value=` + full.Id + `
 						onclick=" const checkboxes = document.querySelectorAll('input[name=radio]:checked');
 									let values = [];
 									checkboxes.forEach((checkbox) => {
@@ -350,8 +351,8 @@ class CountryLaws extends Component {
 									});
 									localStorage.setItem('ids',values);	"
 						/>`;
+						}
 					}
-				 }
 
 				],
 				rowReorder: {
@@ -365,41 +366,42 @@ class CountryLaws extends Component {
 				columnDefs: [{
 					"defaultContent": "-",
 					"targets": "_all"
-				  }]
+				}]
 			});
 		} else {
 			this.state.table.ajax.reload();
 		}
 	}
-	deleteCountryLaw=()=>{
+	deleteCountryLaw = () => {
 		let ids = localStorage.getItem("ids");
-		if(ids=== null || localStorage.getItem("ids").split(",").length>1)
-		{
-			alert("kindly Select one record");
+		if (ids === null || localStorage.getItem("ids").split(",").length > 1) {
+			Messages.warning("kindly Select one record");
 			return false;
 		}
-		document.getElementById("fuse-splash-screen").style.display="block";
+		document.getElementById("fuse-splash-screen").style.display = "block";
 		axios({
 			method: "delete",
-			url: defaultUrl+"countrylaw/"+ids,
+			url: defaultUrl + "countrylaw/" + ids,
 			headers: {
-			  // 'Authorization': `bearer ${token}`,
-			  "Content-Type": "application/json;charset=utf-8",
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
 			},
-		  })
+		})
 			.then((response) => {
-				
+
 				this.getCountryLaw();
-				document.getElementById("fuse-splash-screen").style.display="none";
+				document.getElementById("fuse-splash-screen").style.display = "none";
+				Messages.success();
 			})
 			.catch((error) => {
 				console.log(error);
-				document.getElementById("fuse-splash-screen").style.display="none";
+				document.getElementById("fuse-splash-screen").style.display = "none";
+				Messages.error();
 			})
 	}
 	render() {
 		const { classes, theme } = this.props;
-		
+
 		return (
 			<FusePageSimple
 				classes={{
@@ -414,6 +416,9 @@ class CountryLaws extends Component {
 				content={
 
 					<div className={classes.root}>
+						<div>
+							<ToastContainer />
+						</div>
 						<AppBar position="static" color="default">
 							<Tabs
 								value={this.state.value}
@@ -433,19 +438,19 @@ class CountryLaws extends Component {
 						>
 							<TabContainer dir={theme.direction}>
 								<Paper className={classes.root}>
-								<div className="row">
-									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
-										<Button variant="outlined" color="primary" className={classes.button} onClick={this.getCountryLawById}>
-											Edit
+									<div className="row">
+										<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
+											<Button variant="outlined" color="primary" className={classes.button} onClick={this.getCountryLawById}>
+												Edit
 										</Button>
-									</div>
-									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
-										<Button variant="outlined" color="inherit" className={classes.button} onClick={this.deleteCountryLaw}>
-											Delete
+										</div>
+										<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
+											<Button variant="outlined" color="inherit" className={classes.button} onClick={this.deleteCountryLaw}>
+												Delete
 										</Button>
+										</div>
 									</div>
-								</div>
-								<table id="CountryLaw_Table" className="nowrap header_custom" style={{ "width": "100%" }}>
+									<table id="CountryLaw_Table" className="nowrap header_custom" style={{ "width": "100%" }}>
 										<thead>
 											<tr>
 												<th>Detail</th>
@@ -467,174 +472,174 @@ class CountryLaws extends Component {
 							</TabContainer>
 							<TabContainer dir={theme.direction}>
 								<form className={classes.container} noValidate autoComplete="off">
-								<Grid item xs={12} sm={5} style={{ marginRight: '5px' }}    >
-										 <FormControl className={classes.formControl}>
-										<InputLabel htmlFor="ContractType">Country Code</InputLabel>
-										<Select
-											value={this.state.code}
-											onChange={this.handleChange}
-											inputProps={{
-												name: 'code',
-												id: 'code',
-											}}
-										>
-											<MenuItem value="">
-												<em>None</em>
-											</MenuItem>
-											{this.state.countryCode.map(row => (
+									<Grid item xs={12} sm={5} style={{ marginRight: '5px' }}    >
+										<FormControl className={classes.formControl}>
+											<InputLabel htmlFor="ContractType">Country Code</InputLabel>
+											<Select
+												value={this.state.code}
+												onChange={this.handleChange}
+												inputProps={{
+													name: 'code',
+													id: 'code',
+												}}
+											>
+												<MenuItem value="">
+													<em>None</em>
+												</MenuItem>
+												{this.state.countryCode.map(row => (
 													<MenuItem value={row.Id}>{row.Name}</MenuItem>
 												))}
-										</Select>
-									</FormControl>
-									{this.validator.message('code', this.state.code, 'required')}
+											</Select>
+										</FormControl>
+										{this.validator.message('code', this.state.code, 'required')}
 
 									</Grid>
 
 									<Grid item xs={12} sm={5}>
-										 <FormControl className={classes.formControl}>
-										<InputLabel htmlFor="Currency">Currency Code</InputLabel>
-										<Select
-											value={this.state.Currency}
-											onChange={this.handleChange}
-											inputProps={{
-												name: 'Currency',
-												id: 'Currency',
-											}}
-										>
-											<MenuItem value="">
-												<em>None</em>
-											</MenuItem>
-											{this.state.CurrencyList.map(row => (
+										<FormControl className={classes.formControl}>
+											<InputLabel htmlFor="Currency">Currency Code</InputLabel>
+											<Select
+												value={this.state.Currency}
+												onChange={this.handleChange}
+												inputProps={{
+													name: 'Currency',
+													id: 'Currency',
+												}}
+											>
+												<MenuItem value="">
+													<em>None</em>
+												</MenuItem>
+												{this.state.CurrencyList.map(row => (
 													<MenuItem value={row.Id}>{row.Name}</MenuItem>
 												))}
-										</Select>
-									</FormControl>
-									{this.validator.message('Currency', this.state.Currency, 'required')}
+											</Select>
+										</FormControl>
+										{this.validator.message('Currency', this.state.Currency, 'required')}
 									</Grid>
 
 									<Grid item xs={12} sm={5} style={{ marginRight: '5px' }}>
-										 <FormControl className={classes.formControl}>
-										<InputLabel htmlFor="mode">Calculation Mode</InputLabel>
-										<Select
-											value={this.state.mode}
-											onChange={this.handleChange}
-											inputProps={{
-												name: 'mode',
-												id: 'mode',
-											}}
-										>
-											<MenuItem value="">
-												<em>None</em>
-											</MenuItem>
-											{this.state.modeList.map(row => (
+										<FormControl className={classes.formControl}>
+											<InputLabel htmlFor="mode">Calculation Mode</InputLabel>
+											<Select
+												value={this.state.mode}
+												onChange={this.handleChange}
+												inputProps={{
+													name: 'mode',
+													id: 'mode',
+												}}
+											>
+												<MenuItem value="">
+													<em>None</em>
+												</MenuItem>
+												{this.state.modeList.map(row => (
 													<MenuItem value={row.Id}>{row.Name}</MenuItem>
 												))}
-										</Select>
-									</FormControl>
-									{this.validator.message('mode', this.state.mode, 'required')}
+											</Select>
+										</FormControl>
+										{this.validator.message('mode', this.state.mode, 'required')}
 									</Grid>
 									<Grid item xs={12} sm={5} >
-									<TextField
-										id="adultAge"
-										label="Adult Age"
-										fullWidth
-										type="number"
-										name="adultAge"
-										className={classes.textField}
-										value={this.state.adultAge}
-										  onChange={this.handleChange}
-										margin="normal"
-									/>
-									{this.validator.message('adultAge', this.state.adultAge, 'required')}
+										<TextField
+											id="adultAge"
+											label="Adult Age"
+											fullWidth
+											type="number"
+											name="adultAge"
+											className={classes.textField}
+											value={this.state.adultAge}
+											onChange={this.handleChange}
+											margin="normal"
+										/>
+										{this.validator.message('adultAge', this.state.adultAge, 'required')}
 									</Grid>
 									<Grid item xs={12} sm={5} >
-									<TextField
-										id="minSalary"
-										label="Min Salary"
-										fullWidth
-										type="number"
-										name="minSalary"
-										className={classes.textField}
-										value={this.state.minSalary}
-										  onChange={this.handleChange}
-										margin="normal"
-									/>
-									{this.validator.message('minSalary', this.state.minSalary, 'required')}
+										<TextField
+											id="minSalary"
+											label="Min Salary"
+											fullWidth
+											type="number"
+											name="minSalary"
+											className={classes.textField}
+											value={this.state.minSalary}
+											onChange={this.handleChange}
+											margin="normal"
+										/>
+										{this.validator.message('minSalary', this.state.minSalary, 'required')}
 									</Grid>
 
 									<Grid item xs={12} sm={5} >
-									<TextField
-										id="maxSalary"
-										label="Max Salary"
-										fullWidth
-										type="number"
-										name="maxSalary"
-										className={classes.textField}
-										value={this.state.maxSalary}
-										  onChange={this.handleChange}
-										margin="normal"
-									/>
-									{this.validator.message('maxSalary', this.state.maxSalary, 'required')}
+										<TextField
+											id="maxSalary"
+											label="Max Salary"
+											fullWidth
+											type="number"
+											name="maxSalary"
+											className={classes.textField}
+											value={this.state.maxSalary}
+											onChange={this.handleChange}
+											margin="normal"
+										/>
+										{this.validator.message('maxSalary', this.state.maxSalary, 'required')}
 									</Grid>
 									<Grid item xs={12} sm={5} style={{ marginRight: '5px' }}>
-										 <FormControl className={classes.formControl}>
-										<InputLabel htmlFor="type">Type</InputLabel>
-										<Select
-											value={this.state.type}
-											onChange={this.handleChange}
-											inputProps={{
-												name: 'type',
-												id: 'type',
-											}}
-										>
-											<MenuItem value="">
-												<em>None</em>
-											</MenuItem>
-											{this.state.typeList.map(row => (
+										<FormControl className={classes.formControl}>
+											<InputLabel htmlFor="type">Type</InputLabel>
+											<Select
+												value={this.state.type}
+												onChange={this.handleChange}
+												inputProps={{
+													name: 'type',
+													id: 'type',
+												}}
+											>
+												<MenuItem value="">
+													<em>None</em>
+												</MenuItem>
+												{this.state.typeList.map(row => (
 													<MenuItem value={row.Id}>{row.Name}</MenuItem>
 												))}
-										</Select>
-									</FormControl>
-									{this.validator.message('type', this.state.type, 'required')}
+											</Select>
+										</FormControl>
+										{this.validator.message('type', this.state.type, 'required')}
 									</Grid>
 									<Grid item xs={12} sm={5} >
-									<TextField
-										id="percentage"
-										label="Percentage"
-										fullWidth
-										type="number"
-										name="percentage"
-										className={classes.textField}
-										value={this.state.percentage}
-										  onChange={this.handleChange}
-										margin="normal"
-									/>
-									{this.validator.message('percentage', this.state.percentage, 'required')}
+										<TextField
+											id="percentage"
+											label="Percentage"
+											fullWidth
+											type="number"
+											name="percentage"
+											className={classes.textField}
+											value={this.state.percentage}
+											onChange={this.handleChange}
+											margin="normal"
+										/>
+										{this.validator.message('percentage', this.state.percentage, 'required')}
 									</Grid>
 
 									<Grid item xs={12} sm={10} >
-									<TextField
-										id="description"
-										label="Law"
-										fullWidth
-										type="text"
-										name="description"
-										className={classes.textField}
-										value={this.state.description}
-										  onChange={this.handleChange}
-										margin="normal"
-									/>
-									{this.validator.message('description', this.state.description, 'required')}
+										<TextField
+											id="description"
+											label="Law"
+											fullWidth
+											type="text"
+											name="description"
+											className={classes.textField}
+											value={this.state.description}
+											onChange={this.handleChange}
+											margin="normal"
+										/>
+										{this.validator.message('description', this.state.description, 'required')}
 									</Grid>
 								</form>
 								<div className="row">
-								<Grid item xs={12} sm={10} >
-									<div style={{float: "right","marginRight":"8px"}}>
-									
-									<Button variant="outlined" color="secondary" className={classes.button } onClick={this.InsertUpdateCountryLaw} >
-										{this.state.Action}
-      								</Button>
-									</div>
+									<Grid item xs={12} sm={10} >
+										<div style={{ float: "right", "marginRight": "8px" }}>
+
+											<Button variant="outlined" color="secondary" className={classes.button} onClick={this.InsertUpdateCountryLaw} >
+												{this.state.Action}
+											</Button>
+										</div>
 									</Grid>
 								</div>
 							</TabContainer>

@@ -29,6 +29,9 @@ import InputLabel from '@material-ui/core/InputLabel';
 import $ from 'jquery';
 import DataTable from "datatables.net";
 import * as responsive from "datatables.net-responsive";
+import Messages from '../toaster';
+import { ToastContainer, toast } from 'react-toastify';
+import { Message } from 'semantic-ui-react';
 const styles = theme => ({
 	container: {
 		display: 'flex',
@@ -200,6 +203,7 @@ class Grades extends Component {
 				Action:'Insert Record',
 				Id:0
 			  });
+			  Messages.success();
 			})
 			.catch((error) => {
 				console.log(error);
@@ -210,16 +214,17 @@ class Grades extends Component {
 				Action:'Insert Record',
 				Id:0
 				})
-			}).finally(()=>{
-			//   document.getElementsByClassName("loader-wrapper")[0].style.display="none";
+				Messages.error();
 			});
+			//   document.getElementsByClassName("loader-wrapper")[0].style.display="none";
+			// });
 	  }
 
 	  deleteGrade=()=>{
 		var ids=localStorage.getItem("ids");
 		if(ids===null)
 		{
-			alert("No Record Selected");
+			Messages.warning("No Record Selected");
 		return false;
 		}
 		axios({
@@ -233,9 +238,11 @@ class Grades extends Component {
 			.then((response) => {
 				localStorage.removeItem("ids");
 				this.getGradeDetail();
+				Messages.success();
 			})
 			.catch((error) => {
 				console.log(error);
+				Messages.error();
 			})
 	  }
 
@@ -243,7 +250,7 @@ class Grades extends Component {
 		let ids = localStorage.getItem("ids")
 		if(ids=== null || localStorage.getItem("ids").split(",").length>1)
 		{
-			alert("kindly Select one record");
+			Messages.warning("kindly Select one record");
 			return false;
 		}
 		axios({
@@ -299,6 +306,9 @@ class Grades extends Component {
 				content={
 
 					<div className={classes.root}>
+						<div>
+							<ToastContainer />
+						</div>
 						<AppBar position="static" color="default">
 							<Tabs
 								value={this.state.value}

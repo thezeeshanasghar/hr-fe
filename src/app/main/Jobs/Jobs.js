@@ -32,6 +32,8 @@ import defaultUrl from "../../../app/services/constant/constant";
 import $ from 'jquery';
 import DataTable from "datatables.net";
 import * as responsive from "datatables.net-responsive";
+import Messages from '../toaster';
+import { ToastContainer, toast } from 'react-toastify';
 const styles = theme => ({
 	container: {
 		display: 'flex',
@@ -173,6 +175,7 @@ class Jobs extends Component {
 						value:0
 					});
 					document.getElementById("fuse-splash-screen").style.display="none";
+					Messages.success();
 
 				})
 				.catch((error) => {
@@ -187,6 +190,7 @@ class Jobs extends Component {
 						value:0
 					})
 					document.getElementById("fuse-splash-screen").style.display="none";
+					Messages.error();
 
 				})
 
@@ -239,7 +243,7 @@ class Jobs extends Component {
 		let ids = localStorage.getItem("ids")
 		if(ids=== null || localStorage.getItem("ids").split(",").length>1)
 		{
-			alert("kindly Select one record");
+			Messages.warning("kindly Select one record");
 			return false;
 		}
 		document.getElementById("fuse-splash-screen").style.display="block";
@@ -275,7 +279,7 @@ class Jobs extends Component {
 		var ids=localStorage.getItem("ids");
 		if(ids===null)
 		{
-			alert("No Record Selected");
+			Messages.warning("No Record Selected");
 		return false;
 		}
 		document.getElementById("fuse-splash-screen").style.display="block";
@@ -292,11 +296,13 @@ class Jobs extends Component {
 				localStorage.removeItem("ids");
 				this.getJobs();
 				document.getElementById("fuse-splash-screen").style.display="none";
+				Messages.success();
 
 			})
 			.catch((error) => {
 				console.log(error);
 				document.getElementById("fuse-splash-screen").style.display="none";
+				Messages.error();
 
 			})
 	  }
@@ -317,6 +323,9 @@ class Jobs extends Component {
 				content={
 
 					<div className={classes.root}>
+						<div>
+                           <ToastContainer />
+                        </div>
 						<AppBar position="static" color="default">
 							<Tabs
 								value={this.state.value}
