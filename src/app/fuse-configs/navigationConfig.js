@@ -201,6 +201,13 @@ const navigationConfig = [
     },
         ]
     },
+    {
+        'id': 'BulkUpload-component',
+        'title': 'Bulk Upload',
+        'type': 'item',
+        'icon': 'whatshot',
+        'url': '/bulkupload'
+    },
    
 ];
 
