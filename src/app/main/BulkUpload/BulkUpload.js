@@ -34,9 +34,8 @@ import * as responsive from "datatables.net-responsive";
 
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import Messages from '../toaster';
 import { Message } from 'semantic-ui-react';
-
+import Messages from '../toaster';
 const styles = theme => ({
 	container: {
 		display: 'flex',
@@ -81,6 +80,7 @@ class BulkUpload extends Component {
 		Type:"",
 		File:null,
 		value: 0,
+		FilePath:"",
 		Action:'Bulk Upload'
 	};
 	constructor(props) {
@@ -89,198 +89,78 @@ class BulkUpload extends Component {
 		
 	
 	  }
-	  componentDidMount(){
-		localStorage.removeItem("ids");
-		  this.getBankDetail();
-	  }
+	 
 	handleTab = (event, value) => {
 		this.setState({ value });
 	};
 	handleChange = (e) => {
-        
-        this.setState({ [e.target.name]: e.target.value });
-	  };
-	  
-	   success = () => toast.success('Operation Succesful', {
-		position: "bottom-right",
-		autoClose: 5000,
-		hideProgressBar: true,
-		closeOnClick: true,
-		pauseOnHover: true,
-		draggable: true,
-		progress: undefined,
-		}); 
-
-	  error = () => 	toast.error('An error Occured!', {
-			position: "bottom-right",
-			autoClose: 5000,
-			hideProgressBar: true,
-			closeOnClick: true,
-			pauseOnHover: true,
-			draggable: true,
-			progress: undefined,
-			});
-	  
-	  getBankDetail=()=>{
-		localStorage.removeItem("ids");
-		if (!$.fn.dataTable.isDataTable('#Bank_Table')) {
-			this.state.table = $('#Bank_Table').DataTable({
-				ajax: defaultUrl + "Bank",
-				"columns": [
-					{ "data": "BankName" },
-					{ "data": "BranchCode" },
-					{ "data": "Address" },
-					{ "data": "Action",
-					sortable: false,
-					"render": function ( data, type, full, meta ) {
-					   
-						return `<input type="checkbox" name="radio"  value=`+full.Id+`
-						onclick=" const checkboxes = document.querySelectorAll('input[name=radio]:checked');
-									let values = [];
-									checkboxes.forEach((checkbox) => {
-										values.push(checkbox.value);
-									});
-									localStorage.setItem('ids',values);	"
-						/>`;
-					}
-				 }
-
-				],
-				rowReorder: {
-					selector: 'td:nth-child(2)'
-				},
-				responsive: true,
-				dom: 'Bfrtip',
-				buttons: [
-
-				],
-				columnDefs: [{
-					"defaultContent": "-",
-					"targets": "_all"
-				  }]
-			});
-		} else {
-			this.state.table.ajax.reload();
-		}
-	  }
-	  insertUpdateRecord=()=>{
-		if (!this.validator.fieldValid('bankName')
-		|| !this.validator.fieldValid('bankCode')
-		|| !this.validator.fieldValid('bankAddress')) 
+        console.log(e.target.value);
+		this.setState({ [e.target.name]: e.target.value });
+		if(e.target.name=="File")
 		{
-	    this.validator.showMessages();
-	    this.forceUpdate();
-  		 return false;
-		   }
-		   var method="post";
-		   var url= defaultUrl+"Bank";
-		   if(this.state.Action!="Insert Record")
-		   {
-			method="put";
-			url= defaultUrl+"Bank/"+this.state.Id;
-		   }
-		   
-		//   this.setState({bankName:'',bankCode:'',bankAddress:''})
-		var obj = {
-			BankName: this.state.bankName,
-			BranchCode: this.state.bankCode,
-			Address: this.state.bankAddress
-		  };
-		  axios.interceptors.request.use(function(config) {
-			document.getElementById("fuse-splash-screen").style.display="none"
-			return config;
-		  }, function(error) {
-			console.log('Error');
-			return Promise.reject(error);
-		  });
-		  axios({
-			method: method,
-			url: url,
-			data: JSON.stringify(obj),
-			headers: {
-			  // 'Authorization': `bearer ${token}`,
-			  "Content-Type": "application/json;charset=utf-8",
-			},
-		  })
-			.then((response) => {
-			this.getBankDetail();
-			this.setState({
-				bankName: "",
-				bankCode: "",
-				bankAddress: "",
-				Action:'Insert Record',
-				Id:0,
-				value:0
-			  });
-			  document.getElementById("fuse-splash-screen").style.display="none";
-			  Messages.success();
-			})
-			.catch((message) => {
-				 document.getElementById("fuse-splash-screen").style.display="none"
-				console.log(message);
-				// error();
-			  this.setState({
-				bankName: "",
-				bankCode: "",
-				bankAddress: "",
-				Action:'Insert Record',
-				Id:0,
-				value:0
-				})
-			})
-	  }
-	  deleteBank=()=>{
-		var ids=localStorage.getItem("ids");
-		if(ids===null)
-		{
-			Messages.warning("No Record Selected");
-		return false;
-		}
-		document.getElementById("fuse-splash-screen").style.display="block"
-		axios({
-			method: "delete",
-			url: defaultUrl+"Bank/"+ids,
-			headers: {
-			  // 'Authorization': `bearer ${token}`,
-			  "Content-Type": "application/json;charset=utf-8",
-			},
-		  })
-			.then((response) => {
-				
-				this.getBankDetail();
-				document.getElementById("fuse-splash-screen").style.display="none"
-			})
-			.catch((error) => {
-				console.log(error);
-				document.getElementById("fuse-splash-screen").style.display="none"
-			})
-	  }
-	  getBankById=()=>{
-		let ids = localStorage.getItem("ids")
-		if(ids=== null || localStorage.getItem("ids").split(",").length>1)
-		{
-			Messages.warning("kindly Select one record");
+		  if(e.target.files[0]==undefined)
+		  {
+			this.setState({File:""});
 			return false;
+		  }
+		  var extension=e.target.files[0].name.split(".")[1];
+		  if(extension.toLowerCase()!="xlsx" )
+		  {
+			  Messages.warning("Invalid valid formate");
+			return false;
+		  }
+		  document.getElementById("fuse-splash-screen").style.display="block";
+		  const formData = new FormData();
+		  formData.append("file" , e.target.files[0]);
+		  axios.post(defaultUrl+"/Upload", formData, {
+ 		 headers: {
+    		'accept': 'application/json',
+    		'Accept-Language': 'en-US,en;q=0.8',
+   			 'Content-Type': `multipart/form-data; boundary=${formData._boundary}`,
+  			}
+		})
+ 		 .then((response) => {
+  		  console.log("success",response);
+			this.setState({File:response.data});
+			Messages.success();
+			document.getElementById("fuse-splash-screen").style.display="none";
+		  }).catch((error) => {
+			console.log("error",error);
+			Messages.error();
+			document.getElementById("fuse-splash-screen").style.display="none";
+  		  });
 		}
-		document.getElementById("fuse-splash-screen").style.display="block"
-		axios({
-			method: "get",
-			url: defaultUrl+"Bank/"+ids,
-			headers: {
-			  // 'Authorization': `bearer ${token}`,
-			  "Content-Type": "application/json;charset=utf-8",
-			},
-		  })
-			.then((response) => {
-				console.log(response);
-				this.setState({Action:'Update Record',value:1,bankName:response.data[0].BankName,bankCode:response.data[0].BranchCode,bankAddress:response.data[0].Address,
-					Id:response.data[0].Id});
-					document.getElementById("fuse-splash-screen").style.display="none"
+
+	  };
+	  uploadFile=()=>{
+		if (!this.validator.allValid()) {
+			this.validator.showMessages();
+			this.forceUpdate();
+		} else {
+			document.getElementById("fuse-splash-screen").style.display="block";
+			var obj={
+				Path: this.state.File,
+				Type:this.state.Type
+			}
+			axios({
+				method: "post",
+				url: defaultUrl+"bulkupload",
+				data:obj,
+				headers: {
+					// 'Authorization': `bearer ${token}`,
+					"Content-Type": "application/json;charset=utf-8",
+				},
 			})
-			.catch((error) => {
-				document.getElementById("fuse-splash-screen").style.display="none"
-				console.log(error);
-			})
+				.then((response) => {
+					Messages.success();
+					document.getElementById("fuse-splash-screen").style.display="none";
+				})
+				.catch((error) => {
+					Messages.error();
+					document.getElementById("fuse-splash-screen").style.display="none";
+				})
+	
+		}
 	  }
 	
 	render() {
@@ -324,13 +204,13 @@ class BulkUpload extends Component {
 								<form className={classes.container} noValidate autoComplete="off">
 								<Grid item xs={12} sm={5}  style={{marginRight:'5px'}} >
 								<FormControl className={classes.formControl}>
-											<InputLabel htmlFor="company">Company</InputLabel>
+											<InputLabel htmlFor="Type">Type</InputLabel>
 											<Select
-												value={this.state.company}
+												value={this.state.Type}
 												onChange={this.handleChange}
 												inputProps={{
-													name: 'company',
-													id: 'company',
+													name: 'Type',
+													id: 'Type',
 												}}
 											>
 												<MenuItem value="">
@@ -338,15 +218,15 @@ class BulkUpload extends Component {
 												</MenuItem>
 													<MenuItem value="Bank">Bank</MenuItem>
 											</Select>
-											{this.validator.message('company', this.state.company, 'required')}
+											{this.validator.message('Type', this.state.Type, 'required')}
 										</FormControl>
 									</Grid>
 									<Grid item xs={12} sm={5}  >
-									<TextField type="file" id="bankCode" fullWidth label="Branch Code" InputLabelProps={{
+									<TextField type="file" id="File" fullWidth label="File" InputLabelProps={{
 												shrink: true,
 											}}
-											 name="bankCode" value={this.state.bankCode} onChange={this.handleChange} />
-									{this.validator.message('bankCode', this.state.bankCode, 'required')}
+											 name="File"  onChange={this.handleChange} />
+									{this.validator.message('File', this.state.File, 'required')}
 									</Grid>
 								
 								</form>
@@ -354,7 +234,7 @@ class BulkUpload extends Component {
 								<Grid item xs={12} sm={10}  >
 									<div style={{float: "right","marginRight":"8px"}}>
 									
-									<Button variant="outlined" color="secondary" className={classes.button } style={{marginTop:"10px"}} onClick={this.insertUpdateRecord} >
+									<Button variant="outlined" color="secondary" className={classes.button } style={{marginTop:"10px"}} onClick={this.uploadFile} >
 										{this.state.Action}
       								</Button>
 									</div>
