@@ -217,6 +217,23 @@ class BulkUpload extends Component {
 													<em>None</em>
 												</MenuItem>
 													<MenuItem value="Bank">Bank</MenuItem>
+													<MenuItem value="Company">Company</MenuItem>
+													<MenuItem value="Exchange">Exchange Rate</MenuItem>
+													<MenuItem value="CountryLaw">Country Laws</MenuItem>
+													<MenuItem value="Grade">Grade</MenuItem>
+													<MenuItem value="Unit">Unit</MenuItem>
+													<MenuItem value="Position">Position</MenuItem>
+													<MenuItem value="Job">Job</MenuItem>
+													<MenuItem value="Employee">Employee(Basic)</MenuItem>
+													<MenuItem value="EmployeeBank">Employee(Bank)</MenuItem>
+													<MenuItem value="EmployeePayroll">Employee(Payroll)</MenuItem>
+													<MenuItem value="ApplicableLaws">Employee(ApplicableLaws)</MenuItem>
+													<MenuItem value="UnpaidLeaves">Employee(UnpaidLeaves)</MenuItem>
+													<MenuItem value="CostCenter">Cost Center</MenuItem>
+													<MenuItem value="GlAccount">GL Account</MenuItem>
+													<MenuItem value="PayElement">Pay Element</MenuItem>
+													<MenuItem value="PayElementGlAccount">PayElement GlAccount</MenuItem>
+													
 											</Select>
 											{this.validator.message('Type', this.state.Type, 'required')}
 										</FormControl>
