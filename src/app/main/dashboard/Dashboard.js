@@ -1,17 +1,3 @@
-// import React,{Component} from 'react';
-
-// class Dashboard extends Component {
-
-//     render()
-//     {
-//         return (
-//          <div></div>
-//           );
-//     }
-// }
-
-//export default Dashboard;
-
 import React, {Component} from 'react';
 import {Menu, MenuItem, Hidden, Icon, IconButton, Tab, Tabs, Typography, withStyles} from '@material-ui/core';
 import {FuseAnimateGroup, FusePageSimple} from '@fuse';
@@ -37,7 +23,9 @@ import Widget11 from './widgets/Widget11';
 import WidgetNow from './widgets/WidgetNow';
 import WidgetWeather from './widgets/WidgetWeather'; 
 import DashboardDB from '../../../@fake-db/db/project-dashboard-db'
-
+import axios from "axios";
+import defaultUrl from '../../../app/services/constant/constant';
+import {isEmpty} from "lodash"
 const styles = theme => ({
         content          : {
             '& canvas': {
@@ -58,14 +46,79 @@ const styles = theme => ({
     }
 );
 
+
+
+
+
 class Dashboard extends Component {
     state = {
         tabValue         : 0,
         selectedProjectId: 1,
-        projectMenuEl    : null
+        projectMenuEl    : null,
+        Companies:{},
+        CompaniesCount:{}
     };
+    constructor(props) {
+        super(props)
+    this.widget11();
+    this.widget1();
+    }
+     widget11=()=>{
+          axios({
+            method: "get",
+            url: defaultUrl + "dashboard/Companies",
+            // data: JSON.stringify(obj),
+            headers: {
+                // 'Authorization': `bearer ${token}`,
+                "Content-Type": "application/json;charset=utf-8",
+            },
+        })
+            .then((response) => {
+             console.log(response.data)
+                if(response.data !=null)
+                {
+                    this.setState({Companies:response.data})
+                }
+               
+            })
+            .catch((error) => {
+           
+            }).finally(() => {
+            });
+    }
 
+    widget1=()=>{
+        axios({
+          method: "get",
+          url: defaultUrl + "dashboard/Companies/Count",
+          // data: JSON.stringify(obj),
+          headers: {
+              // 'Authorization': `bearer ${token}`,
+              "Content-Type": "application/json;charset=utf-8",
+          },
+      })
+          .then((response) => {
+           console.log(response.data)
+              if(response.data !=null)
+              {
+                  this.setState({CompaniesCount:response.data})
+              }
+             
+          })
+          .catch((error) => {
+         
+          }).finally(() => {
+          });
+  }
+
+   
     handleChangeTab = (event, tabValue) => {
+        // console.log(tabValue,this.state.Companies);
+        if(tabValue==1 && isEmpty(this.state.Companies)) 
+        {
+            console.log("wrong");
+            return false;
+        }
         this.setState({tabValue});
     };
 
@@ -83,15 +136,43 @@ class Dashboard extends Component {
     handleCloseProjectMenu = () => {
         this.setState({projectMenuEl: null});
     };
-
+    parseJwt = function (token) {
+        var base64Url = token.split('.')[1];
+        var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        var jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+    
+        return JSON.parse(jsonPayload);
+    };
     componentDidMount()
     {
+       
         this.props.getWidgets();
         this.props.getProjects();
+
     }
 
     render()
     {
+       
+        const object={
+            table:{
+                columns:[
+                    {
+                        Id:"Name",
+                      title:"Name"
+                    },
+                    {
+                        Id:"Address",
+                        title:"Address"
+                    }
+                ],
+                row:[]
+            },
+            title:"Registed Companies"
+        }
+        const user=this.parseJwt(localStorage.getItem("token"));
         const {classes} = this.props;// const {widgets, projects, classes} = this.props;
         const {tabValue, selectedProjectId, projectMenuEl} = this.state;
         const widgets = DashboardDB.widgets;
@@ -101,7 +182,7 @@ class Dashboard extends Component {
         {
             return 'Loading..';
         }
-
+        console.log(this.state.Companies);
         return (
             <FusePageSimple
                 classes={{
@@ -114,7 +195,7 @@ class Dashboard extends Component {
                     <div className="flex flex-col justify-between flex-1 px-24 pt-24">
                        
                         <div className="flex justify-between items-start">
-                            <Typography className="py-0 sm:py-24" variant="h4">Welcome back, John!</Typography>
+                            <Typography className="py-0 sm:py-24" variant="h4">Welcome back, {user.Name}!</Typography>
                             <Hidden lgUp>
                                 <IconButton
                                     onClick={(ev) => this.pageLayout.toggleRightSidebar()}
@@ -124,33 +205,7 @@ class Dashboard extends Component {
                                 </IconButton>
                             </Hidden>
                         </div>
-                        <div className="flex items-end">
-                            <div className="flex items-center">
-                                <div className={classNames(classes.selectedProject, "flex items-center h-40 px-16 text-16")}>
-                                    {_.find(projects, ['id', selectedProjectId]).name}
-                                </div>
-                                <IconButton
-                                    className={classNames(classes.projectMenuButton, "h-40 w-40 p-0")}
-                                    aria-owns={projectMenuEl ? 'project-menu' : undefined}
-                                    aria-haspopup="true"
-                                    onClick={this.handleOpenProjectMenu}
-                                >
-                                    <Icon>more_horiz</Icon>
-                                </IconButton>
-                                <Menu
-                                    id="project-menu"
-                                    anchorEl={projectMenuEl}
-                                    open={Boolean(projectMenuEl)}
-                                    onClose={this.handleCloseProjectMenu}
-                                >
-                                    {projects && projects.map(project => (
-                                        <MenuItem key={project.id} onClick={ev => {
-                                            this.handleChangeProject(project.id)
-                                        }}>{project.name}</MenuItem>
-                                    ))}
-                                </Menu>
-                            </div>
-                        </div>
+                    
                     </div>
                 }
                 contentToolbar={
@@ -165,8 +220,8 @@ class Dashboard extends Component {
                         className="w-full border-b-1 px-24"
                     >
                         <Tab className="text-14 font-600 normal-case" label="Home"/>
-                        <Tab className="text-14 font-600 normal-case" label="Budget Summary"/>
-                        <Tab className="text-14 font-600 normal-case" label="Team Members"/>
+                        {/* <Tab className="text-14 font-600 normal-case" label="Budget Summary"/> */}
+                        <Tab className="text-14 font-600 normal-case" label="Registered Companies"/>
                     </Tabs>
                 }
                 content={
@@ -180,7 +235,7 @@ class Dashboard extends Component {
                                 }}
                             >
                                 <div className="widget flex w-full sm:w-1/2 md:w-1/4 p-12">
-                                    <Widget1 widget={widgets.widget1}/>
+                                    <Widget1 widget={this.state.CompaniesCount}/>
                                 </div>
                                 <div className="widget flex w-full sm:w-1/2 md:w-1/4 p-12">
                                     <Widget2 widget={widgets.widget2}/>
@@ -191,15 +246,15 @@ class Dashboard extends Component {
                                 <div className="widget flex w-full sm:w-1/2 md:w-1/4 p-12">
                                     <Widget4 widget={widgets.widget4}/>
                                 </div>
-                                <div className="widget flex w-full p-12">
+                                {/* <div className="widget flex w-full p-12">
                                     <Widget5 widget={widgets.widget5}/>
-                                </div>
-                                <div className="widget flex w-full sm:w-1/2 p-12">
+                                </div> */}
+                                {/* <div className="widget flex w-full sm:w-1/2 p-12">
                                     <Widget6 widget={widgets.widget6}/>
                                 </div>
                                 <div className="widget flex w-full sm:w-1/2 p-12">
                                     <Widget7 widget={widgets.widget7}/>
-                                </div>
+                                </div> */}
                             </FuseAnimateGroup>
                         )}
                         {tabValue === 1 && (
@@ -209,26 +264,8 @@ class Dashboard extends Component {
                                     animation: "transition.slideUpBigIn"
                                 }}
                             >
-                                <div className="widget flex w-full sm:w-1/2 p-12">
-                                    <Widget8 widget={widgets.widget8}/>
-                                </div>
-                                <div className="widget flex w-full sm:w-1/2 p-12">
-                                    <Widget9 widget={widgets.widget9}/>
-                                </div>
                                 <div className="widget flex w-full p-12">
-                                    <Widget10 widget={widgets.widget10}/>
-                                </div>
-                            </FuseAnimateGroup>
-                        )}
-                        {tabValue === 2 && (
-                            <FuseAnimateGroup
-                                className="flex flex-wrap"
-                                enter={{
-                                    animation: "transition.slideUpBigIn"
-                                }}
-                            >
-                                <div className="widget flex w-full p-12">
-                                    <Widget11 widget={widgets.widget11}/>
+                                    <Widget11 widget={this.state.Companies}/>
                                 </div>
                             </FuseAnimateGroup>
                         )}
@@ -244,9 +281,9 @@ class Dashboard extends Component {
                         <div className="widget w-full p-12">
                             <WidgetNow/>
                         </div>
-                        <div className="widget w-full p-12">
+                        {/* <div className="widget w-full p-12">
                             <WidgetWeather widget={widgets.weatherWidget}/>
-                        </div>
+                        </div> */}
                     </FuseAnimateGroup>
                 }
                 onRef={instance => {

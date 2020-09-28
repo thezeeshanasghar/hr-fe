@@ -7,9 +7,10 @@ import 'react-toastify/dist/ReactToastify.css';
 
 const Messages = {
 
-  error() {
+  error(message) {
+    console.log(message,"its issue");
     return (
-      toast.error('An error Occured!', {
+      toast.error(message, {
         position: "bottom-right",
         autoClose: 5000,
         hideProgressBar: true,
