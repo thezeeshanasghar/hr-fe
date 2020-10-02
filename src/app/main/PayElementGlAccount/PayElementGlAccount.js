@@ -101,7 +101,9 @@ class PayElementGlAccount extends Component {
 		payelementglAccountList:[],
 		Id:0,
 		Action:"Insert Record",
-		table:null
+		table:null,
+		StaffCategory:"",
+		StaffCategoryList:[]
 
 	};
 	constructor(props) {
@@ -115,6 +117,7 @@ class PayElementGlAccount extends Component {
 	this.getPeriodicity();
 	this.getCostCenter();
 	this.getpayelementglAccountList();
+	this.getStaffCategory();
 	}
 	getCostCenter = () => {
 		axios({
@@ -128,6 +131,23 @@ class PayElementGlAccount extends Component {
 			.then((response) => {
 				console.log(response);
 				this.setState({ costcenterList: response.data.data });
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
+	getStaffCategory=()=>{
+		axios({
+			method: "get",
+			url: defaultUrl + "lookups/"+Lookups.StaffCategory,
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response);
+				this.setState({ StaffCategoryList: response.data });
 			})
 			.catch((error) => {
 				console.log(error);
@@ -204,7 +224,7 @@ class PayElementGlAccount extends Component {
 				CostCenterPosting:this.state.CostCenterPosting,
 				CostCenterId:this.state.CostCenter,
 				PostingPerEmployee:this.state.postperEmployee,
-
+				FinStaffCategory:this.state.StaffCategory
 			};
 			axios.interceptors.request.use(function (config) {
 				document.getElementById("fuse-splash-screen").style.display="block";
@@ -232,7 +252,8 @@ class PayElementGlAccount extends Component {
 						CostCenter:"",
 						postperEmployee:"",
 						Id: 0,
-						Action:'Insert Record'
+						Action:'Insert Record',
+						StaffCategory:""
 					});
 					document.getElementById("fuse-splash-screen").style.display="none";
 					Messages.success();
@@ -248,7 +269,8 @@ class PayElementGlAccount extends Component {
 						CostCenter:"",
 						postperEmployee:"",
 						Id: 0,
-						Action:'Insert Record'
+						Action:'Insert Record',
+						StaffCategory:""
 					})
 					document.getElementById("fuse-splash-screen").style.display="none";
 					Messages.error();
@@ -330,7 +352,8 @@ class PayElementGlAccount extends Component {
 					postperEmployee:response.data[0].PostingPerEmployee,
 					value :  1,
 					Id : response.data[0].Id,
-					Action : "Update Record"
+					Action : "Update Record",
+					StaffCategory : response.data[0].FinStaffCategory
 				});
 				document.getElementById("fuse-splash-screen").style.display="none";
 
@@ -552,6 +575,29 @@ class PayElementGlAccount extends Component {
 										margin="normal"
 										/>
 										{this.validator.message('postperEmployee', this.state.postperEmployee, 'required')}
+
+									</Grid>
+									<Grid item xs={12} sm={5}>
+										<FormControl className={classes.formControl}>
+										<InputLabel htmlFor="PayElement">Staff Category</InputLabel>
+										<Select
+											value={this.state.StaffCategory}
+											onChange={this.handleChange}
+											inputProps={{
+												name: 'StaffCategory',
+												id: 'StaffCategory',
+											}}
+										>
+											<MenuItem value="">
+												<em>None</em>
+											</MenuItem>
+											
+											{this.state.StaffCategoryList.map(row => (
+													<MenuItem value={row.Id}>{row.Name}</MenuItem>
+												))} 
+										</Select>
+									</FormControl>
+									{this.validator.message('CostCenter', this.state.CostCenter, 'required')}
 
 									</Grid>
 								</form>

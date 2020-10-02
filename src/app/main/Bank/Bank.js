@@ -17,7 +17,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
-import { Icon, Input, MuiThemeProvider} from '@material-ui/core';
+import { Icon, Input, MuiThemeProvider } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
 import SimpleReactValidator from 'simple-react-validator';
 import axios from "axios";
@@ -41,7 +41,7 @@ const styles = theme => ({
 	textField: {
 		marginLeft: theme.spacing.unit,
 		marginRight: theme.spacing.unit,
-		
+
 	},
 	dense: {
 		marginTop: 16,
@@ -72,33 +72,38 @@ function TabContainer({ children, dir }) {
 class Bank extends Component {
 	state = {
 		value: 0,
-		bankName:'',
-		bankCode:'',
-		bankAddress:'',
-		Banks:[],
-		Id:0,
-		Action:'Insert Record',
-		table:null,
+		bankName: '',
+		bankCode: '',
+		bankAddress: '',
+		SwiftCode:"",
+		UAEFTSBANKCode:"",
+		code:"",
+		Description:"",
+		RouteCode:"",
+		Banks: [],
+		Id: 0,
+		Action: 'Insert Record',
+		table: null,
 	};
 	constructor(props) {
 		super(props);
 		this.validator = new SimpleReactValidator();
-		
-	
-	  }
-	  componentDidMount(){
+
+
+	}
+	componentDidMount() {
 		localStorage.removeItem("ids");
-		  this.getBankDetail();
-	  }
+		this.getBankDetail();
+	}
 	handleTab = (event, value) => {
 		this.setState({ value });
 	};
 	handleChange = (e) => {
-        
-        this.setState({ [e.target.name]: e.target.value });
-	  };
-	  
-	   success = () => toast.success('Operation Succesful', {
+
+		this.setState({ [e.target.name]: e.target.value });
+	};
+
+	success = () => toast.success('Operation Succesful', {
 		position: "bottom-right",
 		autoClose: 5000,
 		hideProgressBar: true,
@@ -106,32 +111,38 @@ class Bank extends Component {
 		pauseOnHover: true,
 		draggable: true,
 		progress: undefined,
-		}); 
+	});
 
-	  error = () => 	toast.error('An error Occured!', {
-			position: "bottom-right",
-			autoClose: 5000,
-			hideProgressBar: true,
-			closeOnClick: true,
-			pauseOnHover: true,
-			draggable: true,
-			progress: undefined,
-			});
-	  
-	  getBankDetail=()=>{
+	error = () => toast.error('An error Occured!', {
+		position: "bottom-right",
+		autoClose: 5000,
+		hideProgressBar: true,
+		closeOnClick: true,
+		pauseOnHover: true,
+		draggable: true,
+		progress: undefined,
+	});
+
+	getBankDetail = () => {
 		localStorage.removeItem("ids");
 		if (!$.fn.dataTable.isDataTable('#Bank_Table')) {
 			this.state.table = $('#Bank_Table').DataTable({
 				ajax: defaultUrl + "Bank",
 				"columns": [
+					{ "data": "Code" },
 					{ "data": "BankName" },
 					{ "data": "BranchCode" },
 					{ "data": "Address" },
-					{ "data": "Action",
-					sortable: false,
-					"render": function ( data, type, full, meta ) {
-					   
-						return `<input type="checkbox" name="radio"  value=`+full.Id+`
+					{ "data": "SwiftCode" },
+					{ "data": "UAEFTSBANKCode" },
+					{ "data": "RouteCode" },
+					{ "data": "Description" },
+					{
+						"data": "Action",
+						sortable: false,
+						"render": function (data, type, full, meta) {
+
+							return `<input type="checkbox" name="radio"  value=` + full.Id + `
 						onclick=" const checkboxes = document.querySelectorAll('input[name=radio]:checked');
 									let values = [];
 									checkboxes.forEach((checkbox) => {
@@ -139,8 +150,8 @@ class Bank extends Component {
 									});
 									localStorage.setItem('ids',values);	"
 						/>`;
+						}
 					}
-				 }
 
 				],
 				rowReorder: {
@@ -154,137 +165,153 @@ class Bank extends Component {
 				columnDefs: [{
 					"defaultContent": "-",
 					"targets": "_all"
-				  }]
+				}]
 			});
 		} else {
 			this.state.table.ajax.reload();
 		}
-	  }
-	  insertUpdateRecord=()=>{
-		if (!this.validator.fieldValid('bankName')
-		|| !this.validator.fieldValid('bankCode')
-		|| !this.validator.fieldValid('bankAddress')) 
-		{
-	    this.validator.showMessages();
-	    this.forceUpdate();
-  		 return false;
-		   }
-		   var method="post";
-		   var url= defaultUrl+"Bank";
-		   if(this.state.Action!="Insert Record")
-		   {
-			method="put";
-			url= defaultUrl+"Bank/"+this.state.Id;
-		   }
-		   
+	}
+	insertUpdateRecord = () => {
+		if (!this.validator.allValid()) {
+			this.validator.showMessages();
+			this.forceUpdate();
+			return false;
+		}
+		var method = "post";
+		var url = defaultUrl + "Bank";
+		if (this.state.Action != "Insert Record") {
+			method = "put";
+			url = defaultUrl + "Bank/" + this.state.Id;
+		}
+
 		//   this.setState({bankName:'',bankCode:'',bankAddress:''})
 		var obj = {
 			BankName: this.state.bankName,
 			BranchCode: this.state.bankCode,
-			Address: this.state.bankAddress
-		  };
-		  axios.interceptors.request.use(function(config) {
-			document.getElementById("fuse-splash-screen").style.display="none"
+			Address: this.state.bankAddress,
+			Code:this.state.code,
+			SwiftCode:this.state.SwiftCode,
+			UAEFTSBANKCode:this.state.UAEFTSBANKCode,
+			RouteCode:this.state.RouteCode,
+			Description:this.state.Description
+		};
+		axios.interceptors.request.use(function (config) {
+			document.getElementById("fuse-splash-screen").style.display = "block"
 			return config;
-		  }, function(error) {
+		}, function (error) {
 			console.log('Error');
 			return Promise.reject(error);
-		  });
-		  axios({
+		});
+		axios({
 			method: method,
 			url: url,
 			data: JSON.stringify(obj),
 			headers: {
-			  // 'Authorization': `bearer ${token}`,
-			  "Content-Type": "application/json;charset=utf-8",
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
 			},
-		  })
+		})
 			.then((response) => {
-			this.getBankDetail();
-			this.setState({
-				bankName: "",
-				bankCode: "",
-				bankAddress: "",
-				Action:'Insert Record',
-				Id:0,
-				value:0
-			  });
-			  document.getElementById("fuse-splash-screen").style.display="none";
-			  Messages.success();
+				this.getBankDetail();
+				this.setState({
+					bankName: "",
+					bankCode: "",
+					bankAddress: "",
+					SwiftCode:"",
+					UAEFTSBANKCode:"",
+					code:"",
+					Description:"",
+					RouteCode:"",
+					Action: 'Insert Record',
+					Id: 0,
+					value: 0
+				});
+				document.getElementById("fuse-splash-screen").style.display = "none";
+				Messages.success();
 			})
 			.catch((message) => {
-				 document.getElementById("fuse-splash-screen").style.display="none"
+				document.getElementById("fuse-splash-screen").style.display = "none"
 				console.log(message);
 				// error();
-			  this.setState({
-				bankName: "",
-				bankCode: "",
-				bankAddress: "",
-				Action:'Insert Record',
-				Id:0,
-				value:0
+				this.setState({
+					bankName: "",
+					bankCode: "",
+					bankAddress: "",
+					Action: 'Insert Record',
+					SwiftCode:"",
+					UAEFTSBANKCode:"",
+					code:"",
+					Description:"",
+					RouteCode:"",
+					Id: 0,
+					value: 0
 				})
 			})
-	  }
-	  deleteBank=()=>{
-		var ids=localStorage.getItem("ids");
-		if(ids===null)
-		{
+	}
+	deleteBank = () => {
+		var ids = localStorage.getItem("ids");
+		if (ids === null) {
 			Messages.warning("No Record Selected");
-		return false;
+			return false;
 		}
-		document.getElementById("fuse-splash-screen").style.display="block"
+		document.getElementById("fuse-splash-screen").style.display = "block"
 		axios({
 			method: "delete",
-			url: defaultUrl+"Bank/"+ids,
+			url: defaultUrl + "Bank/" + ids,
 			headers: {
-			  // 'Authorization': `bearer ${token}`,
-			  "Content-Type": "application/json;charset=utf-8",
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
 			},
-		  })
+		})
 			.then((response) => {
-				
+
 				this.getBankDetail();
-				document.getElementById("fuse-splash-screen").style.display="none";
+				document.getElementById("fuse-splash-screen").style.display = "none";
 				Messages.success();
 
 			})
 			.catch((error) => {
 				console.log(error);
-				document.getElementById("fuse-splash-screen").style.display="none";
+				document.getElementById("fuse-splash-screen").style.display = "none";
 				Messages.error();
 			})
-	  }
-	  getBankById=()=>{
+	}
+	getBankById = () => {
 		let ids = localStorage.getItem("ids")
-		if(ids=== null || localStorage.getItem("ids").split(",").length>1)
-		{
+		if (ids === null || localStorage.getItem("ids").split(",").length > 1) {
 			Messages.warning("kindly Select one record");
 			return false;
 		}
-		document.getElementById("fuse-splash-screen").style.display="block"
+		document.getElementById("fuse-splash-screen").style.display = "block"
 		axios({
 			method: "get",
-			url: defaultUrl+"Bank/"+ids,
+			url: defaultUrl + "Bank/" + ids,
 			headers: {
-			  // 'Authorization': `bearer ${token}`,
-			  "Content-Type": "application/json;charset=utf-8",
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
 			},
-		  })
+		})
 			.then((response) => {
 				console.log(response);
-				this.setState({Action:'Update Record',value:1,bankName:response.data[0].BankName,bankCode:response.data[0].BranchCode,bankAddress:response.data[0].Address,
-					Id:response.data[0].Id});
-					document.getElementById("fuse-splash-screen").style.display="none"
+				this.setState({
+					Action: 'Update Record', value: 1, bankName: response.data[0].BankName, bankCode: response.data[0].BranchCode, bankAddress: response.data[0].Address,
+					Id: response.data[0].Id,
+					SwiftCode:response.data[0].SwiftCode,
+					UAEFTSBANKCode:response.data[0].UAEFTSBANKCode,
+					code:response.data[0].Code,
+					Description:response.data[0].Description,
+					RouteCode:response.data[0].RouteCode,
+				});
+				document.getElementById("fuse-splash-screen").style.display = "none"
 			})
 			.catch((error) => {
-				document.getElementById("fuse-splash-screen").style.display="none"
+				document.getElementById("fuse-splash-screen").style.display = "none"
 				console.log(error);
 			})
-	  }
-	
+	}
+
 	render() {
-		
+
 		const { classes, theme } = this.props;
 
 		return (
@@ -301,9 +328,9 @@ class Bank extends Component {
 				content={
 
 					<div className={classes.root}>
-						  <div>
-        <ToastContainer />
-      </div>
+						<div>
+							<ToastContainer />
+						</div>
 						<AppBar position="static" color="default">
 							<Tabs
 								value={this.state.value}
@@ -323,55 +350,80 @@ class Bank extends Component {
 						>
 							<TabContainer dir={theme.direction}>
 								<Paper className={classes.root}>
-								<div className="row">
-									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
-										<Button variant="outlined" color="primary" className={classes.button} onClick={this.getBankById}>
-											Edit
+									<div className="row">
+										<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
+											<Button variant="outlined" color="primary" className={classes.button} onClick={this.getBankById}>
+												Edit
 										</Button>
-									</div>
-									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
-										<Button variant="outlined" color="inherit" className={classes.button} onClick={this.deleteBank}>
-											Delete
+										</div>
+										<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
+											<Button variant="outlined" color="inherit" className={classes.button} onClick={this.deleteBank}>
+												Delete
 										</Button>
+										</div>
 									</div>
-								</div>
 									<table id="Bank_Table" className="nowrap header_custom" style={{ "width": "100%" }}>
 										<thead>
 											<tr>
+												<th>Code</th>
 												<th>BankName</th>
 												<th>BranchCode</th>
 												<th>Address</th>
+												<th>Swift Code</th>
+												<th>UAE FTS BANK Code</th>
+												<th>Route Code</th>
+												<th>Description</th>
 												<th>Action</th>
 											</tr>
 										</thead>
 
 									</table>
-                              </Paper>
+								</Paper>
 							</TabContainer>
 							<TabContainer dir={theme.direction}>
 								<form className={classes.container} noValidate autoComplete="off">
-								<Grid item xs={12} sm={5}  style={{marginRight:'5px'}} >
-								<TextField id="bankName" fullWidth label="Bank Name" name="bankName" value={this.state.bankName} onChange={this.handleChange} />
-								{this.validator.message('bankName', this.state.bankName, 'required')}
+									<Grid item xs={12} sm={5} style={{ marginRight: '5px' }} >
+										<TextField id="bankName" fullWidth label="Bank Code" name="code" value={this.state.code} onChange={this.handleChange} tabindex="1" />
+										{this.validator.message('code', this.state.code, 'required')}
 									</Grid>
 									<Grid item xs={12} sm={5}  >
-									<TextField id="bankCode" fullWidth label="Branch Code" name="bankCode" value={this.state.bankCode} onChange={this.handleChange} />
-									{this.validator.message('bankCode', this.state.bankCode, 'required')}
+										<TextField id="RouteCode" fullWidth label="Route Code" name="RouteCode" value={this.state.RouteCode} onChange={this.handleChange} tabindex="2" />
+										{this.validator.message('RouteCode', this.state.RouteCode, 'required')}
+									</Grid>
+									<Grid item xs={12} sm={5} style={{ marginRight: '5px' }} >
+										<TextField id="UAEFTSBANKCode" fullWidth label="UAE FTS BANK Code" name="UAEFTSBANKCode" value={this.state.UAEFTSBANKCode} onChange={this.handleChange} tabindex="3" />
+										{this.validator.message('UAEFTSBANKCode', this.state.UAEFTSBANKCode, 'required')}
+									</Grid>
+									<Grid item xs={12} sm={5}   >
+										<TextField id="bankName" fullWidth label="Swift Code" name="SwiftCode" value={this.state.SwiftCode} onChange={this.handleChange} tabindex="4" />
+										{this.validator.message('SwiftCode', this.state.SwiftCode, 'required')}
+									</Grid>
+
+									<Grid item xs={12} sm={5} style={{ marginRight: '5px' }}  >
+										<TextField id="bankName" fullWidth label="Bank Name" name="bankName" value={this.state.bankName} onChange={this.handleChange} tabindex="5" />
+										{this.validator.message('bankName', this.state.bankName, 'required')}
 									</Grid>
 									<Grid item xs={12} sm={5}  >
-									<TextField id="bankAddress" fullWidth label="Bank Address" name="bankAddress" value={this.state.bankAddress} onChange={this.handleChange} />
-									{this.validator.message('bankAddress', this.state.bankAddress, 'required')}
+										<TextField id="bankCode" fullWidth label="Branch Code" name="bankCode" value={this.state.bankCode} onChange={this.handleChange} tabindex="6" />
+										{this.validator.message('bankCode', this.state.bankCode, 'required')}
 									</Grid>
-								
+									<Grid item xs={12} sm={5} style={{ marginRight: '5px' }}   >
+										<TextField id="bankAddress" fullWidth label="Bank Address" name="bankAddress" value={this.state.bankAddress} onChange={this.handleChange} tabindex="7" />
+										{this.validator.message('bankAddress', this.state.bankAddress, 'required')}
+									</Grid>
+									<Grid item xs={12} sm={5}  >
+										<TextField id="Description" fullWidth label="Description" name="Description" value={this.state.Description} onChange={this.handleChange} tabindex="8" />
+										{this.validator.message('Description', this.state.Description, 'required')}
+									</Grid>
 								</form>
 								<div className="row">
-								<Grid item xs={12} sm={10}  >
-									<div style={{float: "right","marginRight":"8px"}}>
-									
-									<Button variant="outlined" color="secondary" className={classes.button } onClick={this.insertUpdateRecord} >
-										{this.state.Action}
-      								</Button>
-									</div>
+									<Grid item xs={12} sm={10}  >
+										<div style={{ float: "right", "marginRight": "8px" }}>
+
+											<Button variant="outlined" style={{marginTop:"10px"}} color="secondary" className={classes.button} onClick={this.insertUpdateRecord} >
+												{this.state.Action}
+											</Button>
+										</div>
 									</Grid>
 								</div>
 							</TabContainer>

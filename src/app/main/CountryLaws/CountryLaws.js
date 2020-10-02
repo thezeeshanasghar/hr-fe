@@ -103,7 +103,15 @@ class CountryLaws extends Component {
 		Id: 0,
 		Action: "Insert Record",
 		CountryLaws: [],
-		table: null
+		table: null,
+		Discount:"",
+		TaxAmount:"",
+		NoCarryForward:"",
+		Lumpsum:"",
+		PaidWithIn:"",
+		DeclarationMode:"",
+		declarationModelList:[]
+
 	};
 	constructor(props) {
 		super(props);
@@ -117,7 +125,7 @@ class CountryLaws extends Component {
 		this.getCurrency();
 		this.getMode();
 		this.getType();
-
+		this.getDeclarationMode();
 	}
 	handleTabChange = (event, value) => {
 		this.setState({ value });
@@ -131,6 +139,24 @@ class CountryLaws extends Component {
 			this.getEmployees(e.target.value);
 		}
 	};
+	getDeclarationMode = () => {
+
+		axios({
+			method: "get",
+			url: defaultUrl + "lookups/" + Lookups.Declaration,
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response);
+				this.setState({ declarationModelList: response.data });
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
 	getCountry = () => {
 
 		axios({
@@ -224,7 +250,13 @@ class CountryLaws extends Component {
 				MaxSalary: this.state.maxSalary,
 				MinSalary: this.state.minSalary,
 				Percentage: this.state.percentage,
-				Type: this.state.type
+				Type: this.state.type,
+				Discount:this.state.Discount,
+				TaxAmount:this.state.TaxAmount,
+				NoCarryForward:this.state.NoCarryForward,
+				Lumpsum:this.state.Lumpsum,
+				PaidWithIn:this.state.PaidWithIn,
+				DeclarationMode:this.state.DeclarationMode,
 			};
 			document.getElementById("fuse-splash-screen").style.display = "block";
 			axios.interceptors.request.use(function (config) {
@@ -258,7 +290,13 @@ class CountryLaws extends Component {
 						type: "",
 						Action: "Insert Record",
 						Id: 0,
-						value: 0
+						value: 0,
+						Discount:"",
+						TaxAmount:"",
+						NoCarryForward:"",
+						Lumpsum:"",
+						PaidWithIn:"",
+						DeclarationMode:"",
 					});
 					document.getElementById("fuse-splash-screen").style.display = "none";
 					Messages.success();
@@ -277,7 +315,13 @@ class CountryLaws extends Component {
 						percentage: "",
 						type: "",
 						Action: "Insert Record",
-						Id: 0
+						Id: 0,
+						Discount:"",
+						TaxAmount:"",
+						NoCarryForward:"",
+						Lumpsum:"",
+						PaidWithIn:"",
+						DeclarationMode:"",
 					})
 					document.getElementById("fuse-splash-screen").style.display = "none";
 					Messages.error();
@@ -312,7 +356,13 @@ class CountryLaws extends Component {
 					type: response.data[0].Type,
 					value: 1,
 					Id: response.data[0].Id,
-					Action: "Update Record"
+					Action: "Update Record",
+					Discount:response.data[0].Discount,
+					TaxAmount:response.data[0].TaxAmount,
+					NoCarryForward:response.data[0].NoCarryForward,
+					Lumpsum:response.data[0].lumpsum,
+					PaidWithIn:response.data[0].PaidWithin,
+					DeclarationMode:response.data[0].DeclarationMode,
 				});
 				document.getElementById("fuse-splash-screen").style.display = "none";
 			})
@@ -552,7 +602,7 @@ class CountryLaws extends Component {
 										/>
 										{this.validator.message('adultAge', this.state.adultAge, 'required')}
 									</Grid>
-									<Grid item xs={12} sm={5} >
+									<Grid item xs={12} sm={5}  style={{ marginRight: '5px' }} >
 										<TextField
 											id="minSalary"
 											label="Min Salary"
@@ -630,6 +680,106 @@ class CountryLaws extends Component {
 											margin="normal"
 										/>
 										{this.validator.message('description', this.state.description, 'required')}
+									</Grid>
+									<Grid item xs={12} sm={5} style={{ marginRight: '5px' }} >
+										<TextField
+											id="Discount"
+											label="Discount"
+											fullWidth
+											type="number"
+											name="Discount"
+											className={classes.textField}
+											value={this.state.Discount}
+											onChange={this.handleChange}
+											margin="normal"
+										/>
+										{this.validator.message('Discount', this.state.Discount, 'required')}
+									</Grid>
+									<Grid item xs={12} sm={5} >
+										<TextField
+											id="TaxAmount"
+											label="Tax Amount"
+											fullWidth
+											type="number"
+											name="TaxAmount"
+											className={classes.textField}
+											value={this.state.TaxAmount}
+											onChange={this.handleChange}
+											margin="normal"
+										/>
+										{this.validator.message('TaxAmount', this.state.TaxAmount, 'required')}
+									</Grid>
+									<Grid item xs={12} sm={5} style={{ marginRight: '5px' }}>
+										<FormControl className={classes.formControl}>
+											<InputLabel htmlFor="type">No CarryForward</InputLabel>
+											<Select
+												value={this.state.NoCarryForward}
+												onChange={this.handleChange}
+												inputProps={{
+													name: 'NoCarryForward',
+													id: 'NoCarryForward',
+												}}
+											>
+												<MenuItem value="">
+													<em>None</em>
+												</MenuItem>
+											
+													<MenuItem value="1">Yes</MenuItem>
+													<MenuItem value="0">No</MenuItem>
+												
+											</Select>
+										</FormControl>
+										{this.validator.message('NoCarryForward', this.state.NoCarryForward, 'required')}
+									</Grid>
+									<Grid item xs={12} sm={5} >
+										<TextField
+											id="Lumpsum"
+											label="Lumpsum"
+											fullWidth
+											type="number"
+											name="Lumpsum"
+											className={classes.textField}
+											value={this.state.Lumpsum}
+											onChange={this.handleChange}
+											margin="normal"
+										/>
+										{this.validator.message('Lumpsum', this.state.Lumpsum, 'required')}
+									</Grid>
+									<Grid item xs={12} sm={5} style={{ marginRight: '5px' }}>
+										<FormControl className={classes.formControl}>
+											<InputLabel htmlFor="type">Declaration Mode</InputLabel>
+											<Select
+												value={this.state.DeclarationMode}
+												onChange={this.handleChange}
+												inputProps={{
+													name: 'DeclarationMode',
+													id: 'DeclarationMode',
+												}}
+											>
+												<MenuItem value="">
+													<em>None</em>
+												</MenuItem>
+											
+													{this.state.declarationModelList.map(row => (
+													<MenuItem value={row.Id}>{row.Name}</MenuItem>
+												))}
+											</Select>
+										</FormControl>
+										{this.validator.message('DeclarationMode', this.state.DeclarationMode, 'required')}
+									</Grid>
+									<Grid item xs={12} sm={5} >
+										<TextField
+											id="PaidWithIn"
+											label="PaidWithIn"
+											fullWidth
+											type="number"
+											name="PaidWithIn"
+											className={classes.textField}
+											value={this.state.PaidWithIn}
+											onChange={this.handleChange}
+											margin="normal"
+										/>
+										{this.validator.message('PaidWithIn', this.state.PaidWithIn, 'required')}
 									</Grid>
 								</form>
 								<div className="row">

@@ -106,7 +106,8 @@ class PayElement extends Component {
 		payElements:[],
 		Id:0,
 		Action:"Insert Record",
-		table:null
+		table:null,
+		Frequency:""
 	};
 	constructor(props) {
 		super(props);
@@ -248,7 +249,8 @@ class PayElement extends Component {
 				CurrencyCode:this.state.currency,
 				noofDays:this.state.days,
 				ofMonth:this.state.month,
-				CompanyId:this.state.company
+				CompanyId:this.state.company,
+				Frequency:this.state.Frequency
 			};
 			axios.interceptors.request.use(function (config) {
 				document.getElementById("fuse-splash-screen").style.display="block";
@@ -283,7 +285,8 @@ class PayElement extends Component {
 						company:"",
 						Id: 0,
 						Action:'Insert Record',
-						value:0
+						value:0,
+						Frequency:""
 					});
 					document.getElementById("fuse-splash-screen").style.display="none";
 					Messages.success();
@@ -305,7 +308,8 @@ class PayElement extends Component {
 						company:"",
 						Id: 0,
 						Action:'Insert Record',
-						value:0
+						value:0,
+						Frequency:""
 					})
 					document.getElementById("fuse-splash-screen").style.display="none";
 					Messages.error();
@@ -395,7 +399,8 @@ class PayElement extends Component {
 					company : response.data[0].CompanyId,
 					value :  1,
 					Id : response.data[0].Id,
-					Action : "Update Record"
+					Action : "Update Record",
+					Frequency:response.data[0].Frequency
 				});
 				document.getElementById("fuse-splash-screen").style.display="none";
 
@@ -706,6 +711,21 @@ class PayElement extends Component {
 									{this.validator.message('month', this.state.month, 'required')}
 
 								</Grid>
+								<Grid item xs={12} sm={5} style={{ marginRight: '5px' }}  >
+									<TextField
+										id="Frequency"
+										label="Frequency"
+										name="Frequency"
+										className={classes.textField}
+										value={this.state.Frequency}
+										fullWidth
+										  onChange={this.handleChange}
+										margin="normal"
+										type="number"
+									/>
+									{this.validator.message('Frequency', this.state.Frequency, 'required')}
+								</Grid>
+								
 								</form>
 								<div className="row">
 								<Grid item xs={12} sm={10}  >

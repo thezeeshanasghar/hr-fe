@@ -1,3 +1,3 @@
-const defaultUrl = "https://backend-hr.digitforce.pk/api/";
+const defaultUrl = "http://localhost:5000/api/";
  export default defaultUrl;
  
