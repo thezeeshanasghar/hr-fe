@@ -117,6 +117,14 @@ const navigationConfig = [
                 'type': 'item',
                 'icon': 'whatshot',
                 'url': '/salarypayroll'
+            },
+            
+            {
+                'id': 'Termination-component',
+                'title': 'Employee Termination',
+                'type': 'item',
+                'icon': 'whatshot',
+                'url': '/termination'
             }
         ]
     },
