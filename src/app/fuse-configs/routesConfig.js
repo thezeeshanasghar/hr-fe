@@ -8,6 +8,7 @@ import {CountryLawsConfig} from 'app/main/CountryLaws/CountryLawsConfig';
 import {CurrencyExchangeConfig} from 'app/main/CurrencyExchange/CurrencyExchangeConfig';
 import {CompanyConfig} from 'app/main/company/CompanyConfig';
 import {EmployeeConfig} from 'app/main/Employee/EmployeeConfig';
+import {EmployeeDetailConfig} from 'app/main/EmployeDetail/EmployeeDetailConfig'; 
 import {GLAccountConfig} from 'app/main/GLAccount/GLAccountConfig';
 import {GradesConfig} from 'app/main/Grades/GradesConfig';
 import {PayElementConfig} from 'app/main/PayElement/PayElementConfig';
@@ -45,7 +46,8 @@ const routeConfigs = [
     EmployeeReportsConfig,
     PayrollReportsConfig,
     EmployeeVarianceReportConfig,
-    BulkUploadConfig
+    BulkUploadConfig,
+    EmployeeDetailConfig
 ];
 
  const routes = [
