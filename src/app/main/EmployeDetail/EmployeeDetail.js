@@ -83,70 +83,11 @@ function createData(Cnic, Name, Email, Unit, position) {
 
 class EmployeeDetail extends Component {
 	state = {
-		firstName: "",
-		lastName: "",
-		dateOfBirth: "",
-		email: "",
-		employeeCode: "",
-		insuranceId: "",
-		texationId: "",
-		PartTime: "",
-		cnic: "",
 		value: 0,
-		Gender: '',
-		Status: '',
-		Country: '',
-		ContractType: '',
-		EmployeeStatus: '',
-		company: "",
-		Position: "",
-		grade: "",
-		Bank: "",
-		Currency: "",
-		PaymentMethod: "",
-		SalaryStatus: "",
-		PayElement: "",
-		amount: "",
-		PayRollCurrency: "",
-		payrollStartDate: "",
-		payrollEndDate: "",
-		IBAN: "",
-		IsPrimary: "",
-		EffectiveDate: "",
-		HireDate: "",
-		reason: "",
-		ServiceStartDate: "",
-		ProbationEndDate: "",
-		parttimepercentage: "",
-		ContractEndDate: "",
-		Address: "",
-		Contact: "",
-		title: "",
-		Companies: [],
-		companyList: [],
-		genderList: [],
-		countryList: [],
-		maritallist: [],
-		contractTypeList: [],
-		statusList: [],
-		currencyList: [],
-		parttimeList: [],
-		positionList: [],
-		gradeList: [],
-		salaryStatusList: [],
-		paymentmethodList: [],
-		socialList: [],
-		taxationList: [],
-		bankList: [],
-		payElements: [],
-		PayRoll: [],
-		TitleList: [],
-		employeeList: [],
-		lawsList: [],
-		lawId: "",
-		selectedLaws: [],
-		Id: 0,
-		Action: "Insert Record"
+		Employee: [],
+		table: null
+		// Id: 0,
+		// Action: "Insert Record"
 	};
 	constructor(props) {
 		super(props);
@@ -154,6 +95,7 @@ class EmployeeDetail extends Component {
 	}
 	componentDidMount() {
 		localStorage.removeItem("ids");
+		this.getEmployeeById(39);
 		
 	}
 	deleteRow = (element) => {
@@ -168,8 +110,6 @@ class EmployeeDetail extends Component {
 		this.setState({ value });
 		this.setState({ [event.target.name]: event.target.value });
 		}
-		
-
 	};
 
 	nextTab = (val) => {
@@ -226,61 +166,91 @@ class EmployeeDetail extends Component {
 		}
 		this.setState({ value: val });
 	}
-	
-	
-	getEmployeeById = () => {
-		var ids=localStorage.getItem("ids");
-		if(ids===null)
-		{
-		Messages.warning("No Record Selected")
-		return false;
-		}
-		document.getElementById("fuse-splash-screen").style.display="block";
+		
+	getEmployeeById = (id) => {
+		// var ids=localStorage.getItem("ids");
+		// if(ids===null)
+		// {
+		// Messages.warning("No Record Selected")
+		// return false;
+		// }
+		// document.getElementById("fuse-splash-screen").style.display="block";
 
 		axios({
 			method: "get",
-			url: defaultUrl + "/employee/" + ids,
+			url: defaultUrl + "/employee/details/" + id,
 			headers: {
 				// 'Authorization': `bearer ${token}`,
 				"Content-Type": "application/json;charset=utf-8",
 			},
 		})
 			.then((response) => {
-				this.getPosition(response.data[0].CompanyId);
-				this.getGrades(response.data[0].CompanyId);
 				this.setState({
-					firstName: response.data[0].FirstName,
-					lastName: response.data[0].LastName,
-					dateOfBirth: moment(response.data[0].DOB).format('YYYY-MM-DD'),
-					email: response.data[0].Email,
-					employeeCode: response.data[0].EmployeeCode,
-					insuranceId: response.data[0].InsuranceId,
-					texationId: response.data[0].TaxationId,
-					PartTime: response.data[0].PartTimeSituation,
-					cnic: response.data[0].Cnic,
-					value: 1,
-					Gender: response.data[0].Gender,
-					Status: response.data[0].MaritalStatus,
-					Country: response.data[0].Country,
-					ContractType: response.data[0].ContractType,
-					EmployeeStatus: response.data[0].CurrentEmployeeStatus,
-					company: response.data[0].CompanyId,
-					Position: response.data[0].PositionId,
-					grade: response.data[0].GradeId,
-					HireDate: moment(response.data[0].HireDate).format('YYYY-MM-DD'),
-					reason: response.data[0].HiringReason,
-					ServiceStartDate: moment(response.data[0].ServiceStartDate).format('YYYY-MM-DD'),
-					ProbationEndDate: moment(response.data[0].ProbationEndDate).format('YYYY-MM-DD'),
-					parttimepercentage: response.data[0].PartTimePercentage,
-					ContractEndDate: moment(response.data[0].ContractEndDate).format('YYYY-MM-DD'),
-					Address: response.data[0].Address,
-					Contact: response.data[0].Contact,
-					title: response.data[0].Title,
-					Action: "Update Record",
-					Id: response.data[0].Id
-				})
-				document.getElementById("fuse-splash-screen").style.display="none";
+					Employee: response,
+					// Action: "Update Record",
+					// Id: response.data[0].Id,
 
+				});
+				document.getElementById("fuse-splash-screen").style.display="none";
+				
+				// employee detail table start
+				this.state.table = $('#employeedetail_Table').DataTable({
+					data: this.state.Employee,
+					"columns": [
+						{ "data": "FirstName" },
+						{ "data": "LastName" },
+						{ "data": "DOB" },
+						{ "data": "HireDate" },
+						{ "data": "HireReason" },
+						{ "data": "ServiceStartDate" },
+						{ "data": "ProbationEndDate" },
+						{ "data": "PartTimePercentage" },
+						{ "data": "Positions" },
+						{ "data": "Grade" },
+						{ "data": "Address" },
+						{ "data": "Contact" },
+						{ "data": "ContractEndDate" },
+						{ "data": "CompanyName" },
+					],
+					rowReorder: {
+						selector: 'td:nth-child(2)'
+					},
+					responsive: true,
+					dom: 'Bfrtip',
+					buttons: [
+	
+					],
+					columnDefs: [{
+						"defaultContent": "-",
+						"targets": "_all"
+					  }]
+				});
+				
+				// employee banl table start 
+				this.state.table = $('#employebank_Table').DataTable({
+					data: this.state.Employee.EmployeeBankAccount,
+					"columns": [
+						{ "data": "CompanyId" },
+						{ "data": "BankId" },
+						{ "data": "IBAN" },
+						{ "data": "EffectiveDate" },
+						{ "data": "IsPrimary" },
+						{ "data": "CurrencyCode" },
+						{ "data": "EmployeeId" }
+					],
+					rowReorder: {
+						selector: 'td:nth-child(2)'
+					},
+					responsive: true,
+					dom: 'Bfrtip',
+					buttons: [
+	
+					],
+					columnDefs: [{
+						"defaultContent": "-",
+						"targets": "_all"
+					  }]
+				});
 			})
 			.catch((error) => {
 				console.log(error);
@@ -353,6 +323,7 @@ class EmployeeDetail extends Component {
 		this.getEmployeePayRollById(Id);
 		this.getApplicableLaws(Id);
 	}
+
 	render() {
 		const { classes, theme } = this.props;
 
@@ -380,16 +351,92 @@ class EmployeeDetail extends Component {
 								indicatorColor="primary"
 								textColor="primary"
 								variant="fullWidth">
->
-								<Tab label="View" />
+
 								<Tab label="Employee Detail" />
 								<Tab label="Employee Bank" />
 								<Tab label="Employee Payroll" />
 								<Tab label="Applicable Laws" />
 							</Tabs>
 						</AppBar>
-						<SwipeableViews>
-							
+						<SwipeableViews axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
+							index={this.state.value}
+							onChangeIndex={this.handleChangeIndex}>
+						<TabContainer dir={theme.direction}>
+								<Paper className={classes.root}>
+								{/* <div className="row">
+									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
+										<Button variant="outlined" color="primary" className={classes.button} onClick={this.getEmployeeById}>
+											Edit
+										</Button>
+									</div>
+									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
+										<Button variant="outlined" color="inherit" className={classes.button} onClick={this.deleteEmployee}>
+											Delete
+										</Button>
+									</div>
+								</div> */}
+								<table id="employeedetail_Table" className="nowrap header_custom" style={{ "width": "100%" }}>
+										<thead>
+											<tr>
+												{/* <th>EmployeeCode</th>
+												<th>Title</th> */}
+												<th>FirstName</th>
+												<th>LastName</th>
+												<th>DOB</th>
+												<th>HireDate</th>
+												<th>HireReason</th>
+												<th>ServiceStartDate</th>
+												<th>ProbationEndDate</th>
+												<th>PartTimePercentage</th>
+												<th>Positions</th>
+												<th>Grade</th>
+												<th>Address</th>
+												{/* <th>PartTimePercentage</th> */}
+												{/* <th>ContractEndDate</th> */}
+												{/* <th>Address</th> */}
+												<th>Contact</th>
+												{/* <th>MaritalStatus</th> */}
+												{/* <th>Country</th> */}
+												{/* <th>CurrentEmployeeStatus</th> */}
+												<th>ContractEndDate</th>
+												<th>CompanyName</th>
+											</tr>
+										</thead>
+									</table>
+								
+								</Paper>
+							</TabContainer>
+
+							<TabContainer dir={theme.direction}>
+								<Paper className={classes.root}>
+								{/* <div className="row">
+									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
+										<Button variant="outlined" color="primary" className={classes.button} onClick={this.getEmployeeById}>
+											Edit
+										</Button>
+									</div>
+									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
+										<Button variant="outlined" color="inherit" className={classes.button} onClick={this.deleteEmployee}>
+											Delete
+										</Button>
+									</div>
+								</div> */}
+								<table id="employebank_Table" className="nowrap header_custom" style={{ "width": "100%" }}>
+										<thead>
+											<tr>
+												<th>CompanyId</th>
+												<th>BankId</th>
+												<th>IBAN</th>
+												<th>EffectiveDate</th>
+												<th>IsPrimary</th>
+												<th>CurrencyCode</th>
+												<th>EmployeeId</th>
+											</tr>
+										</thead>
+									</table>
+								
+								</Paper>
+							</TabContainer>
 						</SwipeableViews>
 					</div>
 				}
