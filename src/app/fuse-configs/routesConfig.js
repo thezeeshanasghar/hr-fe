@@ -24,6 +24,8 @@ import {EmployeeReportsConfig} from 'app/main/EmployeeReports/EmployeeReportsCon
 import {EmployeeVarianceReportConfig} from 'app/main/EmployeeVarianceReport/EmployeeVarianceReportConfig'
 import {PayrollReportsConfig} from 'app/main/PayrollReports/PayrollReportsConfig'
 import {BulkUploadConfig} from 'app/main/BulkUpload/BulkUploadConfig'
+import {TerminationConfig} from 'app/main/Termination/TerminationConfig'
+
 const routeConfigs = [
     DashboardConfig,
     BankConfig,
@@ -47,6 +49,7 @@ const routeConfigs = [
     PayrollReportsConfig,
     EmployeeVarianceReportConfig,
     BulkUploadConfig,
+    TerminationConfig,
     EmployeeDetailConfig
 ];
 
