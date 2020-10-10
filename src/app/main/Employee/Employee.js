@@ -133,6 +133,13 @@ class Employee extends Component {
 		Address: "",
 		Contact: "",
 		title: "",
+		frequency:"",
+		entitlement:"",
+		oneTimePayElement:"",
+		oneTimeEntitlement:"",
+		oneTimeAmount:"",
+		oneTimeDate:"",
+		oneTimeCurrency:"",
 		Companies: [],
 		companyList: [],
 		genderList: [],
@@ -156,6 +163,8 @@ class Employee extends Component {
 		lawsList: [],
 		lawId: "",
 		selectedLaws: [],
+		entitlementList:[],
+		oneTimePayRoll:[],
 		Id: 0,
 		Action: "Insert Record"
 	};
@@ -179,17 +188,25 @@ class Employee extends Component {
 		this.getTitle();
 		this.getEmployeeList();
 		this.getCountryLaws();
+		this.getEntitlement();
 	}
 	deleteRow = (element) => {
 		console.log(element);
-		this.setState({ PayRoll: this.state.PayRoll.filter(x => x.PayElement != element) })
+		this.setState({ PayRoll: this.state.PayRoll.filter(x => x.Id != element) })
+	}
+	deleteoneTimeRow= (element) => {
+
+		this.setState({ oneTimePayRoll: this.state.oneTimePayRoll.filter(x => x.Id != element) })
 	}
 	AddPayRoll = () => {
 		if (!this.validator.fieldValid('payrollEndDate') ||
 			!this.validator.fieldValid('payrollStartDate') ||
 			!this.validator.fieldValid('PayRollCurrency') ||
 			!this.validator.fieldValid('amount') ||
-			!this.validator.fieldValid('PayElement')) {
+			!this.validator.fieldValid('PayElement') ||
+			!this.validator.fieldValid('frequency') ||
+			!this.validator.fieldValid('entitlement')
+			) {
 			this.validator.showMessages();
 			this.forceUpdate();
 			return false;
@@ -198,16 +215,18 @@ class Employee extends Component {
 		let count = list.filter(x => x.PayElement == this.state.PayElement).length;
 
 		if (count > 0) {
-			this.setState({ PayRoll: list, PayElement: "", amount: "", payrollStartDate: "", payrollEndDate: "" })
+			this.setState({ PayRoll: list, PayElement: "", amount: "", payrollStartDate: "", payrollEndDate: "",frequency:"",entitlement:"" })
 			return false;
 		}
 
 		list.push({
-			PayelementId: this.state.PayElement,
-			value: this.state.amount,
+			PayElementId: this.state.PayElement,
+			amount: this.state.amount,
 			Currency: this.state.PayRollCurrency,
 			StartDate: this.state.payrollStartDate,
-			EndDate: this.state.payrollEndDate
+			EndDate: this.state.payrollEndDate,
+			frequency:this.state.frequency,
+			entitlement:this.state.entitlement
 		});
 
 		this.setState({ PayRoll: list, PayElement: "", amount: "", payrollStartDate: "", payrollEndDate: "" })
@@ -268,6 +287,7 @@ class Employee extends Component {
 				console.log(error);
 			})
 	}
+	
 	getGender = () => {
 		axios({
 			method: "get",
@@ -540,11 +560,67 @@ class Employee extends Component {
 				console.log(error);
 			})
 	}
+	AddoneTimePayRoll=()=>{
+
+		if (!this.validator.fieldValid('oneTimePayElement') ||
+			!this.validator.fieldValid('oneTimeEntitlement') ||
+			!this.validator.fieldValid('oneTimeDate') ||
+			!this.validator.fieldValid('oneTimeAmount') ||
+			!this.validator.fieldValid('oneTimeCurrency')
+			) {
+			this.validator.showMessages();
+			this.forceUpdate();
+			return false;
+		}
+		let list = this.state.oneTimePayRoll;
+		let count = list.filter(x => x.oneTimePayElement == this.state.oneTimePayElement).length;
+
+		if (count > 0) {
+			this.setState({ oneTimePayRoll: list, oneTimePayElement: "", oneTimeEntitlement: "", oneTimeDate: "", oneTimeAmount: "",oneTimeCurrency:""})
+			return false;
+		}
+
+		list.push({
+			PayelementId: this.state.oneTimePayElement,
+			Amount: this.state.oneTimeAmount,
+			Currency: this.state.oneTimeCurrency,
+			EffectiveDate: this.state.oneTimeDate,
+			entitlement:this.state.oneTimeEntitlement
+		});
+
+		this.setState({ oneTimePayRoll: list, oneTimePayElement: "", oneTimeEntitlement: "", oneTimeDate: "", oneTimeAmount: "",oneTimeCurrency:"" })
+	
+	}
+	getOneTimePayroll = (Id) => {
+		axios({
+			method: "get",
+			url: defaultUrl + "/Employee/onetime/" + Id,
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response);
+				this.setState({ oneTimePayRoll: response.data });
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
+	getOneTimePayrollDetail= () => {
+		var detail = "";
+
+		for (var i = 0; i < this.state.oneTimePayRoll.length; i++) {
+			detail += this.state.oneTimePayRoll[i].PayelementId + '@' + this.state.oneTimePayRoll[i].Amount + "_" + this.state.oneTimePayRoll[i].Currency + "&" + this.state.oneTimePayRoll[i].EffectiveDate + "|" + this.state.oneTimePayRoll[i].entitlement + "!;";
+		}
+		return detail;
+	}
 	getPayRollDetail = () => {
 		var detail = "";
 
 		for (var i = 0; i < this.state.PayRoll.length; i++) {
-			detail += this.state.PayRoll[i].PayelementId + '@' + this.state.PayRoll[i].value + "_" + this.state.PayRoll[i].Currency + "&" + this.state.PayRoll[i].StartDate + "|" + this.state.PayRoll[i].EndDate + "!;";
+			detail += this.state.PayRoll[i].PayElementId + '@' + this.state.PayRoll[i].amount + "_" + this.state.PayRoll[i].Currency + "&" + this.state.PayRoll[i].StartDate + "|" + this.state.PayRoll[i].EndDate +"$"+this.state.PayRoll[i].entitlement+">"+this.state.PayRoll[i].frequency + "!;";
 		}
 		return detail;
 	}
@@ -555,6 +631,24 @@ class Employee extends Component {
 			detail += this.state.selectedLaws[i].LawId + ";";
 		}
 		return detail;
+	}
+	
+	getEntitlement = () => {
+		axios({
+			method: "get",
+			url: defaultUrl + "/lookups/" + Lookups.Entitlement,
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response);
+				this.setState({ entitlementList: response.data });
+			})
+			.catch((error) => {
+				console.log(error);
+			})
 	}
 	getTitle = () => {
 		axios({
@@ -633,6 +727,7 @@ class Employee extends Component {
 			Paymethod: this.state.PaymentMethod,
 			SalaryStatus: this.state.SalaryStatus,
 			PayRollDetail: this.getPayRollDetail(),
+			OneTimePayRollDetail: this.getOneTimePayrollDetail(),
 			ApplicableLaws: this.getLawsDetail(),
 		};
 		axios.interceptors.request.use(function (config) {
@@ -800,7 +895,7 @@ class Employee extends Component {
 			}
 		}
 		else if (val == 4) {
-			if (this.state.PayRoll.length <= 0) {
+			if (this.state.PayRoll.length <= 0 ||this.state.oneTimePayRoll.length <= 0 ) {
 				return false;
 			}
 		}
@@ -868,11 +963,11 @@ class Employee extends Component {
 	}
 	deleteEmployee = () => {
 		let ids = localStorage.getItem("ids");
-		if(ids=== null || localStorage.getItem("ids").split(",").length>1)
-		{
-			Messages.warning("kindly Select one record")
-			return false;
-		}
+		// if(ids=== null || localStorage.getItem("ids").split(",").length>1)
+		// {
+		// 	Messages.warning("kindly Select one record")
+		// 	return false;
+		// }
 		document.getElementById("fuse-splash-screen").style.display="block";
 
 		axios({
@@ -896,8 +991,8 @@ class Employee extends Component {
 
 			})
 	}
-	getEmployeeById = () => {
-		var ids=localStorage.getItem("ids");
+	getEmployeeById = (ids) => {
+	
 		if(ids===null)
 		{
 		Messages.warning("No Record Selected")
@@ -916,6 +1011,7 @@ class Employee extends Component {
 			.then((response) => {
 				this.getPosition(response.data[0].CompanyId);
 				this.getGrades(response.data[0].CompanyId);
+				this.getPayElement(response.data[0].CompanyId);
 				this.setState({
 					firstName: response.data[0].FirstName,
 					lastName: response.data[0].LastName,
@@ -966,6 +1062,7 @@ class Employee extends Component {
 			},
 		})
 			.then((response) => {
+				console.log(response.data,"Bank Detail");
 				this.setState({
 					Bank: response.data[0].BankId,
 					Currency: response.data[0].CurrencyCode,
@@ -1014,12 +1111,18 @@ class Employee extends Component {
 				console.log(error);
 			})
 	}
-	getEmployeeDetailsForEdit = (Id) => {
-		console.log(Id);
-		this.getEmployeeById(Id);
-		this.getEmployeeBankById(Id);
-		this.getEmployeePayRollById(Id);
-		this.getApplicableLaws(Id);
+	getEmployeeDetailsForEdit = () => {
+		var ids=localStorage.getItem("ids");
+		if(ids=== null || localStorage.getItem("ids").split(",").length>1)
+		{
+			Messages.warning("kindly Select one record")
+			return false;
+		}
+		this.getEmployeeBankById(ids);
+		this.getEmployeeById(ids);
+		this.getEmployeePayRollById(ids);
+		this.getOneTimePayroll(ids);
+		this.getApplicableLaws(ids);
 	}
 	render() {
 		const { classes, theme } = this.props;
@@ -1065,7 +1168,7 @@ class Employee extends Component {
 								<Paper className={classes.root}>
 								<div className="row">
 									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
-										<Button variant="outlined" color="primary" className={classes.button} onClick={this.getEmployeeById}>
+										<Button variant="outlined" color="primary" className={classes.button} onClick={this.getEmployeeDetailsForEdit}>
 											Edit
 										</Button>
 									</div>
@@ -1237,7 +1340,7 @@ class Employee extends Component {
 									</Grid>
 									<Grid item xs={12} sm={5} style={{ marginRight: '5px' }} >
 										<TextField id="standard-basic" fullWidth label="Insurance Id" value={this.state.insuranceId} name="insuranceId" onChange={this.handleChange} />
-										{this.validator.message('insuranceId', this.state.insuranceId, 'required')}
+										{this.validator.message('insuranceId', this.state.texationId, 'required')}
 
 									</Grid>
 									<Grid item xs={12} sm={5}  >
@@ -1246,7 +1349,7 @@ class Employee extends Component {
 
 									</Grid>
 									<Grid item xs={12} sm={5} style={{ marginRight: '5px' }} >
-										<TextField id="standard-basic" fullWidth label="Cnic" onChange={this.handleChange} name="cnic" />
+										<TextField id="standard-basic" value={this.state.cnic} fullWidth label="Cnic" onChange={this.handleChange} name="cnic" />
 										{this.validator.message('cnic', this.state.cnic, 'required')}
 
 									</Grid>
@@ -1606,7 +1709,7 @@ class Employee extends Component {
 							</TabContainer>
 
 							<TabContainer dir={theme.direction}>
-								<h4>Employee PayRoll</h4>
+								<h4>Periodic PayElements</h4>
 								<form className={classes.container} noValidate autoComplete="off">
 
 									<Grid item xs={12} sm={5} style={{ marginRight: '5px' }}  >
@@ -1678,7 +1781,7 @@ class Employee extends Component {
 
 									</Grid>
 
-									<Grid item xs={12} sm={5} >
+									<Grid item xs={12} sm={5}  style={{ marginRight: '5px' }}  >
 										<TextField
 											id="date"
 											label="End Date"
@@ -1693,6 +1796,33 @@ class Employee extends Component {
 											}}
 										/>
 										{this.validator.message('payrollEndDate', this.state.payrollEndDate, 'required')}
+
+									</Grid>
+									<Grid item xs={12} sm={5} style={{ marginLeft: '5px' }}   >
+										<TextField id="frequency" type="number" fullWidth label="Frequency" name="frequency" value={this.state.frequency} onChange={this.handleChange} />
+										{this.validator.message('frequency', this.state.frequency, 'required')}
+
+									</Grid>
+									<Grid item xs={12} sm={5} style={{ marginRight: '5px' }}  >
+										<FormControl className={classes.formControl}>
+											<InputLabel htmlFor="entitlement">Entilement</InputLabel>
+											<Select
+												value={this.state.entitlement}
+												onChange={this.handleChange}
+												inputProps={{
+													name: 'entitlement',
+													id: 'entitlement',
+												}}
+											>
+												<MenuItem value="">
+													<em>None</em>
+												</MenuItem>
+												{this.state.entitlementList.map(row => (
+													<MenuItem value={row.Id}>{row.Name}</MenuItem>
+												))}
+											</Select>
+										</FormControl>
+										{this.validator.message('entitlement', this.state.entitlement, 'required')}
 
 									</Grid>
 
@@ -1721,11 +1851,11 @@ class Employee extends Component {
 										<TableBody>
 											{this.state.PayRoll.map(row => (
 												<TableRow className={classes.row} key={row.Id}>
-													<CustomTableCell align="center">{row.PayelementId}</CustomTableCell>
-													<CustomTableCell align="center">{row.value}</CustomTableCell>
+													<CustomTableCell align="center">{row.PayElementId}</CustomTableCell>
+													<CustomTableCell align="center">{row.amount}</CustomTableCell>
 													<CustomTableCell align="center">{row.Currency}</CustomTableCell>
 													<CustomTableCell align="center" component="th" scope="row">
-														<IconButton className={classes.button} aria-label="Delete" onClick={() => this.deleteRow(row.PayRollCurrency)} >
+														<IconButton className={classes.button} aria-label="Delete" onClick={() => this.deleteRow(row.Id)} >
 															<DeleteIcon />
 														</IconButton>
 													</CustomTableCell>
@@ -1734,6 +1864,143 @@ class Employee extends Component {
 										</TableBody>
 									</Table>
 								</div>
+							
+								<h4>OneTime PayElements</h4>
+								<form className={classes.container} noValidate autoComplete="off">
+
+									<Grid item xs={12} sm={5} style={{ marginRight: '5px' }}  >
+										<FormControl className={classes.formControl}>
+											<InputLabel htmlFor="oneTimePayElement">Pay Elements</InputLabel>
+											<Select
+												value={this.state.oneTimePayElement}
+												onChange={this.handleChange}
+												inputProps={{
+													name: 'oneTimePayElement',
+													id: 'oneTimePayElement',
+												}}
+											>
+												<MenuItem value="">
+													<em>None</em>
+												</MenuItem>
+												{this.state.payElements.map(row => (
+													<MenuItem value={row.Id}>{row.Code}</MenuItem>
+												))}
+											</Select>
+										</FormControl>
+										{this.validator.message('oneTimePayElement', this.state.oneTimePayElement, 'required')}
+
+									</Grid>
+
+									<Grid item xs={12} sm={5}  >
+										<TextField id="oneTimeAmount" fullWidth label="oneTimeAmount" name="oneTimeAmount" value={this.state.oneTimeAmount} onChange={this.handleChange} />
+										{this.validator.message('oneTimeAmount', this.state.oneTimeAmount, 'required')}
+
+									</Grid>
+									<Grid item xs={12} sm={5} >
+										<FormControl className={classes.formControl}>
+											<InputLabel htmlFor="Currency">Currency</InputLabel>
+											<Select
+												value={this.state.oneTimeCurrency}
+												onChange={this.handleChange}
+												inputProps={{
+													name: 'oneTimeCurrency',
+													id: 'oneTimeCurrency',
+												}}
+											>
+												<MenuItem value="">
+													<em>None</em>
+												</MenuItem>
+												{this.state.currencyList.map(row => (
+													<MenuItem value={row.Id}>{row.Name}</MenuItem>
+												))}
+											</Select>
+										</FormControl>
+										{this.validator.message('oneTimeCurrency', this.state.oneTimeCurrency, 'required')}
+
+									</Grid>
+
+									
+
+									<Grid item xs={12} sm={5}  style={{ marginRight: '5px' }}  >
+										<TextField
+											id="date"
+											label="Effective Date"
+											type="date"
+											fullWidth
+											value={this.state.oneTimeDate}
+											name="oneTimeDate"
+											onChange={this.handleChange}
+											className={classes.textField}
+											InputLabelProps={{
+												shrink: true,
+											}}
+										/>
+										{this.validator.message('oneTimeDate', this.state.oneTimeDate, 'required')}
+
+									</Grid>
+									<Grid item xs={12} sm={5} style={{ marginRight: '5px' }}  >
+										<FormControl className={classes.formControl}>
+											<InputLabel htmlFor="entitlement">Entilement</InputLabel>
+											<Select
+												value={this.state.oneTimeEntitlement}
+												onChange={this.handleChange}
+												inputProps={{
+													name: 'oneTimeEntitlement',
+													id: 'oneTimeEntitlement',
+												}}
+											>
+												<MenuItem value="">
+													<em>None</em>
+												</MenuItem>
+												{this.state.entitlementList.map(row => (
+													<MenuItem value={row.Id}>{row.Name}</MenuItem>
+												))}
+											</Select>
+										</FormControl>
+										{this.validator.message('oneTimeEntitlement', this.state.oneTimeEntitlement, 'required')}
+
+									</Grid>
+								</form>
+								<div className="row">
+									<div style={{ float: "right", "marginRight": "8px" }}>
+
+										<IconButton className={classes.button} aria-label="Add" onClick={this.AddoneTimePayRoll} >
+											<AddIcon />
+										</IconButton>
+									</div>
+								</div>
+								<div className="row">
+
+									<Table className={classes.table}>
+										<TableHead>
+											<TableRow>
+
+												<CustomTableCell align="center" >Pay Element</CustomTableCell>
+												<CustomTableCell align="center" >Amount</CustomTableCell>
+												<CustomTableCell align="center" >Currency</CustomTableCell>
+												<CustomTableCell align="center" >Effective Date</CustomTableCell>
+												<CustomTableCell align="center">Action</CustomTableCell>
+
+											</TableRow>
+										</TableHead>
+										<TableBody>
+											{this.state.oneTimePayRoll.map(row => (
+												<TableRow className={classes.row} key={row.Id}>
+													<CustomTableCell align="center">{row.PayelementId}</CustomTableCell>
+													<CustomTableCell align="center">{row.Amount}</CustomTableCell>
+													<CustomTableCell align="center">{row.Currency}</CustomTableCell>
+													<CustomTableCell align="center">{row.EffectiveDate}</CustomTableCell>
+													<CustomTableCell align="center" component="th" scope="row">
+														<IconButton className={classes.button} aria-label="Delete" onClick={() => this.deleteoneTimeRow(row.Id)} >
+															<DeleteIcon />
+														</IconButton>
+													</CustomTableCell>
+												</TableRow>
+											))}
+										</TableBody>
+									</Table>
+								</div>
+							
 								<div className="row" style={{ "marginBottom": "10px" }} >
 									<Grid item xs={12} sm={12}  >
 										<div style={{ float: "left", "marginLeft": "8px" }}>

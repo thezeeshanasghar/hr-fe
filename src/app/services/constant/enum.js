@@ -16,5 +16,6 @@ export const Lookups = {
     Title:15,
     lawtypes:16,
     Declaration:17,
-    StaffCategory:18
+    StaffCategory:18,
+    Entitlement:19
 }
