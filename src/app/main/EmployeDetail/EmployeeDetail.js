@@ -84,7 +84,7 @@ function createData(Cnic, Name, Email, Unit, position) {
 class EmployeeDetail extends Component {
 	state = {
 		value: 0,
-		Employee: [],
+		Employee: {},
 		table: null
 		// Id: 0,
 		// Action: "Insert Record"
@@ -94,9 +94,9 @@ class EmployeeDetail extends Component {
 		this.validator = new SimpleReactValidator();
 	}
 	componentDidMount() {
-		localStorage.removeItem("ids");
-		this.getEmployeeById(39);
-		
+		var url = window.location.href.split('/')[4];
+		this.getEmployeeById(url);
+
 	}
 	deleteRow = (element) => {
 		console.log(element);
@@ -105,76 +105,17 @@ class EmployeeDetail extends Component {
 
 
 	handleTabChange = (event, value) => {
-		if(value==1 || value==0)
-		{
+
 		this.setState({ value });
 		this.setState({ [event.target.name]: event.target.value });
-		}
+
 	};
 
 	nextTab = (val) => {
-		if (val === 2) {
-			if (
-				!this.validator.fieldValid('firstName') ||
-				!this.validator.fieldValid('lastName') ||
-				!this.validator.fieldValid('Gender') ||
-				!this.validator.fieldValid('Country') ||
-				!this.validator.fieldValid('Status') ||
-				!this.validator.fieldValid('dateOfBirth') ||
-				!this.validator.fieldValid('email') ||
-				!this.validator.fieldValid('employeeCode') ||
-				!this.validator.fieldValid('insuranceId') ||
-				!this.validator.fieldValid('texationId') ||
-				!this.validator.fieldValid('cnic') ||
-				!this.validator.fieldValid('ContractType') ||
-				!this.validator.fieldValid('EmployeeStatus') ||
-				!this.validator.fieldValid('HireDate') ||
-				!this.validator.fieldValid('reason') ||
-				!this.validator.fieldValid('PartTime') ||
-				!this.validator.fieldValid('ServiceStartDate') ||
-				!this.validator.fieldValid('ProbationEndDate') ||
-				!this.validator.fieldValid('title') ||
-				!this.validator.fieldValid('ContractEndDate') ||
-				!this.validator.fieldValid('company') ||
-				!this.validator.fieldValid('Position') ||
-				!this.validator.fieldValid('grade') ||
-				!this.validator.fieldValid('Contact') ||
-				!this.validator.fieldValid('Address')
-			) {
-				this.validator.showMessages();
-				this.forceUpdate();
-				return false;
-			}
-		}
-		else if (val == 3) {
-			if (!this.validator.fieldValid('Bank') ||
-				!this.validator.fieldValid('Currency') ||
-				!this.validator.fieldValid('IBAN') ||
-				!this.validator.fieldValid('EffectiveDate') ||
-				!this.validator.fieldValid('IsPrimary')
-			) {
-
-				this.validator.showMessages();
-				this.forceUpdate();
-				return false;
-			}
-		}
-		else if (val == 4) {
-			if (this.state.PayRoll.length <= 0) {
-				return false;
-			}
-		}
 		this.setState({ value: val });
 	}
-		
+
 	getEmployeeById = (id) => {
-		// var ids=localStorage.getItem("ids");
-		// if(ids===null)
-		// {
-		// Messages.warning("No Record Selected")
-		// return false;
-		// }
-		// document.getElementById("fuse-splash-screen").style.display="block";
 
 		axios({
 			method: "get",
@@ -186,16 +127,16 @@ class EmployeeDetail extends Component {
 		})
 			.then((response) => {
 				this.setState({
-					Employee: response,
+					Employee: response.data,
 					// Action: "Update Record",
 					// Id: response.data[0].Id,
 
 				});
-				document.getElementById("fuse-splash-screen").style.display="none";
-				
+				document.getElementById("fuse-splash-screen").style.display = "none";
+				console.log(response.data)
 				// employee detail table start
 				this.state.table = $('#employeedetail_Table').DataTable({
-					data: this.state.Employee,
+					data: [response.data],
 					"columns": [
 						{ "data": "FirstName" },
 						{ "data": "LastName" },
@@ -218,17 +159,17 @@ class EmployeeDetail extends Component {
 					responsive: true,
 					dom: 'Bfrtip',
 					buttons: [
-	
+
 					],
 					columnDefs: [{
 						"defaultContent": "-",
 						"targets": "_all"
-					  }]
+					}]
 				});
-				
+
 				// employee banl table start 
 				this.state.table = $('#employebank_Table').DataTable({
-					data: this.state.Employee.EmployeeBankAccount,
+					data: response.data.EmployeeBankAccount,
 					"columns": [
 						{ "data": "CompanyId" },
 						{ "data": "BankId" },
@@ -244,17 +185,17 @@ class EmployeeDetail extends Component {
 					responsive: true,
 					dom: 'Bfrtip',
 					buttons: [
-	
+
 					],
 					columnDefs: [{
 						"defaultContent": "-",
 						"targets": "_all"
-					  }]
+					}]
 				});
 			})
 			.catch((error) => {
 				console.log(error);
-				document.getElementById("fuse-splash-screen").style.display="none";
+				document.getElementById("fuse-splash-screen").style.display = "none";
 
 			})
 	}
@@ -326,118 +267,156 @@ class EmployeeDetail extends Component {
 
 	render() {
 		const { classes, theme } = this.props;
-
+		console.log(this.state.Employee, "&&&&&&&&&&&&&&&");
 		return (
 			<FusePageSimple
 				classes={{
 					root: classes.layoutRoot
 				}}
-				header={
-					<div className="p-24"><h4>Employee Detail</h4></div>
-				}
-				// contentToolbar={
-				// 	<div className="px-24"><h4>Add New Company</h4></div>
+				// header={
+				// 	<div className="p-24"><h4>Employee Detail</h4></div>
 				// }
+
 				content={
 
 					<div className={classes.root}>
-						 <div>
-        <ToastContainer />
-      </div>
-						<AppBar position="static" color="default">
-							<Tabs
-								value={this.state.value}
-								onChange={this.handleTabChange}
-								indicatorColor="primary"
-								textColor="primary"
-								variant="fullWidth">
+						<div style={{ borderBottom: "solid 1px black" }} ></div>
+						<h1 style={{ textAlign: "center" }}>Basic Information</h1>
+						<div style={{ borderBottom: "solid 1px black" }} ></div>
+						<form className={classes.container} style={{ textAlign: "center" }} noValidate autoComplete="off">
+							<Grid item xs={4} sm={4}  >
+								<h2>FirstName</h2>
+								<label>{this.state.Employee.FirstName}</label>
+							</Grid>
+							<Grid item xs={4} sm={4}  >
+								<h2>LastName</h2>
+								<label>{this.state.Employee.LastName}</label>
+							</Grid>
+							<Grid item xs={4} sm={4}  >
+								<h2>Cnic</h2>
+								<label>{this.state.Employee.Cnic}</label>
+							</Grid>
 
-								<Tab label="Employee Detail" />
-								<Tab label="Employee Bank" />
-								<Tab label="Employee Payroll" />
-								<Tab label="Applicable Laws" />
-							</Tabs>
-						</AppBar>
-						<SwipeableViews axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
-							index={this.state.value}
-							onChangeIndex={this.handleChangeIndex}>
-						<TabContainer dir={theme.direction}>
-								<Paper className={classes.root}>
-								{/* <div className="row">
-									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
-										<Button variant="outlined" color="primary" className={classes.button} onClick={this.getEmployeeById}>
-											Edit
-										</Button>
-									</div>
-									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
-										<Button variant="outlined" color="inherit" className={classes.button} onClick={this.deleteEmployee}>
-											Delete
-										</Button>
-									</div>
-								</div> */}
-								<table id="employeedetail_Table" className="nowrap header_custom" style={{ "width": "100%" }}>
-										<thead>
-											<tr>
-												{/* <th>EmployeeCode</th>
-												<th>Title</th> */}
-												<th>FirstName</th>
-												<th>LastName</th>
-												<th>DOB</th>
-												<th>HireDate</th>
-												<th>HireReason</th>
-												<th>ServiceStartDate</th>
-												<th>ProbationEndDate</th>
-												<th>PartTimePercentage</th>
-												<th>Positions</th>
-												<th>Grade</th>
-												<th>Address</th>
-												{/* <th>PartTimePercentage</th> */}
-												{/* <th>ContractEndDate</th> */}
-												{/* <th>Address</th> */}
-												<th>Contact</th>
-												{/* <th>MaritalStatus</th> */}
-												{/* <th>Country</th> */}
-												{/* <th>CurrentEmployeeStatus</th> */}
-												<th>ContractEndDate</th>
-												<th>CompanyName</th>
-											</tr>
-										</thead>
-									</table>
-								
-								</Paper>
-							</TabContainer>
+							<Grid item xs={4} sm={4}  >
+								<h2>Contact</h2>
+								<label>{this.state.Employee.Contact}</label>
+							</Grid>
+							<Grid item xs={4} sm={4}  >
+								<h2>Address</h2>
+								<label>{this.state.Employee.Address}</label>
+							</Grid>
+							<Grid item xs={4} sm={4}  >
+								<h2>DOB</h2>
+								<label>{this.state.Employee.DOB}</label>
+							</Grid>
 
-							<TabContainer dir={theme.direction}>
-								<Paper className={classes.root}>
-								{/* <div className="row">
-									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
-										<Button variant="outlined" color="primary" className={classes.button} onClick={this.getEmployeeById}>
-											Edit
-										</Button>
-									</div>
-									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
-										<Button variant="outlined" color="inherit" className={classes.button} onClick={this.deleteEmployee}>
-											Delete
-										</Button>
-									</div>
-								</div> */}
-								<table id="employebank_Table" className="nowrap header_custom" style={{ "width": "100%" }}>
-										<thead>
-											<tr>
-												<th>CompanyId</th>
-												<th>BankId</th>
-												<th>IBAN</th>
-												<th>EffectiveDate</th>
-												<th>IsPrimary</th>
-												<th>CurrencyCode</th>
-												<th>EmployeeId</th>
-											</tr>
-										</thead>
-									</table>
-								
-								</Paper>
-							</TabContainer>
-						</SwipeableViews>
+							<Grid item xs={4} sm={4}  >
+								<h2>Insurance Id</h2>
+								<label>{this.state.Employee.InsuranceId}</label>
+							</Grid>
+							<Grid item xs={4} sm={4}  >
+								<h2>Taxation Id</h2>
+								<label>{this.state.Employee.TaxationId}</label>
+							</Grid>
+							<Grid item xs={4} sm={4}  >
+								<h2>Hire Date</h2>
+								<label>{this.state.Employee.HireDate}</label>
+							</Grid>
+
+							<Grid item xs={4} sm={4}  >
+								<h2>Probation End Date</h2>
+								<label>{this.state.Employee.ProbationEndDate}</label>
+							</Grid>
+							<Grid item xs={4} sm={4}  >
+								<h2>Service Start Date</h2>
+								<label>{this.state.Employee.ServiceStartDate}</label>
+							</Grid>
+							<Grid item xs={4} sm={4}  >
+								<h2>Contract End Date</h2>
+								<label>{this.state.Employee.ContractEndDate}</label>
+							</Grid>
+						</form>
+
+						<Paper className={classes.root}>
+							
+						<div style={{ borderBottom: "solid 1px black" }} ></div>
+						<h1 style={{ textAlign: "center" }} >Bank Details</h1>
+						<div style={{ borderBottom: "solid 1px black" }} ></div>
+						<Table className={classes.table}>
+							<TableHead>
+								<TableRow>
+									<CustomTableCell align="center"  >Bank</CustomTableCell>
+									<CustomTableCell align="center"  >IBAN</CustomTableCell>
+									<CustomTableCell align="center"  >Effective Date</CustomTableCell>
+
+								</TableRow>
+							</TableHead>
+							<TableBody>
+								{this.state.Employee.EmployeeBankAccount==null?'': this.state.Employee.EmployeeBankAccount.map(row => (
+									<TableRow className={classes.row} key={row.Id}>
+
+										<CustomTableCell align="center"  >{row.BankName}</CustomTableCell>
+										<CustomTableCell align="center"  >{row.IBAN}</CustomTableCell>
+										<CustomTableCell align="center"  >{row.EffectiveDate}</CustomTableCell>
+
+									</TableRow>
+								))}
+							</TableBody>
+						</Table>
+					
+						<div style={{ borderBottom: "solid 1px black" }} ></div>
+						<h1 style={{ textAlign: "center" }} >OneTime PayElements</h1>
+						<div style={{ borderBottom: "solid 1px black" }} ></div>
+						<Table className={classes.table}>
+							<TableHead>
+								<TableRow>
+									<CustomTableCell align="center"  >Code</CustomTableCell>
+									<CustomTableCell align="center"  >IBAN</CustomTableCell>
+									<CustomTableCell align="center"  >Effective Date</CustomTableCell>
+
+								</TableRow>
+							</TableHead>
+							<TableBody>
+								{this.state.Employee.OnetimeElement==null?'': this.state.Employee.OnetimeElement.map(row => (
+									<TableRow className={classes.row} key={row.Id}>
+
+										<CustomTableCell align="center"  >{row.Code}</CustomTableCell>
+										<CustomTableCell align="center"  >{row.Amount}</CustomTableCell>
+										<CustomTableCell align="center"  >{row.EffectiveDate}</CustomTableCell>
+
+									</TableRow>
+								))}
+							</TableBody>
+						</Table>
+					
+						<div style={{ borderBottom: "solid 1px black" }} ></div>
+						<h1 style={{ textAlign: "center" }} >Periodic PayElements</h1>
+						<div style={{ borderBottom: "solid 1px black" }} ></div>
+						<Table className={classes.table}>
+							<TableHead>
+								<TableRow>
+									<CustomTableCell align="center"  >Code</CustomTableCell>
+									<CustomTableCell align="center"  >Amount</CustomTableCell>
+									<CustomTableCell align="center"  >Start Date</CustomTableCell>
+									<CustomTableCell align="center"  >End Date</CustomTableCell>
+
+								</TableRow>
+							</TableHead>
+							<TableBody>
+								{this.state.Employee.PeriodicPayElements==null?'': this.state.Employee.PeriodicPayElements.map(row => (
+									<TableRow className={classes.row} key={row.Id}>
+
+										<CustomTableCell align="center"  >{row.Code}</CustomTableCell>
+										<CustomTableCell align="center"  >{row.amount}</CustomTableCell>
+										<CustomTableCell align="center"  >{row.StartDate}</CustomTableCell>
+										<CustomTableCell align="center"  >{row.EndDate}</CustomTableCell>
+
+									</TableRow>
+								))}
+							</TableBody>
+						</Table>
+					
+					</Paper>
 					</div>
 				}
 			/>

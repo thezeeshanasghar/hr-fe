@@ -183,8 +183,7 @@ class Termination extends Component {
 			})
 				.then((response) => {
 					toastr.success('Operation successfull');
-					this.getUnPaidLeaves();
-					this.getBankDetail();
+					this.getEmployeeTermination();
 					this.setState({
 						company: "",
 						employee: "",
@@ -276,20 +275,23 @@ class Termination extends Component {
 			},
 		})
 			.then((response) => {
+				document.getElementById("fuse-splash-screen").style.display="none";
 				console.log(response);
 				this.getEmployees(response.data[0].CompanyId);
 				this.setState({
 					employee: response.data[0].EmployeeId,
 					lastDate: moment(response.data[0].LastWorkingDate).format('YYYY-MM-DD'),
-					reason: moment(response.data[0].TerminationReason),
+					reason:response.data[0].TerminationReason,
 					company: response.data[0].CompanyId,
 					value: 1,
 					Id:response.data[0].Id,
 					Action :"Update Record"
 				});
+		
 
 			})
 			.catch((error) => {
+				document.getElementById("fuse-splash-screen").style.display="none";
 				console.log(error);
 			})
 	}
@@ -311,7 +313,7 @@ class Termination extends Component {
 		  })
 			.then((response) => {
 				
-				this.getUnPaidLeaves();
+				this.getEmployeeTermination();
 			})
 			.catch((error) => {
 				console.log(error);
@@ -326,10 +328,10 @@ class Termination extends Component {
 					root: classes.layoutRoot
 				}}
 				header={
-					<div className="p-24"><h4>Unpaid Leave</h4></div>
+					<div className="p-24"><h4>Employee Termination</h4></div>
 				}
 				contentToolbar={
-					<div className="px-24"><h4>Add New Unpaid Leave</h4></div>
+					<div className="px-24"><h4>Add New Employee Termination</h4></div>
 				}
 				content={
 
@@ -438,7 +440,7 @@ class Termination extends Component {
 										{this.validator.message('lastDate', this.state.lastDate, 'required')}
 									</Grid>
 									<Grid item xs={12} sm={5}>
-											<TextField id="dateFrom" fullWidth label="Reason of Termination" type="text" name="reason"  value={this.state.reason}  onChange={this.handleChange}
+											<TextField id="reason" fullWidth label="Reason of Termination" type="text" name="reason"  value={this.state.reason}  onChange={this.handleChange}
 										
 										/>
 										{this.validator.message('reason', this.state.reason, 'required')}

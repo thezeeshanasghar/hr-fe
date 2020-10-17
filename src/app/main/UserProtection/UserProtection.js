@@ -23,6 +23,14 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
 import { Icon, Input, MuiThemeProvider} from '@material-ui/core';
+import Grid from '@material-ui/core/Grid';
+import axios from "axios";
+import defaultUrl from "../../../app/services/constant/constant";
+import { Lookups } from '../../services/constant/enum'
+import SimpleReactValidator from 'simple-react-validator';
+import $ from 'jquery';
+import Messages from '../toaster';
+
 const styles = theme => ({
 	container: {
 		display: 'flex',
@@ -76,12 +84,241 @@ class UserProtection extends Component {
 		value: 0,
 		labelWidth: 0,
 		unit: 1,
-		Job: 1
+		Job: 1,
+		labourId:"",
+		countryId:"",
+		companyId:"",
+		Action: 'Insert Record',
+		table:null,
+		Companies:[],
+		countryCode:[]
 	};
-	handleChange = (event, value) => {
-		this.setState({ value });
-		this.setState({ [event.target.name]: event.target.value });
+		constructor(props) {
+		super(props);
+		this.validator = new SimpleReactValidator();
+	
+	}
+	componentDidMount() {
+		localStorage.removeItem("ids");
+		this.getUserProtection();
+		this.getCompanyDetail();
+		this.getCountry();
+	}
 
+	getUserProtection = () => {
+		localStorage.removeItem("ids");
+		if (!$.fn.dataTable.isDataTable('#Protection_Table')) {
+			this.state.table = $('#Protection_Table').DataTable({
+				ajax: defaultUrl + "userProtection",
+				"columns": [
+					{ "data": "LabourId" },
+					{ "data": "CompanyName" },
+					{ "data": "Country" },
+					{ "data": "Action",
+					sortable: false,
+					"render": function ( data, type, full, meta ) {
+					   
+						return `<input type="checkbox" name="radio"  value=`+full.Id+`
+						onclick=" const checkboxes = document.querySelectorAll('input[name=radio]:checked');
+									let values = [];
+									checkboxes.forEach((checkbox) => {
+										values.push(checkbox.value);
+									});
+									localStorage.setItem('ids',values);	"
+						/>`;
+					}
+				 }
+
+				],
+				rowReorder: {
+					selector: 'td:nth-child(2)'
+				},
+				responsive: true,
+				dom: 'Bfrtip',
+				buttons: [
+
+				],
+				columnDefs: [{
+					"defaultContent": "-",
+					"targets": "_all"
+				  }]
+			});
+		} else {
+			this.state.table.ajax.reload();
+		}
+	}
+	getUserProtectionById = () => {
+		let ids = localStorage.getItem("ids")
+		if(ids=== null || localStorage.getItem("ids").split(",").length>1)
+		{
+			Messages.warning("kindly Select one record");
+			return false;
+		}
+		document.getElementById("fuse-splash-screen").style.display="block";
+
+		axios({
+			method: "get",
+			url: defaultUrl + "userProtection/" + ids,
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response);
+				this.setState({ Action: 'Update Record', value: 1, 
+				companyId: response.data[0].CompanyId, labourId: response.data[0].LabourId, Id: response.data[0].Id,countryId:response.data[0].Country });
+				document.getElementById("fuse-splash-screen").style.display="none";
+
+			})
+			.catch((error) => {
+				console.log(error);
+				document.getElementById("fuse-splash-screen").style.display="none";
+
+			})
+	}
+
+	deleteProtection = () => {
+		var ids=localStorage.getItem("ids");
+		if(ids===null)
+		{
+		Messages.warning("No Record Selected");
+		return false;
+		}
+		document.getElementById("fuse-splash-screen").style.display="block";
+
+		axios({
+			method: "delete",
+			url: defaultUrl + "userProtection/"+ids,
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				localStorage.removeItem("ids");
+				this.getUserProtection();
+				document.getElementById("fuse-splash-screen").style.display="none";
+				Messages.success();
+
+			})
+			.catch((error) => {
+				console.log(error);
+				document.getElementById("fuse-splash-screen").style.display="none";
+				Messages.error();
+
+			})
+	}
+
+	insertUpdateRecord = () => {
+		if (!this.validator.allValid()) {
+			console.log("false");
+			this.validator.showMessages();
+			this.forceUpdate();
+			return false;
+		}
+
+		var method = "post";
+		var url = defaultUrl + "userProtection";
+		if (this.state.Action != "Insert Record") {
+			method = "put";
+			url = defaultUrl + "userProtection/" + this.state.Id;
+		}
+
+
+		var obj = {
+			LabourId: this.state.labourId,
+			CompanyId: this.state.companyId,
+			Country: this.state.countryId
+		};
+		axios.interceptors.request.use(function (config) {
+			document.getElementById("fuse-splash-screen").style.display="block";
+			return config;
+		}, function (error) {
+			console.log('Error');
+			return Promise.reject(error);
+		});
+		axios({
+			method: method,
+			url: url,
+			data: JSON.stringify(obj),
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				
+				this.getUserProtection();
+
+				this.setState({
+					labourId:0,
+					companyId:0,
+					countryId:0,
+					Action: 'Insert Record',
+					Id: 0,
+					value:0
+				});
+				document.getElementById("fuse-splash-screen").style.display="none";
+				Messages.success();
+
+			})
+			.catch((error) => {
+				console.log(error);
+				this.setState({
+					labourId:0,
+					companyId:0,
+					countryId:0,
+					Action: 'Insert Record',
+					Id: 0,
+					value:0
+				})
+				document.getElementById("fuse-splash-screen").style.display="none";
+				Messages.error();
+
+			})
+	}
+
+	getCompanyDetail = () => {
+		axios({
+			method: "get",
+			url: defaultUrl + "company",
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response);
+				this.setState({ Companies: response.data.data });
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
+	getCountry = () => {
+
+		axios({
+			method: "get",
+			url: defaultUrl + "lookups/" + Lookups.Country,
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response);
+				this.setState({ countryCode: response.data });
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
+	handleTab = (event, value) => {
+		this.setState({ value });
+	};
+	handleChange = (e) => {
+		this.setState({ [e.target.name]: e.target.value });
 	};
 	render() {
 		const { classes, theme } = this.props;
@@ -103,7 +340,7 @@ class UserProtection extends Component {
 						<AppBar position="static" color="default">
 							<Tabs
 								value={this.state.value}
-								onChange={this.handleChange}
+								onChange={this.handleTab}
 								indicatorColor="primary"
 								textColor="primary"
 								variant="fullWidth"
@@ -119,70 +356,90 @@ class UserProtection extends Component {
 						>
 							<TabContainer dir={theme.direction}>
 								<Paper className={classes.root}>
-								<MuiThemeProvider theme={this.props.theme}>
-                            <Paper className={"flex items-center h-44 w-full"} elevation={1}>
-                                <Input
-                                    placeholder="Search..."
-                                    className="pl-16"
-                                    disableUnderline
-                                    fullWidth
-                                    inputProps={{
-                                        'aria-label': 'Search'
-                                    }}
-                                />
-                                <Icon color="action" className="mr-16">search</Icon>
-								<Button variant="contained"  color="secondary" style={{'marginRight':'2px'}} className={classes.button}>
-											PRINT
-      								</Button>
-                            </Paper>
-                        </MuiThemeProvider>
-									<Table className={classes.table}>
-										<TableHead>
-											<TableRow>
-												<CustomTableCell align="center"  >LabourId</CustomTableCell>
-												<CustomTableCell align="center"  >Action</CustomTableCell>
-											
-											</TableRow>
-										</TableHead>
-										<TableBody>
-											{rows.map(row => (
-												<TableRow className={classes.row} key={row.id}>
+								<div className="row">
+									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
+										<Button variant="outlined" color="primary" className={classes.button} onClick={this.getUserProtectionById}>
+											Edit
+										</Button>
+									</div>
+									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
+										<Button variant="outlined" color="inherit" className={classes.button} onClick={this.deleteProtection}>
+											Delete
+										</Button>
+									</div>
+								</div>
+									<table id="Protection_Table" className="nowrap header_custom" style={{ "width": "100%" }}>
+										<thead>
+											<tr>
+												<th>labour Id</th>
+												<th>Company Name</th>
+												<th>Country</th>
+												<th>Action</th>
+											</tr>
+										</thead>
 
-													<CustomTableCell align="center"  >{row.LabourId}</CustomTableCell>
-														<CustomTableCell align="center" component="th" scope="row">
-														<IconButton className={classes.button} aria-label="Delete">
-															<DeleteIcon />
-														</IconButton>
-														<IconButton className={classes.button} aria-label="Edit">
-															<EditIcon />
-														</IconButton>
-													</CustomTableCell>
-												</TableRow>
-											))}
-										</TableBody>
-									</Table>
+									</table>
+								
+							
 								</Paper>
 							</TabContainer>
 							<TabContainer dir={theme.direction}>
 								<form className={classes.container} noValidate autoComplete="off">
+								<Grid item xs={12} sm={5} style={{ marginRight: '5px' }} >
+			
+										<TextField id="labourId" fullWidth label="labourId" name="labourId" value={this.state.labourId} onChange={this.handleChange} />
+									{this.validator.message('labourId', this.state.labourId, 'required')}
+									</Grid>
+									<Grid item xs={12} sm={5}  >
+									<FormControl className={classes.formControl}>
+											<InputLabel htmlFor="company">Company</InputLabel>
+											<Select
+												value={this.state.companyId}
+												onChange={this.handleChange}
+												inputProps={{
+													name: 'companyId',
+													id: 'companyId',
+												}}
+											>
+												<MenuItem value="">
+													<em>None</em>
+												</MenuItem>
 
-									<TextField
-										id="outlined-name"
-										label=" Labour Id"
-										className={classes.textField}
-										value={this.state.name}
-										fullWidth
-										//   onChange={this.handleChange('name')}
-										margin="normal"
-										variant="outlined"
-									/>
-								
+												 {this.state.Companies.map(row => (
+													<MenuItem value={row.Id}>{row.CompanyName}</MenuItem>
+												))} 
+											</Select>
+											{this.validator.message('companyId', this.state.companyId, 'required')}
+										</FormControl>
 
+									</Grid>
+									<Grid item xs={12} sm={5}  >
+									<FormControl className={classes.formControl}>
+											<InputLabel htmlFor="company">Country</InputLabel>
+											<Select
+												value={this.state.countryId}
+												onChange={this.handleChange}
+												inputProps={{
+													name: 'countryId',
+													id: 'countryId',
+												}}
+											>
+												<MenuItem value="">
+													<em>None</em>
+												</MenuItem>
+
+												{this.state.countryCode.map(row => (
+													<MenuItem value={row.Id}>{row.Name}</MenuItem>
+												))}
+											</Select>
+											{this.validator.message('countryId', this.state.countryId, 'required')}
+										</FormControl>
+									</Grid>
 								</form>
 								<div className="row">
 									<div style={{ float: "right", "marginRight": "8px" }}>
 
-										<Button variant="outlined" color="secondary" className={classes.button}>
+										<Button variant="outlined" color="secondary" className={classes.button} onClick={this.insertUpdateRecord} >
 											Insert Record
       								</Button>
 									</div>

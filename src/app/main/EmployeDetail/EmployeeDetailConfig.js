@@ -8,7 +8,7 @@ export const EmployeeDetailConfig = {
     },
     routes  : [
         {
-            path     : '/employeedetail',
+            path     : '/employeedetail/:Id',
             component: EmployeeDetail
         }
     ]

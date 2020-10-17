@@ -1111,7 +1111,17 @@ class Employee extends Component {
 				console.log(error);
 			})
 	}
+	getView = () =>{
+		var ids=localStorage.getItem("ids");
+		if(ids=== null || localStorage.getItem("ids").split(",").length>1)
+		{
+			Messages.warning("kindly Select one record")
+			return false;
+		}
+		this.props.history.push(`/employeedetail/${ids}`);
+	}
 	getEmployeeDetailsForEdit = () => {
+		
 		var ids=localStorage.getItem("ids");
 		if(ids=== null || localStorage.getItem("ids").split(",").length>1)
 		{
@@ -1175,6 +1185,11 @@ class Employee extends Component {
 									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
 										<Button variant="outlined" color="inherit" className={classes.button} onClick={this.deleteEmployee}>
 											Delete
+										</Button>
+									</div>
+									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
+										<Button variant="outlined" color="inherit" className={classes.button} onClick={this.getView}>
+											View
 										</Button>
 									</div>
 								</div>
