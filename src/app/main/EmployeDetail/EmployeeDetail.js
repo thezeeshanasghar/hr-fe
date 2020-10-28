@@ -267,7 +267,7 @@ class EmployeeDetail extends Component {
 
 	render() {
 		const { classes, theme } = this.props;
-		console.log(this.state.Employee, "&&&&&&&&&&&&&&&");
+
 		return (
 			<FusePageSimple
 				classes={{

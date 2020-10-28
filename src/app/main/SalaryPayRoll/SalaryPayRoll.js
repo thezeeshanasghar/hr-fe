@@ -32,7 +32,7 @@ import Grid from '@material-ui/core/Grid';
 import moment from 'moment';
 import defaultUrl from "../../services/constant/constant";
 import Checkbox from '@material-ui/core/Checkbox';
-
+import Messages from '../toaster';
 import $ from 'jquery';
 import DataTable from "datatables.net";
 import * as responsive from "datatables.net-responsive";
@@ -97,7 +97,10 @@ class SalaryPayRoll extends Component {
 		type:"",
 		employeeList:[],
 		employeeIds:[],
-		table:null
+		table:null,
+		File:"",
+		datefrom:"",
+		dateto:""
 	};
 	constructor(props) {
 		super(props);
@@ -155,23 +158,24 @@ class SalaryPayRoll extends Component {
 		}
 	  }
 	InsertSalaryPayRoll=()=>{
-			if (!this.validator.allValid()) {
+
+		if(this.state.type=="Regular"){
+			if (!this.validator.fieldValid('companyId') || !this.validator.fieldValid('type') || !this.validator.fieldValid('Date') || !this.validator.fieldValid('employeeIds') ) {
 				this.validator.showMessages();
 				this.forceUpdate();
-			} else {
+			
+			}else{
 				var method = "post";
 				var url = defaultUrl+"payslip";
-				// if(this.state.Action !="Generate")
-				// {
-				// 	 method = "put";
-				// 	 url = defaultUrl+"Currency/"+this.state.Id;
-				// }
-				// console.log(this.state.company,this.state.employee,this.state.dateFrom,this.state.dateTo);
+
 				var obj = {
 					CompanyId: this.state.companyId,
 					EmployeesIds: this.state.employeeIds.toString(),
 					PayMonth: this.state.Date,
-					SalaryType: this.state.type
+					SalaryType: this.state.type,
+					dateFrom:this.state.datefrom,
+					dateTo:this.state.dateto,
+					File:this.state.File
 				};
 				axios.interceptors.request.use(function (config) {
 					// document.getElementsByClassName("loader-wrapper")[0].style.display="block"
@@ -190,6 +194,7 @@ class SalaryPayRoll extends Component {
 					},
 				})
 					.then((response) => {
+						// document.getElementsByClassName("loader-wrapper")[0].style.display="none"
 						toastr.success('Operation successfull');
 						this.getExchangeRate();
 						this.setState({
@@ -202,6 +207,7 @@ class SalaryPayRoll extends Component {
 					})
 					.catch((error) => {
 						console.log(error);
+						// document.getElementsByClassName("loader-wrapper")[0].style.display="none"
 						toastr.error('Operation unsuccessfull');
 						this.setState({
 							companyId: "",
@@ -212,8 +218,130 @@ class SalaryPayRoll extends Component {
 						})
 					})
 	
+			}
+		}else if(this.state.type=="OffCycle"){
+			if (!this.validator.fieldValid('companyId') || !this.validator.fieldValid('type') || !this.validator.fieldValid('Date') || !this.validator.fieldValid('employeeIds') 
+			|| !this.validator.fieldValid('datefrom') || !this.validator.fieldValid('dateto')) {
+				this.validator.showMessages();
+				this.forceUpdate();
+			
+			}else{
+				var method = "post";
+				var url = defaultUrl+"payslip";
+
+				var obj = {
+					CompanyId: this.state.companyId,
+					EmployeesIds: this.state.employeeIds.toString(),
+					PayMonth: this.state.Date,
+					SalaryType: this.state.type,
+					dateFrom:this.state.datefrom,
+					dateTo:this.state.dateto,
+					File:this.state.File
+				};
+				axios.interceptors.request.use(function (config) {
+					// document.getElementsByClassName("loader-wrapper")[0].style.display="block"
+					return config;
+				}, function (error) {
+					console.log('Error');
+					return Promise.reject(error);
+				});
+				axios({
+					method: method,
+					url: url,
+					data: JSON.stringify(obj),
+					headers: {
+						// 'Authorization': `bearer ${token}`,
+						"Content-Type": "application/json;charset=utf-8",
+					},
+				})
+					.then((response) => {
+						// document.getElementsByClassName("loader-wrapper")[0].style.display="none"
+						toastr.success('Operation successfull');
+						this.getExchangeRate();
+						this.setState({
+							companyId: "",
+							employeeIds: [],
+							Date: "",
+							type: "",
+							Id:0
+						});
+					})
+					.catch((error) => {
+						console.log(error);
+						// document.getElementsByClassName("loader-wrapper")[0].style.display="none"
+						toastr.error('Operation unsuccessfull');
+						this.setState({
+							companyId: "",
+							employeeIds: [],
+							Date: "",
+							type: "",
+							Id:0
+						})
+					})
 	
 			}
+		}
+		else if(this.state.type=="Bonus")
+		{
+			if (!this.validator.fieldValid('companyId') || !this.validator.fieldValid('type') || !this.validator.fieldValid('File')) {
+				this.validator.showMessages();
+				this.forceUpdate();
+			
+			}else{
+				var method = "post";
+				var url = defaultUrl+"payslip";
+
+				var obj = {
+					CompanyId: this.state.companyId,
+					EmployeesIds: this.state.employeeIds.toString(),
+					PayMonth: this.state.Date,
+					SalaryType: this.state.type,
+					dateFrom:this.state.datefrom,
+					dateTo:this.state.dateto,
+					File:this.state.File
+				};
+				axios.interceptors.request.use(function (config) {
+					// document.getElementsByClassName("loader-wrapper")[0].style.display="block"
+					return config;
+				}, function (error) {
+					console.log('Error');
+					return Promise.reject(error);
+				});
+				axios({
+					method: method,
+					url: url,
+					data: JSON.stringify(obj),
+					headers: {
+						// 'Authorization': `bearer ${token}`,
+						"Content-Type": "application/json;charset=utf-8",
+					},
+				})
+					.then((response) => {
+						// document.getElementsByClassName("loader-wrapper")[0].style.display="none"
+						toastr.success('Operation successfull');
+						this.setState({
+							companyId: "",
+							employeeIds: [],
+							Date: "",
+							type: "",
+							Id:0
+						});
+					})
+					.catch((error) => {
+						console.log(error);
+						// document.getElementsByClassName("loader-wrapper")[0].style.display="none"
+						toastr.error('Operation unsuccessfull');
+						this.setState({
+							companyId: "",
+							employeeIds: [],
+							Date: "",
+							type: "",
+							Id:0
+						})
+					})
+	
+			}
+		}
 		
 	}
 	
@@ -226,6 +354,41 @@ class SalaryPayRoll extends Component {
 		this.setState({ [e.target.name]: e.target.value });
 		if (e.target.name == "companyId") {
 			this.getEmployeeDetail(e.target.value);
+		}
+		
+		if(e.target.name=="File")
+		{
+		  if(e.target.files[0]==undefined)
+		  {
+			this.setState({File:""});
+			return false;
+		  }
+		  var extension=e.target.files[0].name.split(".")[1];
+		  if(extension.toLowerCase()!="xlsx" )
+		  {
+			  Messages.warning("Invalid valid formate");
+			return false;
+		  }
+		//   document.getElementById("fuse-splash-screen").style.display="block";
+		  const formData = new FormData();
+		  formData.append("file" , e.target.files[0]);
+		  axios.post(defaultUrl+"/Upload", formData, {
+ 		 headers: {
+    		'accept': 'application/json',
+    		'Accept-Language': 'en-US,en;q=0.8',
+   			 'Content-Type': `multipart/form-data; boundary=${formData._boundary}`,
+  			}
+		})
+ 		 .then((response) => {
+  		  console.log("success",response);
+			this.setState({File:response.data});
+			Messages.success();
+			// document.getElementById("fuse-splash-screen").style.display="none";
+		  }).catch((error) => {
+			console.log("error",error);
+			Messages.error();
+			// document.getElementById("fuse-splash-screen").style.display="none";
+  		  });
 		}
 	};
 	getCompanyDetail=()=>{
@@ -337,6 +500,7 @@ class SalaryPayRoll extends Component {
 													<MenuItem value={row.Id}>{row.CompanyName}</MenuItem>
 												))} 
 										</Select>
+										{this.validator.message('companyId', this.state.companyId, 'required')}
 									</FormControl>
 									</Grid>
 									<Grid item xs={12} sm={5}>
@@ -355,14 +519,15 @@ class SalaryPayRoll extends Component {
 											</MenuItem>
 											
 													<MenuItem value="Regular">Regular</MenuItem>
-													<MenuItem value="Grouped">Grouped</MenuItem>
+													<MenuItem value="OffCycle">OffCycle Regular</MenuItem>
+													<MenuItem value="Bonus">Bonus</MenuItem>
 												
 										</Select>
 										{this.validator.message('type', this.state.type, 'required')}
 
 									</FormControl>
 									</Grid>
-									<Grid item xs={12} sm={5} >
+									<Grid item xs={12} sm={5} className={this.state.type!="Bonus"?"":"d-none"} >
 									<FormControl className={classes.formControl}>
 										<InputLabel htmlFor="employee">Employee</InputLabel>
 										<Select
@@ -384,9 +549,11 @@ class SalaryPayRoll extends Component {
 													<MenuItem value={row.Id}><Checkbox checked={this.state.employeeIds.indexOf(row.Id) > -1} />{row.FirstName}</MenuItem>
 												))} 
 										</Select>
+										{this.validator.message('employeeIds', this.state.employeeIds, 'required')}
+
 									</FormControl>
 									</Grid>
-									<Grid item xs={12} sm={5}  >
+									<Grid item xs={12} sm={5} className={this.state.type!="Bonus"?"":"d-none"}  >
 								
 									<TextField id="Date" fullWidth label="Date" type="date" name="Date"  value={this.state.Date}  onChange={this.handleChange}
 											InputLabelProps={{
@@ -396,6 +563,29 @@ class SalaryPayRoll extends Component {
 									{this.validator.message('Date', this.state.Date, 'required')}
 
 									</Grid>
+									<Grid item xs={12} sm={5} className={this.state.type=="OffCycle"?"":"d-none"}  style={{ "marginRight": "5px" }} >
+									<TextField type="date" id="datefrom" fullWidth label="Payment Date From" InputLabelProps={{
+												shrink: true,
+											}}
+											 name="datefrom"  onChange={this.handleChange} />
+									{this.validator.message('datefrom', this.state.datefrom, 'required')}
+									</Grid>
+									
+									<Grid item xs={12} sm={5} className={this.state.type=="OffCycle"?"":"d-none"}  >
+									<TextField type="date" id="dateto" fullWidth label="Payment Date To" InputLabelProps={{
+												shrink: true,
+											}}
+											 name="dateto"  onChange={this.handleChange} />
+									{this.validator.message('dateto', this.state.dateto, 'required')}
+									</Grid>
+									<Grid item xs={12} sm={5} className={this.state.type=="Bonus"?"":"d-none"}  >
+									<TextField type="file" id="File" fullWidth label="Payment Details" InputLabelProps={{
+												shrink: true,
+											}}
+											 name="File"  onChange={this.handleChange} />
+									{this.validator.message('File', this.state.File, 'required')}
+									</Grid>
+									
 								</form>
 								<div className="row">
 								<Grid item xs={12} sm={10}  >
