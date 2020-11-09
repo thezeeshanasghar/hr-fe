@@ -34,6 +34,7 @@ import $ from 'jquery';
 import DataTable from "datatables.net";
 import * as responsive from "datatables.net-responsive";
 
+
 const styles = theme => ({
 	container: {
 		display: 'flex',
@@ -112,6 +113,8 @@ class Company extends Component {
 		AccountNo:""
 
 	};
+	
+ 
 	constructor(props) {
 		super(props);
 		this.validator = new SimpleReactValidator();
@@ -518,6 +521,7 @@ class Company extends Component {
 													id: 'CountryCode',
 												}}
 											>
+												
 												<MenuItem value="">
 													<em>None</em>
 												</MenuItem>
@@ -589,6 +593,10 @@ class Company extends Component {
 										</Button>
 									</div>
 								</div>
+								<div>
+								</div>
+								
+
 							</TabContainer>
 						</SwipeableViews>
 					</div>
