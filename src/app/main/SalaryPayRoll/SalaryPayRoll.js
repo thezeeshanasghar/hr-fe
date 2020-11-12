@@ -15,7 +15,8 @@ import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
-import EditIcon from '@material-ui/icons/Edit';
+import VerifyIcon from '@material-ui/icons/Check';
+import EditIcon from '@material-ui/icons/Check';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -41,13 +42,40 @@ import Select from 'react-select';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
-
+import Modal from '@material-ui/core/Modal';
 const options = [
 	{ value: 'chocolate', label: 'Chocolate' },
 	{ value: 'strawberry', label: 'Strawberry' },
 	{ value: 'vanilla', label: 'Vanilla' }
 ]
 const styles = theme => ({
+	root: {
+		height: 300,
+		flexGrow: 1,
+		minWidth: 300,
+		transform: 'translateZ(0)',
+		// The position fixed scoping doesn't work in IE 11.
+		// Disable this demo to preserve the others.
+		'@media all and (-ms-high-contrast: none)': {
+			display: 'none',
+		},
+	},
+	modal: {
+		display: 'flex',
+		// padding: theme.spacing(1),
+		alignItems: 'center',
+		justifyContent: 'center',
+
+	},
+	paper: {
+		height: "500px",
+		width: "80%",
+		backgroundColor: theme.palette.background.paper,
+		border: '2px solid #000',
+		boxShadow: theme.shadows[5],
+		overflowY: "scroll"
+		// padding: theme.spacing(2, 4, 3),
+	},
 
 	container: {
 		display: 'flex',
@@ -109,7 +137,7 @@ class SalaryPayRoll extends Component {
 		companyList: [],
 		type: "",
 		employeeList: [],
-		employeeIds: [],
+		employeeIds: "",
 		employeeSelected: "",
 		table: null,
 		File: "",
@@ -123,6 +151,8 @@ class SalaryPayRoll extends Component {
 		PayElementList: [],
 		PayElement: "",
 		PayElementSelected: "",
+		logs:[],
+		Isdisplay:"0",
 		typeList: [
 			{ "value": "Regular", "label": "Regular" },
 			{ "value": "OffCycle", "label": "OffCycle" },
@@ -135,39 +165,44 @@ class SalaryPayRoll extends Component {
 
 	}
 
-
+	hidemodel=()=>{
+		this.setState({Isdisplay:0});
+	}
 	loadOptions = (inputValue, callback) => {
 
 		setTimeout(() => {
 			callback(this.filterColors(inputValue));
 		}, 1000);
 	};
-	GetCompanyMonthlyPayment = (date) => {
-		this.setState({ 'PaymentDetail': this.state.payroles.filter(x => x.Paidon == date && x.CompanyId == this.state.companyId) })
-		console.log(this.state.payroles.filter(x => x.Paidon == date && x.CompanyId == this.state.companyId))
+	GetCompanyMonthlyPayment = (group) => {
+		this.setState({ 'PaymentDetail': this.state.payroles.filter(x => x.PayGroup == group && x.CompanyId == this.state.companyId) })
+		
 	}
-	reversePayroll=(date)=>{
-	var dateobj =	date.split("/");
-		var newDate=dateobj[2]+'-'+dateobj[1]+'-'+dateobj[0];
+	reversePayroll = (group) => {
 		var obj = {
-			Date:newDate ,
-			Company:this.state.companyId
+			GroupName: group,
+			Company: this.state.companyId
 		};
-		axios({
+		
+		var check=window.confirm("do you want to reverse this payroll of date:"+group)
+if(check==true){
+axios({
 			method: "post",
-			url: defaultUrl + "payslip/reversePayroll" ,
-			data:JSON.stringify(obj),
+			url: defaultUrl + "payslip/reversePayroll",
+			data: JSON.stringify(obj),
 			headers: {
 				// 'Authorization': `bearer ${token}`,
 				"Content-Type": "application/json;charset=utf-8",
 			},
 		})
 			.then((response) => {
-		
+
 			})
 			.catch((error) => {
 				console.log(error);
-			})
+			})	
+}
+		
 	}
 	getPayElements = (id) => {
 		axios({
@@ -179,8 +214,7 @@ class SalaryPayRoll extends Component {
 			},
 		})
 			.then((response) => {
-				console.log(response.data,'dasdadafdfdvvcxvsad');
-				this.setState({PayElementList:response.data})
+				this.setState({ PayElementList: response.data })
 			})
 			.catch((error) => {
 				console.log(error);
@@ -200,7 +234,7 @@ class SalaryPayRoll extends Component {
 					console.log(response.data)
 					var data = response.data.data.filter(x => x.CompanyId == val);
 					var dates = [...new Set(data.map(x => x.Paidon))]
-					this.setState({ Dates: dates, payroles: response.data.data });
+					this.setState({  payroles: response.data.data });
 					console.log(dates);
 				} else {
 					this.setState({ Dates: [] });
@@ -266,7 +300,7 @@ class SalaryPayRoll extends Component {
 
 		console.log(this.state)
 		if (this.state.type == "Regular") {
-			if (!this.validator.fieldValid('companyId') || !this.validator.fieldValid('type') || !this.validator.fieldValid('Date') || !this.validator.fieldValid('employeeIds') || !this.validator.fieldValid('PayElement') ) {
+			if (!this.validator.fieldValid('companyId') || !this.validator.fieldValid('type') || !this.validator.fieldValid('Date') || !this.validator.fieldValid('employeeIds') || !this.validator.fieldValid('PayElement')) {
 				this.validator.showMessages();
 				this.forceUpdate();
 				console.log("error")
@@ -283,7 +317,7 @@ class SalaryPayRoll extends Component {
 					dateFrom: this.state.datefrom,
 					dateTo: this.state.dateto,
 					File: this.state.File,
-					PayElement:this.state.PayElement
+					PayElement: this.state.PayElement
 				};
 				axios.interceptors.request.use(function (config) {
 					// document.getElementsByClassName("loader-wrapper")[0].style.display="block"
@@ -303,7 +337,9 @@ class SalaryPayRoll extends Component {
 				})
 					.then((response) => {
 						// document.getElementsByClassName("loader-wrapper")[0].style.display="none"
-						toastr.success('Operation successfull');
+						console.log(response);
+						
+						
 						this.setState({
 							companyId: "",
 							employeeIds: "",
@@ -313,9 +349,12 @@ class SalaryPayRoll extends Component {
 							employeeSelected: "",
 							CompanySelected: "",
 							TypeSelected: "",
-							PayElementSelected:""
-
+							PayElementSelected: "",
+							logs:response.data.data.recordset,
+							Isdisplay:"1",
+							Dates:[]
 						});
+						toastr.success('PayRoll Executed');
 					})
 					.catch((error) => {
 						console.log(error);
@@ -330,14 +369,15 @@ class SalaryPayRoll extends Component {
 							employeeSelected: "",
 							CompanySelected: "",
 							TypeSelected: "",
-							PayElementSelected:""
+							PayElementSelected: "",
+							Dates:[]
 						})
 					})
 
 			}
 		} else if (this.state.type == "OffCycle") {
 			if (!this.validator.fieldValid('companyId') || !this.validator.fieldValid('type') || !this.validator.fieldValid('Date') || !this.validator.fieldValid('employeeIds')
-				|| !this.validator.fieldValid('datefrom') || !this.validator.fieldValid('dateto')|| !this.validator.fieldValid('PayElement')) {
+				|| !this.validator.fieldValid('datefrom') || !this.validator.fieldValid('dateto') || !this.validator.fieldValid('PayElement')) {
 				this.validator.showMessages();
 				this.forceUpdate();
 
@@ -352,7 +392,8 @@ class SalaryPayRoll extends Component {
 					SalaryType: this.state.type,
 					dateFrom: this.state.datefrom,
 					dateTo: this.state.dateto,
-					File: this.state.File
+					File: this.state.File,
+					PayElement: this.state.PayElement
 				};
 				axios.interceptors.request.use(function (config) {
 					// document.getElementsByClassName("loader-wrapper")[0].style.display="block"
@@ -382,7 +423,8 @@ class SalaryPayRoll extends Component {
 							employeeSelected: "",
 							CompanySelected: "",
 							TypeSelected: "",
-							PayElementSelected:""
+							PayElementSelected: "",
+							Dates:[]
 						});
 					})
 					.catch((error) => {
@@ -398,7 +440,8 @@ class SalaryPayRoll extends Component {
 							employeeSelected: "",
 							CompanySelected: "",
 							TypeSelected: "",
-							PayElementSelected:""
+							PayElementSelected: "",
+							Dates:[]
 						})
 					})
 
@@ -449,7 +492,8 @@ class SalaryPayRoll extends Component {
 							Id: 0,
 							employeeSelected: "",
 							CompanySelected: "",
-							TypeSelected: ""
+							TypeSelected: "",
+							Dates:[]
 						});
 					})
 					.catch((error) => {
@@ -464,7 +508,8 @@ class SalaryPayRoll extends Component {
 							Id: 0,
 							employeeSelected: "",
 							CompanySelected: "",
-							TypeSelected: ""
+							TypeSelected: "",
+							Dates:[]
 						})
 					})
 
@@ -477,7 +522,7 @@ class SalaryPayRoll extends Component {
 		for (var i = 0; i < e.length; i++) {
 			PayElements += e[i].value + ','
 		}
-		this.setState({ 'PayElement': PayElements.slice(0,-1), PayElementSelected: e.value });
+		this.setState({ 'PayElement': PayElements.slice(0, -1), PayElementSelected: e.value });
 	}
 	handleTabChange = (event, value) => {
 		this.setState({ value });
@@ -492,13 +537,14 @@ class SalaryPayRoll extends Component {
 		this.getPayElements(e.value)
 		this.getEmployeeDetail(e.value);
 		this.loadCompanyData(e.value);
-
+		this.getSelectivePayrolls(e.value)
 	}
 	handleetypeChange = (e) => {
 		this.setState({ 'type': e.value, 'TypeSelected': e });
 
 	}
 	handleEmployeedropdown = (e) => {
+
 		var employees = "";
 		for (var i = 0; i < e.length; i++) {
 			employees += e[i].value + ','
@@ -577,7 +623,45 @@ class SalaryPayRoll extends Component {
 				console.log(error);
 			})
 	}
+	getSelectivePayrolls = (id) => {
+		axios({
+			method: "get",
+			url: defaultUrl + "payslip/specific/"+id,
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response.data.data);
 
+				this.setState({ Dates: response.data.data  });
+				return response.data;
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
+	closeCurrent=(code)=>{
+		if(window.confirm("do you want to close current payroll"))
+		{
+			axios({
+				method: "get",
+				url: defaultUrl + "payslip/status/closed/"+code,
+				headers: {
+					// 'Authorization': `bearer ${token}`,
+					"Content-Type": "application/json;charset=utf-8",
+				},
+			})
+				.then((response) => {
+					console.log(response.data.data);
+					this.getSelectivePayrolls(this.state.companyId);
+				})
+				.catch((error) => {
+					console.log(error);
+				})
+		}
+	}
 	render() {
 		const { classes, theme } = this.props;
 
@@ -790,8 +874,12 @@ class SalaryPayRoll extends Component {
 
 											<List component="nav" className={classes.root} aria-label="contacts">
 												{this.state.Dates.map(x =>
-													<ListItem button onClick={() => this.GetCompanyMonthlyPayment(x)}>
-														<ListItemText primary={'PaySlip Generated on-' + x} /> <button type="button"  onClick={()=>this.reversePayroll(x)} >Reverse</button>
+													<ListItem button onClick={() => this.GetCompanyMonthlyPayment(x.PayGroup)}>
+														<ListItemText primary={'Group-' + x.PayGroup} /> 
+														<ListItemText primary={'Generated on-' + x.paidon} /> 
+														<ListItemText primary={'Status-' + x.Status} /> 
+														<VerifyIcon onClick={()=>this.closeCurrent(x.PayGroup)} title="Mark as Closed" ></VerifyIcon>
+														<DeleteIcon onClick={() => this.reversePayroll(x.PayGroup)}  title="reverse payroll"></DeleteIcon> 
 													</ListItem>
 												)}
 
@@ -825,6 +913,33 @@ class SalaryPayRoll extends Component {
 
 							</TabContainer>
 						</SwipeableViews>
+						<Modal
+							disablePortal
+							disableEnforceFocus
+							disableAutoFocus
+							open={this.state.Isdisplay=="0"?false:true}
+							aria-labelledby="server-modal-title"
+							aria-describedby="server-modal-description"
+							className={classes.modal}
+						// container={() => rootRef.current}
+						>
+							<div className={classes.paper}>
+								<Grid item xs={5} sm={5} style={{ marginTop: "5px" }} >
+									<h2 id="server-modal-title">PayRoll Generation Logs	<Button variant="outlined" color="secondary" className={classes.button} onClick={this.hidemodel} >
+										Close
+											</Button></h2>
+								</Grid>
+
+								<ol>
+								{this.state.logs.map(row=>(
+									<li>{row.Detail}</li>
+								))}
+									
+
+								</ol>
+
+							</div>
+						</Modal>
 					</div>
 				}
 			/>

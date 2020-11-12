@@ -32,10 +32,10 @@ import moment from 'moment';
 import Messages from '../toaster';
 import { ToastContainer, toast } from 'react-toastify';
 
-
 import $ from 'jquery';
 import DataTable from "datatables.net";
 import * as responsive from "datatables.net-responsive";
+import Collapsible from 'react-collapsible';
 
 const styles = theme => ({
 	container: {
@@ -56,7 +56,8 @@ const styles = theme => ({
 		minWidth: "99%",
 		marginLeft: theme.spacing.unit,
 		marginRight: theme.spacing.unit,
-	}
+	},
+
 });
 
 const CustomTableCell = withStyles(theme => ({
@@ -268,6 +269,7 @@ class EmployeeDetail extends Component {
 	render() {
 		const { classes, theme } = this.props;
 
+
 		return (
 			<FusePageSimple
 				classes={{
@@ -338,85 +340,123 @@ class EmployeeDetail extends Component {
 						</form>
 
 						<Paper className={classes.root}>
-							
-						<div style={{ borderBottom: "solid 1px black" }} ></div>
-						<h1 style={{ textAlign: "center" }} >Bank Details</h1>
-						<div style={{ borderBottom: "solid 1px black" }} ></div>
-						<Table className={classes.table}>
-							<TableHead>
-								<TableRow>
-									<CustomTableCell align="center"  >Bank</CustomTableCell>
-									<CustomTableCell align="center"  >IBAN</CustomTableCell>
-									<CustomTableCell align="center"  >Effective Date</CustomTableCell>
 
-								</TableRow>
-							</TableHead>
-							<TableBody>
-								{this.state.Employee.EmployeeBankAccount==null?'': this.state.Employee.EmployeeBankAccount.map(row => (
-									<TableRow className={classes.row} key={row.Id}>
-
-										<CustomTableCell align="center"  >{row.BankName}</CustomTableCell>
-										<CustomTableCell align="center"  >{row.IBAN}</CustomTableCell>
-										<CustomTableCell align="center"  >{row.EffectiveDate}</CustomTableCell>
+							<div style={{ borderBottom: "solid 1px black" }} ></div>
+							<h1 style={{ textAlign: "center" }} >Bank Details</h1>
+							<div style={{ borderBottom: "solid 1px black" }} ></div>
+							<Table className={classes.table}>
+								<TableHead>
+									<TableRow>
+										<CustomTableCell align="center"  >Bank</CustomTableCell>
+										<CustomTableCell align="center"  >IBAN</CustomTableCell>
+										<CustomTableCell align="center"  >Effective Date</CustomTableCell>
 
 									</TableRow>
-								))}
-							</TableBody>
-						</Table>
-					
-						<div style={{ borderBottom: "solid 1px black" }} ></div>
-						<h1 style={{ textAlign: "center" }} >OneTime PayElements</h1>
-						<div style={{ borderBottom: "solid 1px black" }} ></div>
-						<Table className={classes.table}>
-							<TableHead>
-								<TableRow>
-									<CustomTableCell align="center"  >Code</CustomTableCell>
-									<CustomTableCell align="center"  >IBAN</CustomTableCell>
-									<CustomTableCell align="center"  >Effective Date</CustomTableCell>
+								</TableHead>
+								<TableBody>
+									{this.state.Employee.EmployeeBankAccount == null ? '' : this.state.Employee.EmployeeBankAccount.map(row => (
+										<TableRow className={classes.row} key={row.Id}>
 
-								</TableRow>
-							</TableHead>
-							<TableBody>
-								{this.state.Employee.OnetimeElement==null?'': this.state.Employee.OnetimeElement.map(row => (
-									<TableRow className={classes.row} key={row.Id}>
+											<CustomTableCell align="center"  >{row.BankName}</CustomTableCell>
+											<CustomTableCell align="center"  >{row.IBAN}</CustomTableCell>
+											<CustomTableCell align="center"  >{row.EffectiveDate}</CustomTableCell>
 
-										<CustomTableCell align="center"  >{row.Code}</CustomTableCell>
-										<CustomTableCell align="center"  >{row.Amount}</CustomTableCell>
-										<CustomTableCell align="center"  >{row.EffectiveDate}</CustomTableCell>
+										</TableRow>
+									))}
+								</TableBody>
+							</Table>
 
-									</TableRow>
-								))}
-							</TableBody>
-						</Table>
-					
-						<div style={{ borderBottom: "solid 1px black" }} ></div>
-						<h1 style={{ textAlign: "center" }} >Periodic PayElements</h1>
-						<div style={{ borderBottom: "solid 1px black" }} ></div>
-						<Table className={classes.table}>
-							<TableHead>
-								<TableRow>
-									<CustomTableCell align="center"  >Code</CustomTableCell>
-									<CustomTableCell align="center"  >Amount</CustomTableCell>
-									<CustomTableCell align="center"  >Start Date</CustomTableCell>
-									<CustomTableCell align="center"  >End Date</CustomTableCell>
-
-								</TableRow>
-							</TableHead>
-							<TableBody>
-								{this.state.Employee.PeriodicPayElements==null?'': this.state.Employee.PeriodicPayElements.map(row => (
-									<TableRow className={classes.row} key={row.Id}>
-
-										<CustomTableCell align="center"  >{row.Code}</CustomTableCell>
-										<CustomTableCell align="center"  >{row.amount}</CustomTableCell>
-										<CustomTableCell align="center"  >{row.StartDate}</CustomTableCell>
-										<CustomTableCell align="center"  >{row.EndDate}</CustomTableCell>
+							<div style={{ borderBottom: "solid 1px black" }} ></div>
+							<h1 style={{ textAlign: "center" }} >OneTime PayElements</h1>
+							<div style={{ borderBottom: "solid 1px black" }} ></div>
+							<Table className={classes.table}>
+								<TableHead>
+									<TableRow>
+										<CustomTableCell align="center"  >Code</CustomTableCell>
+										<CustomTableCell align="center"  >IBAN</CustomTableCell>
+										<CustomTableCell align="center"  >Effective Date</CustomTableCell>
+										<CustomTableCell align="center"  >Payment Date</CustomTableCell>
 
 									</TableRow>
+								</TableHead>
+								<TableBody>
+									{this.state.Employee.OnetimeElement == null ? '' : this.state.Employee.OnetimeElement.map(row => (
+										<TableRow className={classes.row} key={row.Id}>
+
+											<CustomTableCell align="center"  >{row.Code}</CustomTableCell>
+											<CustomTableCell align="center"  >{row.Amount}</CustomTableCell>
+											<CustomTableCell align="center"  >{row.EffectiveDate}</CustomTableCell>
+											<CustomTableCell align="center"  >{row.PaymentDate == null ? "-" : row.PaymentDate}</CustomTableCell>
+
+										</TableRow>
+									))}
+								</TableBody>
+							</Table>
+
+							<div style={{ borderBottom: "solid 1px black" }} ></div>
+							<h1 style={{ textAlign: "center" }} >Periodic PayElements</h1>
+							<div style={{ borderBottom: "solid 1px black" }} ></div>
+							<Table className={classes.table}>
+								<TableHead>
+									<TableRow>
+										<CustomTableCell align="center"  >Code</CustomTableCell>
+										<CustomTableCell align="center"  >Amount</CustomTableCell>
+										<CustomTableCell align="center"  >Start Date</CustomTableCell>
+										<CustomTableCell align="center"  >End Date</CustomTableCell>
+										<CustomTableCell align="center"  >Payment Date</CustomTableCell>
+
+									</TableRow>
+								</TableHead>
+								<TableBody>
+									{this.state.Employee.PeriodicPayElements == null ? '' : this.state.Employee.PeriodicPayElements.map(row => (
+										<TableRow className={classes.row} key={row.Id}>
+
+											<CustomTableCell align="center"  >{row.Code}</CustomTableCell>
+											<CustomTableCell align="center"  >{row.amount}</CustomTableCell>
+											<CustomTableCell align="center"  >{row.StartDate}</CustomTableCell>
+											<CustomTableCell align="center"  >{row.EndDate}</CustomTableCell>
+											<CustomTableCell align="center"  >{row.PaymentDate == null ? "-" : row.PaymentDate}</CustomTableCell>
+
+										</TableRow>
+									))}
+								</TableBody>
+							</Table>
+							<div style={{ borderBottom: "solid 1px black" }} ></div>
+							<h1 style={{ textAlign: "center" }} >Payment Details</h1>
+							<div style={{ borderBottom: "solid 1px black" }} ></div>
+
+							<Table className={classes.table}>
+								<TableHead>
+									<TableRow>
+										<CustomTableCell align="center"  >Payable</CustomTableCell>
+										<CustomTableCell align="center"  >Tax deductions</CustomTableCell>
+										<CustomTableCell align="center"  >Leave deductions</CustomTableCell>
+										<CustomTableCell align="center"  >Paid</CustomTableCell>
+										<CustomTableCell align="center"  >Type</CustomTableCell>
+
+									</TableRow>
+								</TableHead>
+								{this.state.Employee.Payments == null ? '' : this.state.Employee.Payments.map(row => (
+
+
+
+									<TableBody>
+
+										<TableRow className={classes.row} key={row.Id}>
+
+											<CustomTableCell align="center"  >{row.paid}</CustomTableCell>
+											<CustomTableCell align="center"  >{row.taxdeduction}</CustomTableCell>
+											<CustomTableCell align="center"  >{row.leavededuct}</CustomTableCell>
+											<CustomTableCell align="center"  >{row.PayMonth}</CustomTableCell>
+											<CustomTableCell align="center"  >{row.PayRollType}</CustomTableCell>
+
+										</TableRow>
+
+									</TableBody>
+
 								))}
-							</TableBody>
-						</Table>
-					
-					</Paper>
+							</Table>
+						</Paper>
 					</div>
 				}
 			/>
