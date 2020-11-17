@@ -24,6 +24,7 @@ import axios from "axios";
 import toastr from 'toastr'
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
+import Select1 from 'react-select';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import defaultUrl from "../../../app/services/constant/constant";
@@ -40,6 +41,7 @@ const styles = theme => ({
 	container: {
 		display: 'flex',
 		flexWrap: 'wrap',
+
 	},
 	textField: {
 		marginLeft: theme.spacing.unit,
@@ -81,15 +83,41 @@ class BulkUpload extends Component {
 		File:null,
 		value: 0,
 		FilePath:"",
+		companyId:"",
+		CompanySelected:"",
+		companyList:[],
 		Action:'Bulk Upload'
 	};
 	constructor(props) {
 		super(props);
 		this.validator = new SimpleReactValidator();
-		
+		this.getCompanyDetail();
 	
 	  }
-	 
+	  handledropdown = (e) => {
+
+		this.setState({ 'companyId': e.value, 'CompanySelected': e });
+	}
+	  getCompanyDetail = () => {
+		axios({
+			method: "get",
+			url: defaultUrl + "company/Selective/data",
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response);
+
+				this.setState({ companyList: response.data });
+				return response.data;
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
+
 	handleTab = (event, value) => {
 		this.setState({ value });
 	};
@@ -133,34 +161,69 @@ class BulkUpload extends Component {
 
 	  };
 	  uploadFile=()=>{
-		if (!this.validator.allValid()) {
-			this.validator.showMessages();
-			this.forceUpdate();
-		} else {
-			document.getElementById("fuse-splash-screen").style.display="block";
-			var obj={
-				Path: this.state.File,
-				Type:this.state.Type
+		if(this.state.Type=="Bank" || this.state.Type=="Company" || this.state.Type=="Exchange" || this.state.Type=="CountryLaw" )
+		{
+			if (!this.validator.fieldValid('Type') || !this.validator.fieldValid('FilePath') ) {
+				this.validator.showMessages();
+				this.forceUpdate();
+			} else {
+				document.getElementById("fuse-splash-screen").style.display="block";
+				var obj={
+					Path: this.state.File,
+					Type:this.state.Type,
+					Company:0
+				}
+				axios({
+					method: "post",
+					url: defaultUrl+"bulkupload",
+					data:obj,
+					headers: {
+						// 'Authorization': `bearer ${token}`,
+						"Content-Type": "application/json;charset=utf-8",
+					},
+				})
+					.then((response) => {
+						Messages.success();
+						document.getElementById("fuse-splash-screen").style.display="none";
+					})
+					.catch((error) => {
+						Messages.error();
+						document.getElementById("fuse-splash-screen").style.display="none";
+					})
+		
 			}
-			axios({
-				method: "post",
-				url: defaultUrl+"bulkupload",
-				data:obj,
-				headers: {
-					// 'Authorization': `bearer ${token}`,
-					"Content-Type": "application/json;charset=utf-8",
-				},
-			})
-				.then((response) => {
-					Messages.success();
-					document.getElementById("fuse-splash-screen").style.display="none";
+		}else{
+			if (!this.validator.allValid()) {
+				this.validator.showMessages();
+				this.forceUpdate();
+			} else {
+				document.getElementById("fuse-splash-screen").style.display="block";
+				var obj={
+					Path: this.state.File,
+					Type:this.state.Type,
+					Company:this.state.companyId
+				}
+				axios({
+					method: "post",
+					url: defaultUrl+"bulkupload",
+					data:obj,
+					headers: {
+						// 'Authorization': `bearer ${token}`,
+						"Content-Type": "application/json;charset=utf-8",
+					},
 				})
-				.catch((error) => {
-					Messages.error();
-					document.getElementById("fuse-splash-screen").style.display="none";
-				})
-	
+					.then((response) => {
+						Messages.success();
+						document.getElementById("fuse-splash-screen").style.display="none";
+					})
+					.catch((error) => {
+						Messages.error();
+						document.getElementById("fuse-splash-screen").style.display="none";
+					})
+		
+			}
 		}
+		
 	  }
 	
 	render() {
@@ -180,7 +243,7 @@ class BulkUpload extends Component {
 				}
 				content={
 
-					<div className={classes.root}>
+					<div className={classes.root} style={{height:'300px'}}>
 						  <div>
         <ToastContainer />
       </div>
@@ -240,6 +303,23 @@ class BulkUpload extends Component {
 											{this.validator.message('Type', this.state.Type, 'required')}
 										</FormControl>
 									</Grid>
+									<Grid item xs={12} sm={5} style={{marginTop: "10px"}} className={this.state.Type=="Bank" || this.state.Type=="Company" || this.state.Type=="Exchange" || this.state.Type=="CountryLaw" ? 'd-none' : ''   } >
+										<FormControl className={classes.formControl}>
+									
+											<Select1
+
+												name="companyId"
+												options={this.state.companyList}
+												value={this.state.CompanySelected}
+												className="basic-multi-select"
+												classNamePrefix="select"
+												onChange={this.handledropdown}
+											
+											/>
+											{this.validator.message('companyId', this.state.companyId, 'required')}
+										</FormControl>
+									</Grid>
+									
 									<Grid item xs={12} sm={5}  >
 									<TextField type="file" id="File" fullWidth label="File" InputLabelProps={{
 												shrink: true,
@@ -258,6 +338,7 @@ class BulkUpload extends Component {
       								</Button>
 									</div>
 									</Grid>
+									<div style={{height:'200px'}}></div>
 								</div>
 							</TabContainer>
 						</SwipeableViews>

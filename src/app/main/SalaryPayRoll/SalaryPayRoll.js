@@ -718,35 +718,7 @@ axios({
 								<form className={classes.container} noValidate autoComplete="off">
 									<Grid item xs={12} sm={5} >
 										<FormControl className={classes.formControl}>
-											{/* <InputLabel htmlFor="company">Company</InputLabel> */}
-											{/* <Select
-											value={this.state.companyId}
-											onChange={this.handleChange}
-											//onChange={this.getEmployeeDetail()}
-											inputProps={{
-												name: 'companyId',
-												id: 'companyId',
-											}}
-										>
-											<MenuItem value="">
-												<em>None</em>
-											</MenuItem>
-											
-											{this.state.companyList.map(row => (
-													<MenuItem value={row.Id}>{row.CompanyName}</MenuItem>
-												))} 
-										</Select> */}
-											{/* <Select options={this.state.companyList} 	value={this.state.companyId}
-											onChange={this.handleChange} /> */}
-											{/* <pre>inputValue: "{this.state.companyId}"</pre> */}
-											{/* <AsyncSelect
-												cacheOptions
-												loadOptions={this.loadOptions}
-												defaultOptions={this.getCompanyDetail}
-												onInputChange={this.handleInputChange}
-												name={this.state.companyId}
-												onChange={this.handledropdown}
-											/> */}
+									
 											<Select
 
 												name="companyId"
