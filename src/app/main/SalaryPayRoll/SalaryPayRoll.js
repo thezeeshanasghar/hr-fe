@@ -841,7 +841,7 @@ axios({
 										</div>
 									</Grid>
 
-									<Grid item xs={12} sm={5}  >
+									<Grid item xs={12} sm={6}  >
 										<div style={{ height: "500px", overflowY: "scroll", boxShadow: "0px 0px 4px gray", border: "solid 2px black", marginRight: "5px" }}>
 
 											<List component="nav" className={classes.root} aria-label="contacts">
@@ -851,7 +851,10 @@ axios({
 														<ListItemText primary={'Generated on-' + x.paidon} /> 
 														<ListItemText primary={'Status-' + x.Status} /> 
 														<VerifyIcon onClick={()=>this.closeCurrent(x.PayGroup)} title="Mark as Closed" ></VerifyIcon>
+														<button type="button"  onClick={() => this.closeCurrent(x.PayGroup)} >Close Payroll</button>
+															
 														<DeleteIcon onClick={() => this.reversePayroll(x.PayGroup)}  title="reverse payroll"></DeleteIcon> 
+														<button type="button"  onClick={() => this.reversePayroll(x.PayGroup)} >Reverse Payroll</button>
 													</ListItem>
 												)}
 

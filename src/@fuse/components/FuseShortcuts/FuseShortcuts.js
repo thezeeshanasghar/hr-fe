@@ -146,7 +146,7 @@ class FuseShortcuts extends Component {
                         </Link>
                     ))}
 
-                    <Tooltip title="Click to add/remove shortcut" placement={variant === "horizontal" ? "bottom" : "left"}>
+                    {/* <Tooltip title="Click to add/remove shortcut" placement={variant === "horizontal" ? "bottom" : "left"}>
                         <IconButton
                             className="w-40 h-40 p-0"
                             aria-owns={addMenu ? 'add-menu' : null}
@@ -155,7 +155,7 @@ class FuseShortcuts extends Component {
                         >
                             <Icon className={classes.addIcon}>star</Icon>
                         </IconButton>
-                    </Tooltip>
+                    </Tooltip> */}
                 </FuseAnimateGroup>
 
                 <Menu

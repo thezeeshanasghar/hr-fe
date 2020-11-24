@@ -31,7 +31,7 @@ import defaultUrl from "../../../app/services/constant/constant";
 import moment from 'moment';
 import Messages from '../toaster';
 import { ToastContainer, toast } from 'react-toastify';
-
+import Select1 from 'react-select';
 
 import $ from 'jquery';
 import DataTable from "datatables.net";
@@ -133,13 +133,13 @@ class Employee extends Component {
 		Address: "",
 		Contact: "",
 		title: "",
-		frequency:"",
-		entitlement:"",
-		oneTimePayElement:"",
-		oneTimeEntitlement:"",
-		oneTimeAmount:"",
-		oneTimeDate:"",
-		oneTimeCurrency:"",
+		frequency: "",
+		entitlement: "",
+		oneTimePayElement: "",
+		oneTimeEntitlement: "",
+		oneTimeAmount: "",
+		oneTimeDate: "",
+		oneTimeCurrency: "",
 		Companies: [],
 		companyList: [],
 		genderList: [],
@@ -163,9 +163,12 @@ class Employee extends Component {
 		lawsList: [],
 		lawId: "",
 		selectedLaws: [],
-		entitlementList:[],
-		oneTimePayRoll:[],
+		entitlementList: [],
+		oneTimePayRoll: [],
 		Id: 0,
+		companyListsel:[],
+		companyIdsel:"",
+		CompanySelected:"",
 		Action: "Insert Record"
 	};
 	constructor(props) {
@@ -186,15 +189,16 @@ class Employee extends Component {
 		this.getPaymentMethod();
 		this.getBanks();
 		this.getTitle();
-		this.getEmployeeList();
+		this.getEmployeeList(0);
 		this.getCountryLaws();
 		this.getEntitlement();
+		this.getselectiveCompanyDetail();
 	}
 	deleteRow = (element) => {
 		console.log(element);
 		this.setState({ PayRoll: this.state.PayRoll.filter(x => x.Id != element) })
 	}
-	deleteoneTimeRow= (element) => {
+	deleteoneTimeRow = (element) => {
 
 		this.setState({ oneTimePayRoll: this.state.oneTimePayRoll.filter(x => x.Id != element) })
 	}
@@ -206,7 +210,7 @@ class Employee extends Component {
 			!this.validator.fieldValid('PayElement') ||
 			!this.validator.fieldValid('frequency') ||
 			!this.validator.fieldValid('entitlement')
-			) {
+		) {
 			this.validator.showMessages();
 			this.forceUpdate();
 			return false;
@@ -215,7 +219,7 @@ class Employee extends Component {
 		let count = list.filter(x => x.PayElement == this.state.PayElement).length;
 
 		if (count > 0) {
-			this.setState({ PayRoll: list, PayElement: "", amount: "", payrollStartDate: "", payrollEndDate: "",frequency:"",entitlement:"" })
+			this.setState({ PayRoll: list, PayElement: "", amount: "", payrollStartDate: "", payrollEndDate: "", frequency: "", entitlement: "" })
 			return false;
 		}
 
@@ -225,8 +229,8 @@ class Employee extends Component {
 			Currency: this.state.PayRollCurrency,
 			StartDate: this.state.payrollStartDate,
 			EndDate: this.state.payrollEndDate,
-			frequency:this.state.frequency,
-			entitlement:this.state.entitlement
+			frequency: this.state.frequency,
+			entitlement: this.state.entitlement
 		});
 
 		this.setState({ PayRoll: list, PayElement: "", amount: "", payrollStartDate: "", payrollEndDate: "" })
@@ -254,12 +258,18 @@ class Employee extends Component {
 	}
 
 	handleTabChange = (event, value) => {
-		if(value==1 || value==0)
+		if(this.state.Action == "Insert Record" )
 		{
-		this.setState({ value });
-		this.setState({ [event.target.name]: event.target.value });
+			if ((value == 1 || value == 0)) {
+				this.setState({ value });
+				this.setState({ [event.target.name]: event.target.value });
+			}
+	
+		}else{
+			this.setState({ value });
+			this.setState({ [event.target.name]: event.target.value });
 		}
-		
+	
 
 	};
 	handleChange = (e) => {
@@ -287,7 +297,7 @@ class Employee extends Component {
 				console.log(error);
 			})
 	}
-	
+
 	getGender = () => {
 		axios({
 			method: "get",
@@ -407,6 +417,25 @@ class Employee extends Component {
 				console.log(error);
 			})
 	}
+	getselectiveCompanyDetail = () => {
+		axios({
+			method: "get",
+			url: defaultUrl + "company/Selective/data",
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response);
+
+				this.setState({ companyList: response.data });
+				return response.data;
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
 	getCompanyDetail = () => {
 		axios({
 			method: "get",
@@ -484,6 +513,10 @@ class Employee extends Component {
 				console.log(error);
 			})
 	}
+	handledropdown = (e) => {
+		console.log("working",e.value)
+		this.getEmployeeList(e.value)
+	}
 	getSocialSecurity = (id) => {
 
 		axios({
@@ -560,14 +593,14 @@ class Employee extends Component {
 				console.log(error);
 			})
 	}
-	AddoneTimePayRoll=()=>{
+	AddoneTimePayRoll = () => {
 
 		if (!this.validator.fieldValid('oneTimePayElement') ||
 			!this.validator.fieldValid('oneTimeEntitlement') ||
 			!this.validator.fieldValid('oneTimeDate') ||
 			!this.validator.fieldValid('oneTimeAmount') ||
 			!this.validator.fieldValid('oneTimeCurrency')
-			) {
+		) {
 			this.validator.showMessages();
 			this.forceUpdate();
 			return false;
@@ -576,7 +609,7 @@ class Employee extends Component {
 		let count = list.filter(x => x.oneTimePayElement == this.state.oneTimePayElement).length;
 
 		if (count > 0) {
-			this.setState({ oneTimePayRoll: list, oneTimePayElement: "", oneTimeEntitlement: "", oneTimeDate: "", oneTimeAmount: "",oneTimeCurrency:""})
+			this.setState({ oneTimePayRoll: list, oneTimePayElement: "", oneTimeEntitlement: "", oneTimeDate: "", oneTimeAmount: "", oneTimeCurrency: "" })
 			return false;
 		}
 
@@ -585,11 +618,11 @@ class Employee extends Component {
 			Amount: this.state.oneTimeAmount,
 			Currency: this.state.oneTimeCurrency,
 			EffectiveDate: this.state.oneTimeDate,
-			entitlement:this.state.oneTimeEntitlement
+			entitlement: this.state.oneTimeEntitlement
 		});
 
-		this.setState({ oneTimePayRoll: list, oneTimePayElement: "", oneTimeEntitlement: "", oneTimeDate: "", oneTimeAmount: "",oneTimeCurrency:"" })
-	
+		this.setState({ oneTimePayRoll: list, oneTimePayElement: "", oneTimeEntitlement: "", oneTimeDate: "", oneTimeAmount: "", oneTimeCurrency: "" })
+
 	}
 	getOneTimePayroll = (Id) => {
 		axios({
@@ -608,7 +641,7 @@ class Employee extends Component {
 				console.log(error);
 			})
 	}
-	getOneTimePayrollDetail= () => {
+	getOneTimePayrollDetail = () => {
 		var detail = "";
 
 		for (var i = 0; i < this.state.oneTimePayRoll.length; i++) {
@@ -620,7 +653,7 @@ class Employee extends Component {
 		var detail = "";
 
 		for (var i = 0; i < this.state.PayRoll.length; i++) {
-			detail += this.state.PayRoll[i].PayElementId + '@' + this.state.PayRoll[i].amount + "_" + this.state.PayRoll[i].Currency + "&" + this.state.PayRoll[i].StartDate + "|" + this.state.PayRoll[i].EndDate +"$"+this.state.PayRoll[i].entitlement+">"+this.state.PayRoll[i].frequency + "!;";
+			detail += this.state.PayRoll[i].PayElementId + '@' + this.state.PayRoll[i].amount + "_" + this.state.PayRoll[i].Currency + "&" + this.state.PayRoll[i].StartDate + "|" + this.state.PayRoll[i].EndDate + "$" + this.state.PayRoll[i].entitlement + ">" + this.state.PayRoll[i].frequency + "!;";
 		}
 		return detail;
 	}
@@ -632,7 +665,7 @@ class Employee extends Component {
 		}
 		return detail;
 	}
-	
+
 	getEntitlement = () => {
 		axios({
 			method: "get",
@@ -684,7 +717,7 @@ class Employee extends Component {
 				console.log(error);
 			})
 	}
-	insertUpdateEmployee = () => {
+	insertUpdateEmployee = (TYPE) => {
 
 		var method = "post";
 		var url = defaultUrl + "employee";
@@ -729,9 +762,11 @@ class Employee extends Component {
 			PayRollDetail: this.getPayRollDetail(),
 			OneTimePayRollDetail: this.getOneTimePayrollDetail(),
 			ApplicableLaws: this.getLawsDetail(),
+			type:TYPE,
+			Id:this.state.Id
 		};
 		axios.interceptors.request.use(function (config) {
-			document.getElementById("fuse-splash-screen").style.display="block";
+			document.getElementById("fuse-splash-screen").style.display = "block";
 			return config;
 		}, function (error) {
 			console.log('Error');
@@ -747,7 +782,7 @@ class Employee extends Component {
 			},
 		})
 			.then((response) => {
-				this.getEmployeeList();
+				this.getEmployeeList(0);
 				this.setState({
 					firstName: "",
 					lastName: "",
@@ -790,9 +825,9 @@ class Employee extends Component {
 					selectedLaws: [],
 					Id: 0,
 					Action: 'Insert Record',
-					value:0
+					value: 0
 				});
-				document.getElementById("fuse-splash-screen").style.display="none";
+				document.getElementById("fuse-splash-screen").style.display = "none";
 				Messages.success();
 			})
 			.catch((error) => {
@@ -839,10 +874,10 @@ class Employee extends Component {
 					selectedLaws: [],
 					Id: 0,
 					Action: 'Insert Record',
-					table:null,
-					value:0
+					table: null,
+					value: 0
 				})
-				document.getElementById("fuse-splash-screen").style.display="none";
+				document.getElementById("fuse-splash-screen").style.display = "none";
 				Messages.error();
 			})
 
@@ -895,44 +930,46 @@ class Employee extends Component {
 			}
 		}
 		else if (val == 4) {
-			if (this.state.PayRoll.length <= 0 ||this.state.oneTimePayRoll.length <= 0 ) {
+			if (this.state.PayRoll.length <= 0 || this.state.oneTimePayRoll.length <= 0) {
 				return false;
 			}
 		}
 		this.setState({ value: val });
 	}
-	getEmployeeList = () => {
+	getEmployeeList = (IDD) => {
 		localStorage.removeItem("ids");
+		console.log(IDD)
 		if (!$.fn.dataTable.isDataTable('#employee_Table')) {
 			this.state.table = $('#employee_Table').DataTable({
-				ajax: defaultUrl + "employee",
+				ajax: defaultUrl + "employee/ByCompany/"+IDD,
 				"columns": [
 					{ "data": "EmployeeCode" },
 					{ "data": "Title" },
 					{ "data": "FirstName" },
 					{ "data": "LastName" },
-					{ "data": "Gender"},
+					{ "data": "Gender" },
 					{ "data": "Email" },
-					{ "data": "Cnic"},
-					{ "data": "DOB"},
-					{ "data": "InsuranceId"},
-					{ "data": "HireDate"},
-					{ "data": "HiringReason"},
-					{ "data": "ServiceStartDate"},
-					{ "data": "ProbationEndDate"},
-					{ "data": "PartTimePercentage"},
-					{ "data": "ContractEndDate"},
-					{ "data": "Address"},
-					{ "data": "Contact"},
-					{ "data": "MaritalStatus"},
-					{ "data": "Country"},
-					{ "data": "CurrentEmployeeStatus"},
-					{ "data": "PartTimeSituation"},
-					{ "data": "Action",
-					sortable: false,
-					"render": function ( data, type, full, meta ) {
-					   
-						return `<input type="checkbox" name="radio"  value=`+full.Id+`
+					{ "data": "Cnic" },
+					{ "data": "DOB" },
+					{ "data": "InsuranceId" },
+					{ "data": "HireDate" },
+					{ "data": "HiringReason" },
+					{ "data": "ServiceStartDate" },
+					{ "data": "ProbationEndDate" },
+					{ "data": "PartTimePercentage" },
+					{ "data": "ContractEndDate" },
+					{ "data": "Address" },
+					{ "data": "Contact" },
+					{ "data": "MaritalStatus" },
+					{ "data": "Country" },
+					{ "data": "CurrentEmployeeStatus" },
+					{ "data": "PartTimeSituation" },
+					{
+						"data": "Action",
+						sortable: false,
+						"render": function (data, type, full, meta) {
+
+							return `<input type="checkbox" name="radio"  value=` + full.Id + `
 						onclick=" const checkboxes = document.querySelectorAll('input[name=radio]:checked');
 									let values = [];
 									checkboxes.forEach((checkbox) => {
@@ -940,8 +977,8 @@ class Employee extends Component {
 									});
 									localStorage.setItem('ids',values);	"
 						/>`;
+						}
 					}
-				 }
 
 				],
 				rowReorder: {
@@ -955,12 +992,14 @@ class Employee extends Component {
 				columnDefs: [{
 					"defaultContent": "-",
 					"targets": "_all"
-				  }]
+				}]
 			});
 		} else {
-			this.state.table.ajax.reload();
+			// this.state.table.ajax.reload();
+			this.state.table.ajax.url( defaultUrl + "employee/ByCompany/"+IDD ).load();
 		}
 	}
+
 	deleteEmployee = () => {
 		let ids = localStorage.getItem("ids");
 		// if(ids=== null || localStorage.getItem("ids").split(",").length>1)
@@ -968,7 +1007,7 @@ class Employee extends Component {
 		// 	Messages.warning("kindly Select one record")
 		// 	return false;
 		// }
-		document.getElementById("fuse-splash-screen").style.display="block";
+		document.getElementById("fuse-splash-screen").style.display = "block";
 
 		axios({
 			method: "delete",
@@ -979,26 +1018,25 @@ class Employee extends Component {
 			},
 		})
 			.then((response) => {
-				this.getEmployeeList();
-				document.getElementById("fuse-splash-screen").style.display="none";
+				this.getEmployeeList(0);
+				document.getElementById("fuse-splash-screen").style.display = "none";
 				Messages.success();
 
 			})
 			.catch((error) => {
 				console.log(error);
-				document.getElementById("fuse-splash-screen").style.display="none";
+				document.getElementById("fuse-splash-screen").style.display = "none";
 				Messages.error();
 
 			})
 	}
 	getEmployeeById = (ids) => {
-	
-		if(ids===null)
-		{
-		Messages.warning("No Record Selected")
-		return false;
+
+		if (ids === null) {
+			Messages.warning("No Record Selected")
+			return false;
 		}
-		document.getElementById("fuse-splash-screen").style.display="block";
+		document.getElementById("fuse-splash-screen").style.display = "block";
 
 		axios({
 			method: "get",
@@ -1043,12 +1081,12 @@ class Employee extends Component {
 					Action: "Update Record",
 					Id: response.data[0].Id
 				})
-				document.getElementById("fuse-splash-screen").style.display="none";
+				document.getElementById("fuse-splash-screen").style.display = "none";
 
 			})
 			.catch((error) => {
 				console.log(error);
-				document.getElementById("fuse-splash-screen").style.display="none";
+				document.getElementById("fuse-splash-screen").style.display = "none";
 
 			})
 	}
@@ -1062,7 +1100,7 @@ class Employee extends Component {
 			},
 		})
 			.then((response) => {
-				console.log(response.data,"Bank Detail");
+				console.log(response.data, "Bank Detail");
 				this.setState({
 					Bank: response.data[0].BankId,
 					Currency: response.data[0].CurrencyCode,
@@ -1111,20 +1149,18 @@ class Employee extends Component {
 				console.log(error);
 			})
 	}
-	getView = () =>{
-		var ids=localStorage.getItem("ids");
-		if(ids=== null || localStorage.getItem("ids").split(",").length>1)
-		{
+	getView = () => {
+		var ids = localStorage.getItem("ids");
+		if (ids === null || localStorage.getItem("ids").split(",").length > 1) {
 			Messages.warning("kindly Select one record")
 			return false;
 		}
 		this.props.history.push(`/employeedetail/${ids}`);
 	}
 	getEmployeeDetailsForEdit = () => {
-		
-		var ids=localStorage.getItem("ids");
-		if(ids=== null || localStorage.getItem("ids").split(",").length>1)
-		{
+
+		var ids = localStorage.getItem("ids");
+		if (ids === null || localStorage.getItem("ids").split(",").length > 1) {
 			Messages.warning("kindly Select one record")
 			return false;
 		}
@@ -1151,9 +1187,9 @@ class Employee extends Component {
 				content={
 
 					<div className={classes.root}>
-						 <div>
-        <ToastContainer />
-      </div>
+						<div>
+							<ToastContainer />
+						</div>
 						<AppBar position="static" color="default">
 							<Tabs
 								value={this.state.value}
@@ -1176,24 +1212,37 @@ class Employee extends Component {
 						>
 							<TabContainer dir={theme.direction}>
 								<Paper className={classes.root}>
-								<div className="row">
-									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
-										<Button variant="outlined" color="primary" className={classes.button} onClick={this.getEmployeeDetailsForEdit}>
-											Edit
+									<div className="row">
+										<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
+											<Button variant="outlined" color="primary" className={classes.button} onClick={this.getEmployeeDetailsForEdit}>
+												Edit
 										</Button>
-									</div>
-									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
-										<Button variant="outlined" color="inherit" className={classes.button} onClick={this.deleteEmployee}>
-											Delete
+										</div>
+										<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
+											<Button variant="outlined" color="inherit" className={classes.button} onClick={this.deleteEmployee}>
+												Delete
 										</Button>
-									</div>
-									<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
-										<Button variant="outlined" color="inherit" className={classes.button} onClick={this.getView}>
-											View
+										</div>
+										<div style={{ float: "left", "marginLeft": "8px", "marginTop": "8px" }}>
+											<Button variant="outlined" color="inherit" className={classes.button} onClick={this.getView}>
+												View
 										</Button>
+										</div>
+										<Grid item xs={12} sm={5} style={{ paddingTop: "10px",float:"right",width:"20%" }}  >
+											<Select1
+
+												name="companyId"
+												options={this.state.companyList}
+												// value={this.state.CompanySelected}
+												className="basic-multi-select"
+												classNamePrefix="select"
+												onChange={this.handledropdown}
+
+											/>
+										</Grid>
+
 									</div>
-								</div>
-								<table id="employee_Table" className="nowrap header_custom" style={{ "width": "100%" }}>
+									<table id="employee_Table" className="nowrap header_custom" style={{ "width": "100%" }}>
 										<thead>
 											<tr>
 												<th>EmployeeCode</th>
@@ -1221,7 +1270,7 @@ class Employee extends Component {
 											</tr>
 										</thead>
 									</table>
-								
+
 								</Paper>
 							</TabContainer>
 							<TabContainer dir={theme.direction}>
@@ -1594,7 +1643,9 @@ class Employee extends Component {
 								<div className="row" >
 									<Grid item xs={12} sm={10}  >
 										<div style={{ float: "right", "marginRight": "8px" }}>
-
+										<Button style={{ "marginBottom": "10px","marginRight":"10px" }} variant="outlined" color="secondary"  className={this.state.Action!='Insert Record'?classes.button:'d-none'} onClick={() => this.insertUpdateEmployee('employee')}>
+												Update Employee Detail
+      										</Button>
 											<Button style={{ "marginBottom": "10px" }} variant="outlined" color="secondary" className={classes.button} onClick={() => this.nextTab(2)}>
 												Next
       								</Button>
@@ -1715,7 +1766,9 @@ class Employee extends Component {
   										</Button>
 									</div>
 									<div style={{ float: "right", "marginRight": "8px" }}>
-
+									<Button style={{ "marginBottom": "10px","marginRight":"10px" }} variant="outlined" color="secondary"  className={this.state.Action!='Insert Record'?classes.button:'d-none'} onClick={() => this.insertUpdateEmployee('bank')}>
+												Update Bank Detail
+      										</Button>
 										<Button style={{ "marginBottom": "10px" }} variant="outlined" color="secondary" className={classes.button} onClick={() => this.nextTab(3)}>
 											Next
       									</Button>
@@ -1796,7 +1849,7 @@ class Employee extends Component {
 
 									</Grid>
 
-									<Grid item xs={12} sm={5}  style={{ marginRight: '5px' }}  >
+									<Grid item xs={12} sm={5} style={{ marginRight: '5px' }}  >
 										<TextField
 											id="date"
 											label="End Date"
@@ -1879,7 +1932,7 @@ class Employee extends Component {
 										</TableBody>
 									</Table>
 								</div>
-							
+
 								<h4>OneTime PayElements</h4>
 								<form className={classes.container} noValidate autoComplete="off">
 
@@ -1934,9 +1987,9 @@ class Employee extends Component {
 
 									</Grid>
 
-									
 
-									<Grid item xs={12} sm={5}  style={{ marginRight: '5px' }}  >
+
+									<Grid item xs={12} sm={5} style={{ marginRight: '5px' }}  >
 										<TextField
 											id="date"
 											label="Effective Date"
@@ -2015,7 +2068,7 @@ class Employee extends Component {
 										</TableBody>
 									</Table>
 								</div>
-							
+
 								<div className="row" style={{ "marginBottom": "10px" }} >
 									<Grid item xs={12} sm={12}  >
 										<div style={{ float: "left", "marginLeft": "8px" }}>
@@ -2024,6 +2077,9 @@ class Employee extends Component {
   											</Button>
 										</div>
 										<div style={{ float: "right", "marginRight": "8px" }}>
+										<Button style={{ "marginBottom": "10px","marginRight":"10px" }} variant="outlined" color="secondary"  className={this.state.Action!='Insert Record'?classes.button:'d-none'} onClick={() => this.insertUpdateEmployee('payroll')}>
+												Update payroll
+      										</Button>
 											<Button style={{ "marginBottom": "10px" }} variant="outlined" color="secondary" className={classes.button} onClick={() => this.nextTab(4)}>
 												Next
       									</Button>
@@ -2096,13 +2152,16 @@ class Employee extends Component {
 								</div>
 								<div className="row">
 									<Grid item xs={12} sm={12}  >
-									<div style={{ float: "left", "marginLeft": "8px" }}>
+										<div style={{ float: "left", "marginLeft": "8px" }}>
 											<Button style={{ "marginBottom": "10px" }} variant="outlined" color="secondary" className={classes.button} onClick={() => this.nextTab(3)}>
 												Previous
   											</Button>
 										</div>
 										<div style={{ float: "right", "marginRight": "8px" }}>
-											<Button variant="outlined" color="secondary" className={classes.button} onClick={this.insertUpdateEmployee} >
+										<Button style={{ "marginBottom": "10px","marginRight":"10px" }} variant="outlined" color="secondary" className={this.state.Action!='Insert Record'?classes.button:'d-none'} onClick={() => this.insertUpdateEmployee('laws')}>
+												Update Law
+      										</Button>
+											<Button variant="outlined" color="secondary" className={classes.button} onClick={()=>this.insertUpdateEmployee('All')} >
 												{this.state.Action}
 											</Button>
 										</div>

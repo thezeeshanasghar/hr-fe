@@ -125,7 +125,7 @@ class UnpaidLeaves extends Component {
 		})
 			.then((response) => {
 				console.log(response);
-				this.setState({ Employees: response.data });
+				this.setState({ Employees: response.data.data });
 			})
 			.catch((error) => {
 				console.log(error);
