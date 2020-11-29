@@ -766,7 +766,7 @@ class Employee extends Component {
 			Id:this.state.Id
 		};
 		axios.interceptors.request.use(function (config) {
-			document.getElementById("fuse-splash-screen").style.display = "block";
+			////document.getElementById("fuse-splash-screen").style.display = "block";
 			return config;
 		}, function (error) {
 			console.log('Error');
@@ -827,7 +827,7 @@ class Employee extends Component {
 					Action: 'Insert Record',
 					value: 0
 				});
-				document.getElementById("fuse-splash-screen").style.display = "none";
+				//document.getElementById("fuse-splash-screen").style.display = "none";
 				Messages.success();
 			})
 			.catch((error) => {
@@ -877,8 +877,8 @@ class Employee extends Component {
 					table: null,
 					value: 0
 				})
-				document.getElementById("fuse-splash-screen").style.display = "none";
-				Messages.error();
+				//document.getElementById("fuse-splash-screen").style.display = "none";
+				Messages.error(error.message);
 			})
 
 	}
@@ -1007,7 +1007,7 @@ class Employee extends Component {
 		// 	Messages.warning("kindly Select one record")
 		// 	return false;
 		// }
-		document.getElementById("fuse-splash-screen").style.display = "block";
+		////document.getElementById("fuse-splash-screen").style.display = "block";
 
 		axios({
 			method: "delete",
@@ -1019,14 +1019,14 @@ class Employee extends Component {
 		})
 			.then((response) => {
 				this.getEmployeeList(0);
-				document.getElementById("fuse-splash-screen").style.display = "none";
+				//document.getElementById("fuse-splash-screen").style.display = "none";
 				Messages.success();
 
 			})
 			.catch((error) => {
 				console.log(error);
-				document.getElementById("fuse-splash-screen").style.display = "none";
-				Messages.error();
+				//document.getElementById("fuse-splash-screen").style.display = "none";
+				Messages.error(error.message);
 
 			})
 	}
@@ -1036,7 +1036,7 @@ class Employee extends Component {
 			Messages.warning("No Record Selected")
 			return false;
 		}
-		document.getElementById("fuse-splash-screen").style.display = "block";
+		////document.getElementById("fuse-splash-screen").style.display = "block";
 
 		axios({
 			method: "get",
@@ -1081,12 +1081,12 @@ class Employee extends Component {
 					Action: "Update Record",
 					Id: response.data[0].Id
 				})
-				document.getElementById("fuse-splash-screen").style.display = "none";
+				//document.getElementById("fuse-splash-screen").style.display = "none";
 
 			})
 			.catch((error) => {
 				console.log(error);
-				document.getElementById("fuse-splash-screen").style.display = "none";
+				//document.getElementById("fuse-splash-screen").style.display = "none";
 
 			})
 	}

@@ -131,7 +131,9 @@ class BulkUpload extends Component {
 			this.setState({File:""});
 			return false;
 		  }
-		  var extension=e.target.files[0].name.split(".")[1];
+
+			var extension = e.target.files[0].name.split(/[.;+_]/).pop();
+		  console.log(extension)
 		  if(extension.toLowerCase()!="xlsx" )
 		  {
 			  Messages.warning("Invalid valid formate");
@@ -163,11 +165,13 @@ class BulkUpload extends Component {
 	  uploadFile=()=>{
 		if(this.state.Type=="Bank" || this.state.Type=="Company" || this.state.Type=="Exchange" || this.state.Type=="CountryLaw" )
 		{
-			if (!this.validator.fieldValid('Type') || !this.validator.fieldValid('FilePath') ) {
+			console.log("working",this.validator.fieldValid('Type') ,this.validator.fieldValid('File'),this.state.File )
+			if (!this.validator.fieldValid('Type') || !this.validator.fieldValid('File') ) {
 				this.validator.showMessages();
 				this.forceUpdate();
 			} else {
-				document.getElementById("fuse-splash-screen").style.display="block";
+				// document.getElementById("fuse-splash-screen").style.display="block";
+				console.log("BulkUpload")
 				var obj={
 					Path: this.state.File,
 					Type:this.state.Type,

@@ -11,7 +11,18 @@ import defaultUrl from "../../services/constant/constant";
 import $ from 'jquery';
 import DataTable from "datatables.net";
 import * as responsive from "datatables.net-responsive";
+import Select1 from 'react-select';
+import Grid from '@material-ui/core/Grid';
+import axios from "axios";
+import Button from '@material-ui/core/Button';
+import TableBody from '@material-ui/core/TableBody';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+import ReactExport from "react-export-excel";
 
+const ExcelFile = ReactExport.ExcelFile;
+const ExcelSheet = ReactExport.ExcelFile.ExcelSheet;
+const ExcelColumn = ReactExport.ExcelFile.ExcelColumn;
 const styles = theme => ({
 	container: {
 		display: 'flex',
@@ -51,8 +62,11 @@ function TabContainer({ children, dir }) {
 class EmployeeReports extends Component {
 	state = {
 		value: 0,
-		Action:'Insert Record',
+		Action:'Generate Report',
 		table:null,
+		company:"",
+		companyList:[],
+		data:[]
 	};
 	constructor(props) {
 		super(props);
@@ -61,57 +75,51 @@ class EmployeeReports extends Component {
 	  }
 	  componentDidMount(){
 		localStorage.removeItem("ids");
-		  this.getEmployeeDetail();
+		  this.getselectiveCompanyDetail();
 	  }
+	  handledropdown = (e) => {
+		console.log("working",e.value)
+		this.setState({company:e.value})
+	}
+	getselectiveCompanyDetail = () => {
+		axios({
+			method: "get",
+			url: defaultUrl + "company/Selective/data",
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response);
+
+				this.setState({ companyList: response.data });
+				return response.data;
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
+	getEmployeeDetail = () => {
+		axios({
+			method: "get",
+			url: defaultUrl + "report/employee",
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+				console.log(response);
+
+				this.setState({ data: response.data.data.filter(x=>x.Id==this.state.company) });
+
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
 	
-	  getEmployeeDetail=()=>{
-		localStorage.removeItem("ids");
-		if (!$.fn.dataTable.isDataTable('#Employee_Table')) {
-			this.state.table = $('#Employee_Table').DataTable({
-				ajax: defaultUrl + "report/employee",
-				"columns": [
-					{ "data": "EmployeeCode" },
-					// { "data": "InsuranceId" },
-					// { "data": "TaxationId" },
-					{ "data": "Cnic" },
-					{ "data": "FirstName" },
-					{ "data": "LastName" },
-					{ "data": "DOB" },
-					{ "data": "HireDate" },
-					{ "data": "Address" },
-					{ "data": "Contact" },
-					{ "data": "Gender" },
-					// { "data": "Marital Status" },
-					// { "data": "Country" },
-					// { "data": "Title" },
-					{ "data": "Salary" },
-					{ "data": "Email" },
-					// { "data": "BankId" },
-					 { "data": "IBAN" },
-					// { "data": "EffectiveDate" },
-					// { "data": "IsPrimary" },
-					// { "data": "CurrencyCode" },
-					// { "data": "BankName" },
-					 { "data": "CompanyName" },
-
-				],
-				rowReorder: {
-					selector: 'td:nth-child(2)'
-				},
-				responsive: true,
-				dom: 'Bfrtip',
-				buttons: [
-
-				],
-				columnDefs: [{
-					"defaultContent": "-",
-					"targets": "_all"
-				  }]
-			});
-		} else {
-			this.state.table.ajax.reload();
-		}
-	  }
 	 	
 	render() {
 		const { classes, theme } = this.props;
@@ -126,37 +134,90 @@ class EmployeeReports extends Component {
 				content={
 
 					<div className={classes.root}>
+								<form className={classes.container} noValidate autoComplete="off" style={{marginBottom:'30px',marginTop:"10px"}}>
+									<Grid item xs={6} sm={5} style={{marginRight:"10px"}} >
+											<Select1
+
+												name="companyId"
+												options={this.state.companyList}
+												// value={this.state.CompanySelected}
+												className="basic-multi-select"
+												classNamePrefix="select"
+												onChange={this.handledropdown}
+
+											/>
+										
+										</Grid>
+										<Grid item xs={6} sm={5}  >
+										<Button variant="outlined" color="secondary" className={classes.button} onClick={()=>this.getEmployeeDetail()} >
+												{this.state.Action}
+											</Button>
+										</Grid>
+								</form>
+								
+								
 						<AppBar position="static" color="default">
 							
 						</AppBar>
 				
-								<Paper className={classes.root}>
-									<table id="Employee_Table" className="nowrap header_custom" style={{ "width": "100%" }}>
-										<thead>
-											<tr>
-												<th>EmployeeCode</th>
-												{/* <th>InsuranceId</th>
-												<th>TaxationId</th> */}
-												<th>CNIC</th>
-												<th>FirstName</th>
-												<th>LastName</th>
-												<th>DOB</th>
-												<th>HireDate</th>
-												<th>Address</th>
-												<th>Contact</th>
-												<th>Gender</th>
-												{/* <th>Marital Status</th> */}
-												{/* <th>Country</th>
-												<th>Title</th> */}
-												<th>Salary</th>
-												<th>Email</th>
-												<th>IBAN</th>
-												<th>Company</th>
-											</tr>
-										</thead>
-
-									</table>
-                              </Paper>
+							  <Table className={classes.table}>
+										<TableHead>
+											<TableRow>
+												<CustomTableCell align="center" >Employee Code</CustomTableCell>
+												<CustomTableCell align="center">CNIC</CustomTableCell>
+												<CustomTableCell align="center">First Name</CustomTableCell>
+												<CustomTableCell align="center">Last Name</CustomTableCell>
+												<CustomTableCell align="center">DOB</CustomTableCell>
+												<CustomTableCell align="center">Hire Date</CustomTableCell>
+												<CustomTableCell align="center">Address</CustomTableCell>
+												<CustomTableCell align="center">Contact</CustomTableCell>
+												<CustomTableCell align="center">Gender</CustomTableCell>
+												<CustomTableCell align="center">Salary</CustomTableCell>
+												<CustomTableCell align="center">Email</CustomTableCell>
+												<CustomTableCell align="center">IBAN</CustomTableCell>
+												<CustomTableCell align="center">Company</CustomTableCell>
+												
+											</TableRow>
+										</TableHead>
+										<TableBody>
+											{this.state.data.map(row => (
+												<TableRow className={classes.row} key={row.EmployeeCode}>
+													<CustomTableCell align="center">{row.EmployeeCode}</CustomTableCell>
+													<CustomTableCell align="center">{row.Cnic}</CustomTableCell>
+													<CustomTableCell align="center">{row.FirstName}</CustomTableCell>
+													<CustomTableCell align="center">{row.LastName}</CustomTableCell>
+													<CustomTableCell align="center">{row.DOB}</CustomTableCell>
+													<CustomTableCell align="center">{row.HireDate}</CustomTableCell>
+													<CustomTableCell align="center">{row.Address}</CustomTableCell>
+													<CustomTableCell align="center">{row.Contact}</CustomTableCell>
+													<CustomTableCell align="center">{row.Gender}</CustomTableCell>
+													<CustomTableCell align="center">{row.Salary}</CustomTableCell>
+													<CustomTableCell align="center">{row.Email}</CustomTableCell>
+													<CustomTableCell align="center">{row.IBAN}</CustomTableCell>
+													<CustomTableCell align="center">{row.CompanyName}</CustomTableCell>
+												</TableRow>
+											))}
+										</TableBody>
+									</Table>
+									<ExcelFile element={<button style={{color:"green"}}>Download in Excel sheet</button>}>
+							<ExcelSheet data={this.state.data} name="Employee-Report">
+								<ExcelColumn label="Employee Code" value="EmployeeCode" />
+								<ExcelColumn label="Cnic" value="Cnic"  />
+								<ExcelColumn label="First Name" value="FirstName" />
+								<ExcelColumn label="Last Name" value="LastName" />
+								<ExcelColumn label="DOB" value="DOB" />
+								<ExcelColumn label="Hire Date" value="HireDate" />
+								<ExcelColumn label="Address" value="Address" />
+								<ExcelColumn label="Contact" value="Contact" />
+								<ExcelColumn label="Gender" value="Gender" />
+								<ExcelColumn label="Country" value="Country" />
+								<ExcelColumn label="Salary" value="Salary" />
+								<ExcelColumn label="Email" value="Email" />
+								<ExcelColumn label="IBAN" value="IBAN" />
+								<ExcelColumn label="Company Name" value="CompanyName" />
+								
+							</ExcelSheet>
+						</ExcelFile>
 					</div>
 				}
 			/>

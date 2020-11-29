@@ -180,7 +180,7 @@ const navigationConfig = [
         'type': 'collapse',
         'icon': 'money',
         'badge': {
-            'title': 5,
+            'title': 4,
             'bg': '#525e8a',
             'fg': '#FFFFFF'
         },
@@ -199,6 +199,13 @@ const navigationConfig = [
         'type': 'item',
         'icon': 'whatshot',
         'url': '/EmployeeVarianceReport'
+    },
+    {
+        'id': 'EmployeeVarianceReportDetail',
+        'title': 'Employee Wise Variance Reports',
+        'type': 'item',
+        'icon': 'whatshot',
+        'url': '/EmployeeVarianceReportDetail'
     },
     {
         'id': 'PayrollReports',

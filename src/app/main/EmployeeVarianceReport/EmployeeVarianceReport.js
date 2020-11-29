@@ -185,7 +185,7 @@ class EmployeeVarianceReport extends Component {
 			<FusePageSimple
 				
 				header={
-					<div className="p-24"><h4>PayRoll Report</h4></div>
+					<div className="p-24"><h4>Varriance Report</h4></div>
 				}
 				
 				content={
