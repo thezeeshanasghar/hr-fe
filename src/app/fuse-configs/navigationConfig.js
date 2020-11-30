@@ -180,7 +180,7 @@ const navigationConfig = [
         'type': 'collapse',
         'icon': 'money',
         'badge': {
-            'title': 4,
+            'title': 3,
             'bg': '#525e8a',
             'fg': '#FFFFFF'
         },
@@ -188,7 +188,7 @@ const navigationConfig = [
            
     {
         'id': 'EmployeeReports',
-        'title': 'Employee Reports',
+        'title': 'Payment Reports',
         'type': 'item',
         'icon': 'whatshot',
         'url': '/employeereports'
@@ -207,13 +207,13 @@ const navigationConfig = [
         'icon': 'whatshot',
         'url': '/EmployeeVarianceReportDetail'
     },
-    {
-        'id': 'PayrollReports',
-        'title': 'Payroll Reports',
-        'type': 'item',
-        'icon': 'whatshot',
-        'url': '/payrollreports'
-    },
+    // {
+    //     'id': 'PayrollReports',
+    //     'title': 'Payroll Reports',
+    //     'type': 'item',
+    //     'icon': 'whatshot',
+    //     'url': '/payrollreports'
+    // },
         ]
     },
     {
