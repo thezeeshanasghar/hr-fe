@@ -110,8 +110,10 @@ class Company extends Component {
 		Bank:"",
 		currencyList:[],
 		Currency:"",
-		AccountNo:""
-
+		AccountNo:"",
+		payrollformula:"",
+		employeePercentage:"",
+		companyPercentage:""
 	};
 	
  
@@ -264,6 +266,9 @@ class Company extends Component {
 			Bank:this.state.Bank,
 			Currency:this.state.Currency,
 			AccountNo:this.state.AccountNo,
+			payrollformula:this.state.payrollformula,
+			companyPercentage:this.state.companyPercentage,
+			employeePercentage:this.state.employeePercentage
 		};
 		axios.interceptors.request.use(function (config) {
 			document.getElementById("fuse-splash-screen").style.display = "block";
@@ -299,8 +304,11 @@ class Company extends Component {
 					SocialSecurityNo:"",
 					EOBINo:"",
 					Bank:"",
-			Currency:"",
-			AccountNo:"",
+					payrollformula:"",
+					Currency:"",
+					AccountNo:"",
+					companyPercentage:"",
+					employeePercentage:""
 				});
 				document.getElementById("fuse-splash-screen").style.display = "none";
 				Messages.success();
@@ -322,8 +330,11 @@ class Company extends Component {
 					SocialSecurityNo:"",
 					EOBINo:"",
 					Bank:"",
-			Currency:"",
-			AccountNo:"",
+					payrollformula:"",
+					Currency:"",
+					AccountNo:"",
+					companyPercentage:"",
+					employeePercentage:""
 				})
 				document.getElementById("fuse-splash-screen").style.display = "none";
 				Messages.error();
@@ -374,7 +385,7 @@ class Company extends Component {
 			},
 		})
 			.then((response) => {
-				console.log(response);
+				console.log(response.data);
 				if(response.data)
 				{
 					this.setState({
@@ -386,7 +397,10 @@ class Company extends Component {
 						EOBINo:response.data[0].EOBINo,
 						Bank:response.data[0].BankId,
 				Currency:response.data[0].CurrencyId,
-				AccountNo:response.data[0].AccNo
+				AccountNo:response.data[0].AccNo,
+				payrollformula:response.data[0].PayrollFormula,
+				companyPercentage:response.data[0].EmployeeDeduction,
+				employeePercentage:response.data[0].CompanyDeduction
 					});
 				}
 				document.getElementById("fuse-splash-screen").style.display = "none"
@@ -584,6 +598,55 @@ class Company extends Component {
 										<TextField id="Address" fullWidth label="AccountNo" name="AccountNo" value={this.state.AccountNo} onChange={this.handleChange} />
 										{this.validator.message('AccountNo', this.state.AccountNo, 'required')}
 									</Grid>
+								<Grid item xs={12} sm={10} style={{marginTop:"20px"}}  >
+										<div style={{borderBottom:"solid 1px black",borderBottom:"solid 1px black"}}>Company Rules</div>
+									
+									</Grid>
+									<Grid item xs={12} sm={5} style={{ marginRight: '5px' }}  >
+									<FormControl className={classes.formControl}>
+											<InputLabel htmlFor="payrollformula">Payroll Formula</InputLabel>
+											<Select
+												value={this.state.payrollformula}
+												onChange={this.handleChange}
+												inputProps={{
+													name: 'payrollformula',
+													id: 'payrollformula',
+												}}
+											>
+													<MenuItem value="">
+													<em>None</em>
+												</MenuItem>
+												<MenuItem value="1">
+													<em>ACTUAL DAYS</em>
+												</MenuItem>
+												<MenuItem value="2">
+													<em>30 days</em>
+												</MenuItem>
+												<MenuItem value="3">
+													<em>12-365</em>
+												</MenuItem>
+												<MenuItem value="4">
+													<em>26 days</em>
+												</MenuItem>
+												<MenuItem value="5">
+													<em>22 days</em>
+												</MenuItem>
+											
+												
+												
+											</Select>
+										</FormControl>
+										{this.validator.message('payrollformula', this.state.payrollformula, 'required')}
+									</Grid>
+									<Grid item xs={12} sm={5}  >
+										<TextField id="employeePercentage" type="number" fullWidth label="Social Security(Employee Percentage)" name="employeePercentage" value={this.state.employeePercentage} onChange={this.handleChange} />
+										{this.validator.message('employeePercentage', this.state.employeePercentage, 'required')}
+									</Grid>
+									<Grid item xs={12} sm={5}  >
+										<TextField id="companyPercentage" type="number" fullWidth label="Social Security(Company Percentage)" name="companyPercentage" value={this.state.companyPercentage} onChange={this.handleChange} />
+										{this.validator.message('companyPercentage', this.state.companyPercentage, 'required')}
+									</Grid>
+								
 								</form>
 								<div className="row">
 									<div style={{ float: "right", "marginRight": "8px" }}>
