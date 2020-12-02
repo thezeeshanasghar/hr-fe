@@ -17,7 +17,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
-import { Icon, Input, MuiThemeProvider} from '@material-ui/core';
+import { Icon, Input, MuiThemeProvider } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
 import SimpleReactValidator from 'simple-react-validator';
 import axios from "axios";
@@ -29,14 +29,13 @@ import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import defaultUrl from "../../../app/services/constant/constant";
 
-import $ from 'jquery';
-import DataTable from "datatables.net";
-import * as responsive from "datatables.net-responsive";
 
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Message } from 'semantic-ui-react';
 import Messages from '../toaster';
+import cleaner from 'fast-clean';
+import EditableTable from 'inline-editable-table'
 const styles = theme => ({
 	container: {
 		display: 'flex',
@@ -46,14 +45,14 @@ const styles = theme => ({
 	textField: {
 		marginLeft: theme.spacing.unit,
 		marginRight: theme.spacing.unit,
-		
+
 	},
 	dense: {
 		marginTop: 16,
 	},
 	menu: {
 		width: 200,
-	},	
+	},
 	formControl: {
 		minWidth: "99%",
 	}
@@ -79,26 +78,37 @@ function TabContainer({ children, dir }) {
 
 class BulkUpload extends Component {
 	state = {
-		Type:"",
-		File:null,
+		Type: "",
+		File: null,
 		value: 0,
-		FilePath:"",
-		companyId:"",
-		CompanySelected:"",
-		companyList:[],
-		Action:'Bulk Upload'
+		FilePath: "",
+		companyId: "",
+		CompanySelected: "",
+		companyList: [],
+		Action: 'load Sheet',
+		content: {
+		},
+		bulkdata: []
 	};
 	constructor(props) {
 		super(props);
 		this.validator = new SimpleReactValidator();
 		this.getCompanyDetail();
-	
-	  }
-	  handledropdown = (e) => {
+
+	}
+	onSave=(newData, updatedRow)=> {
+		console.log(newData);
+		this.setState({ bulkdata: newData });
+	}
+
+	onCancel(row) {
+		console.log(row)
+	}
+	handledropdown = (e) => {
 
 		this.setState({ 'companyId': e.value, 'CompanySelected': e });
 	}
-	  getCompanyDetail = () => {
+	getCompanyDetail = () => {
 		axios({
 			method: "get",
 			url: defaultUrl + "company/Selective/data",
@@ -122,118 +132,184 @@ class BulkUpload extends Component {
 		this.setState({ value });
 	};
 	handleChange = (e) => {
-        console.log(e.target.value);
+		console.log(e.target.value);
 		this.setState({ [e.target.name]: e.target.value });
-		if(e.target.name=="File")
-		{
-		  if(e.target.files[0]==undefined)
-		  {
-			this.setState({File:""});
-			return false;
-		  }
+		if (e.target.name == "File") {
+			if (e.target.files[0] == undefined) {
+				this.setState({ File: "" });
+				return false;
+			}
 
 			var extension = e.target.files[0].name.split(/[.;+_]/).pop();
-		  console.log(extension)
-		  if(extension.toLowerCase()!="xlsx" )
-		  {
-			  Messages.warning("Invalid valid formate");
-			return false;
-		  }
-		  document.getElementById("fuse-splash-screen").style.display="block";
-		  const formData = new FormData();
-		  formData.append("file" , e.target.files[0]);
-		  axios.post(defaultUrl+"/Upload", formData, {
- 		 headers: {
-    		'accept': 'application/json',
-    		'Accept-Language': 'en-US,en;q=0.8',
-   			 'Content-Type': `multipart/form-data; boundary=${formData._boundary}`,
-  			}
-		})
- 		 .then((response) => {
-  		  console.log("success",response);
-			this.setState({File:response.data});
-			Messages.success();
-			document.getElementById("fuse-splash-screen").style.display="none";
-		  }).catch((error) => {
-			console.log("error",error);
-			Messages.error();
-			document.getElementById("fuse-splash-screen").style.display="none";
-  		  });
+			console.log(extension)
+			if (extension.toLowerCase() != "xlsx") {
+				Messages.warning("Invalid valid formate");
+				return false;
+			}
+			document.getElementById("fuse-splash-screen").style.display = "block";
+			const formData = new FormData();
+			formData.append("file", e.target.files[0]);
+			axios.post(defaultUrl + "/Upload", formData, {
+				headers: {
+					'accept': 'application/json',
+					'Accept-Language': 'en-US,en;q=0.8',
+					'Content-Type': `multipart/form-data; boundary=${formData._boundary}`,
+				}
+			})
+				.then((response) => {
+					console.log("success", response);
+					this.setState({ File: response.data });
+					Messages.success();
+					document.getElementById("fuse-splash-screen").style.display = "none";
+				}).catch((error) => {
+					console.log("error", error);
+					Messages.error();
+					document.getElementById("fuse-splash-screen").style.display = "none";
+				});
 		}
 
-	  };
-	  uploadFile=()=>{
-		if(this.state.Type=="Bank" || this.state.Type=="Company" || this.state.Type=="Exchange" || this.state.Type=="CountryLaw" )
-		{
-			console.log("working",this.validator.fieldValid('Type') ,this.validator.fieldValid('File'),this.state.File )
-			if (!this.validator.fieldValid('Type') || !this.validator.fieldValid('File') ) {
+	};
+	uploadFile = () => {
+		if (this.state.Type == "Bank" || this.state.Type == "Company" || this.state.Type == "Exchange" || this.state.Type == "CountryLaw") {
+			console.log("working", this.validator.fieldValid('Type'), this.validator.fieldValid('File'), this.state.File)
+			if (!this.validator.fieldValid('Type') || !this.validator.fieldValid('File')) {
 				this.validator.showMessages();
 				this.forceUpdate();
 			} else {
 				// document.getElementById("fuse-splash-screen").style.display="block";
 				console.log("BulkUpload")
-				var obj={
+				var obj = {
 					Path: this.state.File,
-					Type:this.state.Type,
-					Company:0
+					Type: this.state.Type,
+					Company: 0
 				}
 				axios({
 					method: "post",
-					url: defaultUrl+"bulkupload",
-					data:obj,
+					url: defaultUrl + "bulkupload",
+					data: obj,
 					headers: {
 						// 'Authorization': `bearer ${token}`,
 						"Content-Type": "application/json;charset=utf-8",
 					},
 				})
 					.then((response) => {
-						Messages.success();
-						document.getElementById("fuse-splash-screen").style.display="none";
+						var newval = cleaner.clean(response);
+						console.log(newval.data);
+						var keys = Object.keys(newval.data[0]);
+						var columns = [];
+						for (var i = 0; i < keys.length; i++) {
+							columns.push({ title: keys[i], field: keys[i] })
+						}
+						this.setState({ content: { columns: columns, data: newval.data }, bulkdata: newval.data });
+						document.getElementById("fuse-splash-screen").style.display = "none";
 					})
 					.catch((error) => {
-						Messages.error();
-						document.getElementById("fuse-splash-screen").style.display="none";
+						document.getElementById("fuse-splash-screen").style.display = "none";
 					})
-		
+
 			}
-		}else{
+		} else {
 			if (!this.validator.allValid()) {
 				this.validator.showMessages();
 				this.forceUpdate();
 			} else {
-				document.getElementById("fuse-splash-screen").style.display="block";
-				var obj={
+				document.getElementById("fuse-splash-screen").style.display = "block";
+				var obj = {
 					Path: this.state.File,
-					Type:this.state.Type,
-					Company:this.state.companyId
+					Type: this.state.Type,
+					Company: this.state.companyId
 				}
 				axios({
 					method: "post",
-					url: defaultUrl+"bulkupload",
-					data:obj,
+					url: defaultUrl + "bulkupload",
+					data: obj,
 					headers: {
 						// 'Authorization': `bearer ${token}`,
 						"Content-Type": "application/json;charset=utf-8",
 					},
 				})
 					.then((response) => {
-						Messages.success();
-						document.getElementById("fuse-splash-screen").style.display="none";
+
+						var newval = cleaner.clean(response);
+						console.log(newval.data);
+						var keys = Object.keys(newval.data[0]);
+						var columns = [];
+						for (var i = 0; i < keys.length; i++) {
+							columns.push({ title: keys[i], field: keys[i] })
+						}
+						this.setState({ content: { columns: columns, data: newval.data }, bulkdata: newval.data });
+						document.getElementById("fuse-splash-screen").style.display = "none";
 					})
 					.catch((error) => {
-						Messages.error();
-						document.getElementById("fuse-splash-screen").style.display="none";
+						document.getElementById("fuse-splash-screen").style.display = "none";
 					})
-		
+
 			}
 		}
-		
-	  }
-	
-	render() {
-		
-		const { classes, theme } = this.props;
 
+	}
+
+	Postdata = () => {
+		var obj = {
+			Data: JSON.stringify(this.state.bulkdata),
+			Type: this.state.Type,
+			Company: this.state.companyId
+		}
+		axios({
+			method: "post",
+			url: defaultUrl + "bulkupload/data",
+			data: obj,
+			headers: {
+				// 'Authorization': `bearer ${token}`,
+				"Content-Type": "application/json;charset=utf-8",
+			},
+		})
+			.then((response) => {
+
+				document.getElementById("fuse-splash-screen").style.display = "none";
+			})
+			.catch((error) => {
+				document.getElementById("fuse-splash-screen").style.display = "none";
+			})
+	}
+	render() {
+
+		const { classes, theme } = this.props;
+		var content = {
+			columns: [
+				{ title: 'Name', field: 'name' },
+				{ title: 'Surname', field: 'surname' },
+				{ title: 'Birth Year', field: 'birthYear', type: 'numeric' },
+				{
+					title: 'Birth Place',
+					field: 'birthCity',
+				},
+			],
+			data: [
+				{ name: 'Mehmet', surname: 'Baran', birthYear: 1987, birthCity: 63 },
+				{
+					name: 'Alex Bae',
+					surname: 'Baran',
+					birthYear: '2017',
+					birthCity: '34',
+				},
+				{
+					name: 'Jason Fox',
+					surname: 'Baran',
+					birthYear: '2017',
+					birthCity: '34',
+				},
+				{
+					name: 'Brian Chin',
+					surname: 'Baran',
+					birthYear: '2017',
+					birthCity: '34',
+				}
+			],
+			options: {
+				editable: { start: 0, end: 10 }
+			}
+		}
 		return (
 			<FusePageSimple
 				classes={{
@@ -247,10 +323,10 @@ class BulkUpload extends Component {
 				}
 				content={
 
-					<div className={classes.root} style={{height:'300px'}}>
-						  <div>
-        <ToastContainer />
-      </div>
+					<div className={classes.root} style={{ height: '300px' }}>
+						<div>
+							<ToastContainer />
+						</div>
 						<AppBar position="static" color="default">
 							<Tabs
 								value={this.state.value}
@@ -269,8 +345,8 @@ class BulkUpload extends Component {
 						>
 							<TabContainer dir={theme.direction}>
 								<form className={classes.container} noValidate autoComplete="off">
-								<Grid item xs={12} sm={5}  style={{marginRight:'5px'}} >
-								<FormControl className={classes.formControl}>
+									<Grid item xs={12} sm={5} style={{ marginRight: '5px' }} >
+										<FormControl className={classes.formControl}>
 											<InputLabel htmlFor="Type">Type</InputLabel>
 											<Select
 												value={this.state.Type}
@@ -283,33 +359,33 @@ class BulkUpload extends Component {
 												<MenuItem value="">
 													<em>None</em>
 												</MenuItem>
-													<MenuItem value="Bank">Bank</MenuItem>
-													<MenuItem value="Company">Company</MenuItem>
-													<MenuItem value="Exchange">Exchange Rate</MenuItem>
-													<MenuItem value="CountryLaw">Country Laws</MenuItem>
-													<MenuItem value="Grade">Grade</MenuItem>
-													<MenuItem value="Unit">Unit</MenuItem>
-													<MenuItem value="Position">Position</MenuItem>
-													<MenuItem value="Job">Job</MenuItem>
-													<MenuItem value="Employee">Employee(Basic)</MenuItem>
-													<MenuItem value="EmployeeBank">Employee(Bank)</MenuItem>
-													<MenuItem value="EmployeePayroll">Employee(Payroll-Periodic)</MenuItem>
-													<MenuItem value="EmployeePayrollOneTime">Employee(Payroll-oneTime)</MenuItem>
-													<MenuItem value="ApplicableLaws">Employee(ApplicableLaws)</MenuItem>
-													<MenuItem value="UnpaidLeaves">Employee(UnpaidLeaves)</MenuItem>
-													<MenuItem value="overtime">Employee(overTime)</MenuItem>
-													<MenuItem value="CostCenter">Cost Center</MenuItem>
-													<MenuItem value="GlAccount">GL Account</MenuItem>
-													<MenuItem value="PayElement">Pay Element</MenuItem>
-													<MenuItem value="PayElementGlAccount">PayElement GlAccount</MenuItem>
-													<MenuItem value ="Termination">Termination</MenuItem>
+												<MenuItem value="Bank">Bank</MenuItem>
+												<MenuItem value="Company">Company</MenuItem>
+												<MenuItem value="Exchange">Exchange Rate</MenuItem>
+												<MenuItem value="CountryLaw">Country Laws</MenuItem>
+												<MenuItem value="Grade">Grade</MenuItem>
+												<MenuItem value="Unit">Unit</MenuItem>
+												<MenuItem value="Position">Position</MenuItem>
+												<MenuItem value="Job">Job</MenuItem>
+												<MenuItem value="Employee">Employee(Basic)</MenuItem>
+												<MenuItem value="EmployeeBank">Employee(Bank)</MenuItem>
+												<MenuItem value="EmployeePayroll">Employee(Payroll-Periodic)</MenuItem>
+												<MenuItem value="EmployeePayrollOneTime">Employee(Payroll-oneTime)</MenuItem>
+												<MenuItem value="ApplicableLaws">Employee(ApplicableLaws)</MenuItem>
+												<MenuItem value="UnpaidLeaves">Employee(UnpaidLeaves)</MenuItem>
+												<MenuItem value="overtime">Employee(overTime)</MenuItem>
+												<MenuItem value="CostCenter">Cost Center</MenuItem>
+												<MenuItem value="GlAccount">GL Account</MenuItem>
+												<MenuItem value="PayElement">Pay Element</MenuItem>
+												<MenuItem value="PayElementGlAccount">PayElement GlAccount</MenuItem>
+												<MenuItem value="Termination">Termination</MenuItem>
 											</Select>
 											{this.validator.message('Type', this.state.Type, 'required')}
 										</FormControl>
 									</Grid>
-									<Grid item xs={12} sm={5} style={{marginTop: "10px"}} className={this.state.Type=="Bank" || this.state.Type=="Company" || this.state.Type=="Exchange" || this.state.Type=="CountryLaw" ? 'd-none' : ''   } >
+									<Grid item xs={12} sm={5} style={{ marginTop: "10px" }} className={this.state.Type == "Bank" || this.state.Type == "Company" || this.state.Type == "Exchange" || this.state.Type == "CountryLaw" ? 'd-none' : ''} >
 										<FormControl className={classes.formControl}>
-									
+
 											<Select1
 
 												name="companyId"
@@ -318,34 +394,46 @@ class BulkUpload extends Component {
 												className="basic-multi-select"
 												classNamePrefix="select"
 												onChange={this.handledropdown}
-											
+
 											/>
 											{this.validator.message('companyId', this.state.companyId, 'required')}
 										</FormControl>
 									</Grid>
-									
+
 									<Grid item xs={12} sm={5}  >
-									<TextField type="file" id="File" fullWidth label="File" InputLabelProps={{
-												shrink: true,
-											}}
-											 name="File"  onChange={this.handleChange} />
-									{this.validator.message('File', this.state.File, 'required')}
+										<TextField type="file" id="File" fullWidth label="File" InputLabelProps={{
+											shrink: true,
+										}}
+											name="File" onChange={this.handleChange} />
+										{this.validator.message('File', this.state.File, 'required')}
 									</Grid>
-								
+
 								</form>
 								<div className="row">
-								<Grid item xs={12} sm={10}  >
-									<div style={{float: "right","marginRight":"8px"}}>
-									
-									<Button variant="outlined" color="secondary" className={classes.button } style={{marginTop:"10px"}} onClick={this.uploadFile} >
-										{this.state.Action}
-      								</Button>
-									</div>
+									<Grid item xs={12} sm={10}  >
+										<div style={{ float: "right", "marginRight": "8px" }}>
+
+											<Button variant="outlined" color="secondary" className={classes.button} style={{ marginTop: "10px" }} onClick={this.uploadFile} >
+												{this.state.Action}
+											</Button>
+										</div>
 									</Grid>
-									<div style={{height:'200px'}}></div>
+									<div style={{ height: '200px' }}></div>
 								</div>
 							</TabContainer>
 						</SwipeableViews>
+						{
+							Object.keys(this.state.content).length > 0 ?
+								<div>
+									<Button variant="outlined" color="secondary" className={classes.button} style={{ marginTop: "10px" }} onClick={this.Postdata} >
+										Post Data
+									</Button>
+									<EditableTable
+										content={this.state.content}
+										onCancel={this.onCancel}
+										onSave={this.onSave}
+									/> </div> : ""
+						}
 					</div>
 				}
 			/>
