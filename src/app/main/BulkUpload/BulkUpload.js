@@ -28,7 +28,7 @@ import Select1 from 'react-select';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import defaultUrl from "../../../app/services/constant/constant";
-
+import Modal from '@material-ui/core/Modal';
 
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -55,6 +55,12 @@ const styles = theme => ({
 	},
 	formControl: {
 		minWidth: "99%",
+	}, modal: {
+		display: 'flex',
+		// padding: theme.spacing(1),
+		alignItems: 'center',
+		justifyContent: 'center',
+
 	}
 });
 
@@ -88,7 +94,9 @@ class BulkUpload extends Component {
 		Action: 'load Sheet',
 		content: {
 		},
-		bulkdata: []
+		bulkdata: [],
+		Isdisplay: 0,
+		logs: []
 	};
 	constructor(props) {
 		super(props);
@@ -96,7 +104,7 @@ class BulkUpload extends Component {
 		this.getCompanyDetail();
 
 	}
-	onSave=(newData, updatedRow)=> {
+	onSave = (newData, updatedRow) => {
 		console.log(newData);
 		this.setState({ bulkdata: newData });
 	}
@@ -248,8 +256,12 @@ class BulkUpload extends Component {
 		}
 
 	}
-
+	hidemodel = () => {
+		this.setState({ Isdisplay: 0, bulkdata: [] });
+	}
 	Postdata = () => {
+		document.getElementById("fuse-splash-screen").style.display = "block";
+
 		var obj = {
 			Data: JSON.stringify(this.state.bulkdata),
 			Type: this.state.Type,
@@ -265,7 +277,8 @@ class BulkUpload extends Component {
 			},
 		})
 			.then((response) => {
-
+				console.log(response)
+				this.setState({ content: {}, bulkdata: [], Isdisplay: 1, logs: response.data.recordset });
 				document.getElementById("fuse-splash-screen").style.display = "none";
 			})
 			.catch((error) => {
@@ -360,20 +373,20 @@ class BulkUpload extends Component {
 													<em>None</em>
 												</MenuItem>
 												<MenuItem value="Bank">Bank</MenuItem>
-												<MenuItem value="Company">Company</MenuItem>
+												{/* <MenuItem value="Company">Company</MenuItem> */}
 												<MenuItem value="Exchange">Exchange Rate</MenuItem>
 												<MenuItem value="CountryLaw">Country Laws</MenuItem>
 												<MenuItem value="Grade">Grade</MenuItem>
 												<MenuItem value="Unit">Unit</MenuItem>
 												<MenuItem value="Position">Position</MenuItem>
 												<MenuItem value="Job">Job</MenuItem>
-												<MenuItem value="Employee">Employee(Basic)</MenuItem>
+												{/* <MenuItem value="Employee">Employee(Basic)</MenuItem> */}
 												<MenuItem value="EmployeeBank">Employee(Bank)</MenuItem>
 												<MenuItem value="EmployeePayroll">Employee(Payroll-Periodic)</MenuItem>
 												<MenuItem value="EmployeePayrollOneTime">Employee(Payroll-oneTime)</MenuItem>
 												<MenuItem value="ApplicableLaws">Employee(ApplicableLaws)</MenuItem>
 												<MenuItem value="UnpaidLeaves">Employee(UnpaidLeaves)</MenuItem>
-												<MenuItem value="overtime">Employee(overTime)</MenuItem>
+												{/* <MenuItem value="overtime">Employee(overTime)</MenuItem> */}
 												<MenuItem value="CostCenter">Cost Center</MenuItem>
 												<MenuItem value="GlAccount">GL Account</MenuItem>
 												<MenuItem value="PayElement">Pay Element</MenuItem>
@@ -434,6 +447,35 @@ class BulkUpload extends Component {
 										onSave={this.onSave}
 									/> </div> : ""
 						}
+
+						<Modal
+
+							disablePortal
+							disableEnforceFocus
+							disableAutoFocus
+							open={this.state.Isdisplay == "0" ? false : true}
+							aria-labelledby="server-modal-title"
+							aria-describedby="server-modal-description"
+							className={classes.modal}
+						// container={() => rootRef.current}
+						>
+							<div className={classes.paper} style={{ background: "white" }}>
+								<Grid item xs={5} sm={5} style={{ marginTop: "5px" }} >
+									<h2 id="server-modal-title">Bulk Upload Logs	<Button variant="outlined" color="secondary" className={classes.button} onClick={this.hidemodel} >
+										Close
+											</Button></h2>
+								</Grid>
+
+								<ol>
+									{this.state.logs.map(row => (
+										<li>{row.DETAIL}</li>
+									))}
+
+
+								</ol>
+
+							</div>
+						</Modal>
 					</div>
 				}
 			/>
