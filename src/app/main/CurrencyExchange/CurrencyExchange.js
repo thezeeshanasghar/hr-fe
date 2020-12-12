@@ -391,7 +391,7 @@ class CurrencyExchange extends Component {
 							<TabContainer dir={theme.direction}>
 					
 								<form className={classes.container} noValidate autoComplete="off">
-								<Paper className={classes.root}>
+							
 									<Grid item xs={12} sm={5}  style={{marginRight:'5px'}} >
 									<FormControl className={classes.formControl}>
 										<InputLabel htmlFor="currency">Currency</InputLabel>
@@ -459,7 +459,7 @@ class CurrencyExchange extends Component {
 									{this.validator.message('effectiveDate', this.state.effectiveDate, 'required')}
 
 									</Grid>
-									</Paper>
+							
 								</form>
 								<div className="row">
 								<Grid item xs={12} sm={10}  >

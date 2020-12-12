@@ -384,9 +384,9 @@ class BulkUpload extends Component {
 												<MenuItem value="EmployeeBank">Employee(Bank)</MenuItem>
 												<MenuItem value="EmployeePayroll">Employee(Payroll-Periodic)</MenuItem>
 												<MenuItem value="EmployeePayrollOneTime">Employee(Payroll-oneTime)</MenuItem>
-												<MenuItem value="ApplicableLaws">Employee(ApplicableLaws)</MenuItem>
+												{/* <MenuItem value="ApplicableLaws">Employee(ApplicableLaws)</MenuItem> */}
 												<MenuItem value="UnpaidLeaves">Employee(UnpaidLeaves)</MenuItem>
-												{/* <MenuItem value="overtime">Employee(overTime)</MenuItem> */}
+												<MenuItem value="overtime">Employee(overTime)</MenuItem>
 												<MenuItem value="CostCenter">Cost Center</MenuItem>
 												<MenuItem value="GlAccount">GL Account</MenuItem>
 												<MenuItem value="PayElement">Pay Element</MenuItem>
